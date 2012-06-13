@@ -7,7 +7,8 @@ var targetFile = '../build.test/index.html';
 
 var flowData = {
   buildFile: targetFile,
-  baseURI: path.dirname(path.resolve(targetFile))
+  baseURI: path.dirname(path.resolve(targetFile)),
+  buildDir: path.resolve(targetFile, 'build')
 };
 
 var flow = [
@@ -26,6 +27,7 @@ var flow = [
 
   require('./tmpl/parse'),
 
+  require('./css/prepareOutput'),
   require('./css/parse'),
 
   require('./html/assembly')
@@ -39,3 +41,13 @@ flow.forEach(function(handler){
 
   handler(flowData);
 });
+
+/*var map = {};
+flowData.files.queue.forEach(function(file){
+  if (!map[file.type])
+    map[file.type] = [];
+
+  map[file.type].push(file.filename);
+})
+
+console.log(map);*/

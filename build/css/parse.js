@@ -19,7 +19,7 @@ module.exports = function(flowData){
     if (file.type == 'style')
     {
       console.log('Style file', file.filename);
-      buildCssTree(file);
+      buildCssTree(file, flowData);
     }
   }
 }
@@ -95,12 +95,10 @@ function processCssTree(tree, file, flowData){
               if (base64PrefixRx.test(content))
                 content = new Buffer(content.replace(base64PrefixRx, ''), 'base64').toString('utf-8');
 
-              files.add({
+              flowData.files.add({
                 source: 'css:import',
                 filename: '__?__',
                 baseURI: baseURI,
-                owner: file.owner,
-                media: media,
                 content: content
               });
             }
@@ -108,13 +106,11 @@ function processCssTree(tree, file, flowData){
             {
               var filename = path.resolve(baseURI, url);
 
-              files.add({
+              flowData.files.add({
                 source: 'css:import',
                 filename: filename,
-                baseURI: path.dirname(filename),
-                media: media,
-                owner: file.owner
-              })
+                baseURI: path.dirname(filename)
+              });
             }
           }
 

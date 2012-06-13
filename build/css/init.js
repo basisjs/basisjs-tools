@@ -6,6 +6,15 @@ module.exports = function(flowData){
   });
 
 
-  flowData.css = {};
+  flowData.css = {
+    outputFiles: [],
+    genericFile: {
+      outputFilename: '_generic',
+      source: 'generic',
+      type: 'style',
+      baseURI: flowData.baseURI,
+      content: ''
+    }
+  };
 
 };

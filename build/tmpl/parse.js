@@ -29,29 +29,30 @@ function processTemplate(file, flowData){
   if (decl.resources.length)
   {
     fconsole.incDeep();
-    for (var i = 0, res, ext; res = decl.resources[i]; i++)
+    for (var i = 0, resourceFilename, ext; resourceFilename = decl.resources[i]; i++)
     {
-      res = path.resolve(baseURI, res);
-      ext = path.extname(res);
+      resourceFilename = path.resolve(baseURI, resourceFilename);
+      ext = path.extname(resourceFilename);
       if (ext == '.css')
       {
         flowData.files.add({
           source: 'tmpl:resource',
-          owner: '__generic__',
-          filename: res
+          generic: true,
+          filename: resourceFilename,
+          baseURI: path.dirname(resourceFilename)
         });
-        fconsole.log('[+] ' + flowData.files.relpath(res));
+        fconsole.log('[+] ' + flowData.files.relpath(resourceFilename));
       }
       else
       {
-        fconsole.log('[!] ' + flowData.files.relpath(res) + ' (unknown type ignored)');
+        fconsole.log('[!] ' + flowData.files.relpath(resourceFilename) + ' (unknown type ignored)');
       }
     }
     fconsole.log();
     fconsole.decDeep();
   }
 
-  file.tmplTokens = decl.tokens;
+  file.ast = decl.tokens;
   //resource.content = decl.toString();
 
   if (decl.classMap)

@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 
 var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
-var moveToQueueEndFile = ['.css'];
+//var moveToQueueEndFile = ['.css'];
 var typeByExt = {
   '.js': 'script',
   '.css': 'style',
@@ -38,13 +38,13 @@ module.exports = function(flowData){
       {
         console.log('[DUP] File `' + relpath(filename) + '` already in queue');
 
-        if (moveToQueueEndFile.indexOf(ext) != -1)
+        /*if (moveToQueueEndFile.indexOf(ext) != -1)
         {
           queue.remove(fileMap[filename]);
           queue.add(fileMap[filename]);
-        }
+        }*/
 
-        return;
+        return fileMap[filename];
       }
 
       if (path.existsSync(filename) && fs.statSync(filename).isFile())
@@ -68,6 +68,12 @@ module.exports = function(flowData){
     }
 
     queue.add(data);
+
+    return data;
+  }
+
+  function getFile(filename){
+    return fileMap[filename];
   }
 
   function removeFile(filename){
@@ -79,6 +85,7 @@ module.exports = function(flowData){
     queue: queue,
     map: fileMap,
     add: addFile,
+    get: getFile,
     remove: removeFile,
     relpath: function(filename){
       return path.relative(flowData.baseURI, filename).replace(/\\/g, '/');

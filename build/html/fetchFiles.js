@@ -6,6 +6,7 @@ module.exports = function(flowData){
   var owner = flowData.buildFile;
   var baseURI = flowData.baseURI;
   var processPoint = [];
+  var inlineIndex = 0;
 
   walkHtml(flowData.htmlTokens, flowData);
 
@@ -95,7 +96,7 @@ module.exports = function(flowData){
             source: 'html:style',
             type: 'style',
             baseURI: baseURI,
-            owner: '__inline__',
+            outputFilename: '_inline',
             inline: true,
             media: attrs.media || 'all',
             content: getText(node)
@@ -106,16 +107,26 @@ module.exports = function(flowData){
 
       if (file)
       {
-        files.add(file);
+        file = files.add(file);
 
         processPoint.push({
           node: node,
           file: file
         });
+
+        if (file.type == 'style')
+          flowData.css.outputFiles.push(file);
       }
 
       if (node.children)
         walkHtml(node.children);
+
+      // add generic file to the end of head
+      if (node.type == 'tag' && node.name == 'head')
+      {
+        flowData.css.genericFile = files.add(flowData.css.genericFile);
+        flowData.css.outputFiles.push(flowData.css.genericFile);
+      }
     }
   }
 }
