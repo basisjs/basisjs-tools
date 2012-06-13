@@ -17,6 +17,7 @@ var flowData = {
 };
 
 var flow = [
+  require('./misc/console'),
   require('./misc/options'),
   require('./misc/files'),
 
@@ -27,6 +28,8 @@ var flow = [
   require('./js/parse'),
 
   require('./tmpl/parse'),
+
+  require('./css/parse'),
 
   require('./html/assembly')
 ];
