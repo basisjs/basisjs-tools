@@ -9,6 +9,7 @@ var typeByExt = {
   '.css': 'style',
   '.tmpl': 'template'
 };
+var typeNotFoundHandler = {};
 
 function relpath(filename){
   return path.relative('.', filename).replace(/\\/g, '/');
@@ -54,7 +55,7 @@ module.exports = function(flowData){
       else
       {
         console.log('[WARN] File `' + relpath(filename) + '` not found');
-        data.content = '';
+        data.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
       }
 
       if (typeByExt[ext])
@@ -78,6 +79,12 @@ module.exports = function(flowData){
     queue: queue,
     map: fileMap,
     add: addFile,
-    remove: removeFile
+    remove: removeFile,
+    relpath: function(filename){
+      return path.relative(flowData.baseURI, filename).replace(/\\/g, '/');
+    },
+    addNotFoundHandler: function(ext, fn){
+      typeNotFoundHandler[ext] = fn;
+    }
   };
 };

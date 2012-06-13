@@ -7,13 +7,7 @@ var targetFile = '../build.test/index.html';
 
 var flowData = {
   buildFile: targetFile,
-  baseURI: path.dirname(path.resolve(targetFile)),
-
-  js: {
-    base: {}
-  },
-  css: {
-  }
+  baseURI: path.dirname(path.resolve(targetFile))
 };
 
 var flow = [
@@ -21,10 +15,13 @@ var flow = [
   require('./misc/options'),
   require('./misc/files'),
 
+  require('./js/init'),
+  require('./css/init'),
+
   require('./html/parse'),
   require('./html/fetchFiles'),
 
-  require('./js/realignHtml'),
+  //require('./js/realignHtml'),
   require('./js/parse'),
 
   require('./tmpl/parse'),

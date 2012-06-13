@@ -1,8 +1,31 @@
+//
+// export handler
+//
+
+module.exports = function JSFileHandler(flowData){
+  var queue = flowData.files.queue;
+
+  for (var i = 0, file; file = queue[i]; i++)
+    if (file.type == 'script')
+    {
+      console.log('>', file.filename);
+      processScript(file, flowData);
+    }
+}
+
+module.exports.title = 'Parse javascript';
+
+
+//
+// main part
+//
+
 var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
+
 
 var walker = processor.ast_walker();
 
@@ -65,10 +88,14 @@ function processScript(file, flowData){
           var filename = getCallArgs(args, context)[0];
           //console.log('basis.resource call found:', translateCallExpr(expr, args));
           if (filename)
+          {
+            filename = path.resolve(context.__dirname, filename);
             flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(context.__dirname, filename)
+              filename: filename,
+              baseURI: path.dirname(filename)
             });
+          }
 
           break;
 
@@ -76,10 +103,14 @@ function processScript(file, flowData){
           var filename = getCallArgs(args, context)[0];
           //console.log('resource call found:', translateCallExpr(expr, args));
           if (filename)
+          {
+            filename = path.resolve(context.__dirname, filename);
             flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(context.__dirname, filename)
+              filename: filename,
+              baseURI: path.dirname(filename)
             });
+          }
 
           break;
 
@@ -94,7 +125,8 @@ function processScript(file, flowData){
             
             flowData.files.add({
               source: 'js:basis.require',
-              filename: filename
+              filename: filename,
+              baseURI: path.dirname(filename)
             });
 
             deps.push(filename);
@@ -113,15 +145,3 @@ function processScript(file, flowData){
 }
 
 
-module.exports = function JSFileHandler(flowData){
-  var queue = flowData.files.queue;
-
-  for (var i = 0, file; file = queue[i]; i++)
-    if (file.type == 'script')
-    {
-      console.log('>', file.filename);
-      processScript(file, flowData);
-    }
-}
-
-module.exports.title = 'Parse javascript';

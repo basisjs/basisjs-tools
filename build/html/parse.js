@@ -10,19 +10,27 @@ var parserConfig = {
 module.exports = function(flowData){
   var filename = flowData.buildFile;
 
+  // check html file exists
   if (!path.existsSync(filename))
   {
     console.warn(filename + ' not found');
     process.exit();
   }
 
+  // get html file content
   var rawHtml = fs.readFileSync(filename, 'utf-8');
+
+  // prepare parser
   var handler = new htmlparser.DefaultHandler();
   var parser = new htmlparser.Parser(handler, parserConfig);
+
+  // parse html
   parser.parseComplete(rawHtml);
 
+  // debug output
   //console.log(util.inspect(handler.dom, false, null));
 
+  // save result in flowData
   flowData.htmlTokens = handler.dom;
 };
 
