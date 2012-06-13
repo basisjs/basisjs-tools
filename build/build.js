@@ -1,0 +1,41 @@
+
+var path = require('path');
+var utils = require('./misc/utils');
+
+
+var targetFile = '../build.test/index.html';
+
+var flowData = {
+  buildFile: targetFile,
+  baseURI: path.dirname(path.resolve(targetFile)),
+
+  js: {
+    base: {}
+  },
+  css: {
+  }
+};
+
+var flow = [
+  require('./misc/options'),
+  require('./misc/files'),
+
+  require('./html/parse'),
+  require('./html/fetchFiles'),
+
+  require('./js/realignHtml'),
+  require('./js/parse'),
+
+  require('./tmpl/parse'),
+
+  require('./html/assembly')
+];
+
+flow.forEach(function(handler){
+  var title = handler.handlerName;
+
+  if (title)
+    console.log('\n' + title + '\n' + ('='.repeat(title.length)) + '\n');
+
+  handler(flowData);
+});
