@@ -4,11 +4,12 @@ var utils = require('./misc/utils');
 
 
 var targetFile = '../build.test/index.html';
+var targetDir = path.dirname(path.resolve(targetFile)) + '/';
 
 var flowData = {
   buildFile: targetFile,
-  baseURI: path.dirname(path.resolve(targetFile)),
-  buildDir: path.resolve(targetFile, 'build')
+  baseURI: targetDir,
+  buildDir: path.resolve(targetDir, 'build') + '/'
 };
 
 var flow = [
@@ -16,6 +17,7 @@ var flow = [
   require('./misc/options'),
   require('./misc/files'),
 
+  require('./html/init'),
   require('./js/init'),
   require('./css/init'),
 
@@ -29,8 +31,10 @@ var flow = [
 
   require('./css/prepareOutput'),
   require('./css/parse'),
+  require('./css/buildOutput'),
+  require('./css/write'),
 
-  require('./html/assembly')
+  require('./html/write')
 ];
 
 flow.forEach(function(handler){

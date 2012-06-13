@@ -7,10 +7,29 @@ module.exports = function(flowData){
   var baseURI = flowData.baseURI;
   var processPoint = [];
   var inlineIndex = 0;
+  var headNode;
 
-  walkHtml(flowData.htmlTokens, flowData);
+  walkHtml(flowData.html.ast, flowData);
 
-  flowData.htmlProcessPoint = processPoint;
+  // insert generic insert point
+  flowData.css.genericFile.htmlInsertPoint = {
+    type: 'tag',
+    name: 'link',
+    attribs: {
+      rel: 'stylesheet',
+      type: 'text/css',
+      media: 'all'
+    }
+  };
+
+  if (headNode)
+    genericInsertNode = headNode.children || (headNode.children = []);
+  else
+    genericInsertNode = flowData.html.ast;
+
+  genericInsertNode.push(flowData.css.genericFile.htmlInsertPoint);
+
+  //flowData.htmlProcessPoint = processPoint;
 
 
   //
@@ -107,6 +126,7 @@ module.exports = function(flowData){
 
       if (file)
       {
+        file.htmlInsertPoint = node;
         file = files.add(file);
 
         processPoint.push({
@@ -121,16 +141,11 @@ module.exports = function(flowData){
       if (node.children)
         walkHtml(node.children);
 
-      // add generic file to the end of head
-      if (node.type == 'tag' && node.name == 'head')
-      {
-        flowData.css.genericFile = files.add(flowData.css.genericFile);
-        flowData.css.outputFiles.push(flowData.css.genericFile);
-      }
+      // save ref to head node
+      if (node.type == 'tag' && node.name == 'head' && !headNode)
+        headNode = node;
     }
   }
 }
 
 module.exports.handlerName = 'Walk through html tokens and collect files';
-
-

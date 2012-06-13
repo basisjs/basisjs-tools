@@ -20,13 +20,23 @@ module.exports = function(flowData){
   var queue = [];
   var options = flowData.options;
 
-  var BASE_PATH = path.normalize(options.base);
+  var BASE_PATH = path.normalize(flowData.baseURI);
   var FILENAME = options.file;
-  var BASENAME = path.basename(options.file, path.extname(options.file));
+  var BASENAME = path.basename(flowData.buildFile, path.extname(flowData.buildFile));
   var INDEX_FILE = path.resolve(BASE_PATH, FILENAME);
   var INDEX_PATH = path.dirname(INDEX_FILE) + '/';
   var BUILD_DIR = path.resolve(BASE_PATH, 'build');
   var BUILD_RESOURCE_DIR = BUILD_DIR + '/res';
+
+  mkdir(BUILD_DIR);
+  mkdir(BUILD_RESOURCE_DIR);
+
+  function mkdir(dirpath){
+    dirpath = path.resolve(flowData.baseURI, dirpath);
+
+    if (!path.existsSync(dirpath))
+      fs.mkdirSync(dirpath);  
+  }
 
   function addFile(data){
     if (data.filename)
@@ -87,8 +97,18 @@ module.exports = function(flowData){
     add: addFile,
     get: getFile,
     remove: removeFile,
+    mkdir: mkdir,
     relpath: function(filename){
       return path.relative(flowData.baseURI, filename).replace(/\\/g, '/');
+    },
+    inspect: function(file){
+      var result = {};
+
+      for (var key in file)
+        if (file.hasOwnProperty(key) && key !== 'content')
+          result[key] = file[key];
+
+      return result;
     },
     addNotFoundHandler: function(ext, fn){
       typeNotFoundHandler[ext] = fn;

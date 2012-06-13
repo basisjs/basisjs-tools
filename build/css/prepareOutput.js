@@ -2,8 +2,15 @@
 var path = require('path');
 
 module.exports = function(flowData){
-  var outputFiles = flowData.css.outputFiles;
   var buildDir = flowData.buildDir;
+  var outputFiles = flowData.files.queue.filter(function(file){
+    if (file.type == 'style' && file.htmlInsertPoint)
+      return file;
+  });
+
+  // save output files
+  flowData.css.outputFiles = outputFiles;
+
 
   //
   // build generic style file
@@ -21,13 +28,12 @@ module.exports = function(flowData){
       return '@import url(' + file.filename + ');'
     }).join('\n');
     console.log(genericFile.content);
-
-    flowData.css.outputFiles.add(genericFile);
   }
   else
   {
     flowData.css.outputFiles.remove(genericFile);
   }
+
 
   //
   // prepare output files
@@ -46,5 +52,4 @@ module.exports = function(flowData){
     file.outputFilename = path.resolve(buildDir + '/' + outputFilename + '.css');
     targetMap[outputFilename] = true;
   }
-
 }

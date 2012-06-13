@@ -1,6 +1,6 @@
 
 module.exports = function(flowData){
-  var points = flowData.htmlProcessPoint;
+/*  var points = flowData.htmlProcessPoint;
 
   for (var i = 0, point; point = points[i]; i++)
   {
@@ -14,7 +14,7 @@ module.exports = function(flowData){
       point.node.type = 'comment';
       console.log(JSON.stringify(point.node));
     }
-  }
+  }*/
 };
 
 module.exports.title = 'Modify javascript in html file';

@@ -81,11 +81,10 @@ function processCssTree(tree, file, flowData){
               parts.shift();
             }
 
+            var importFile;
             var url = parts[0][1] == 'uri'
               ? unpackUriToken(parts[0])
               : unpackStringToken(parts[0][2]);
-
-            var media = parts.slice(1);
 
             if (dataUriRx.test(url))
             {
@@ -95,9 +94,10 @@ function processCssTree(tree, file, flowData){
               if (base64PrefixRx.test(content))
                 content = new Buffer(content.replace(base64PrefixRx, ''), 'base64').toString('utf-8');
 
-              flowData.files.add({
+              importFile = flowData.files.add({
                 source: 'css:import',
-                filename: '__?__',
+                type: 'style',
+                filename: '__base64__',
                 baseURI: baseURI,
                 content: content
               });
@@ -106,12 +106,21 @@ function processCssTree(tree, file, flowData){
             {
               var filename = path.resolve(baseURI, url);
 
-              flowData.files.add({
+              importFile = flowData.files.add({
                 source: 'css:import',
                 filename: filename,
                 baseURI: path.dirname(filename)
               });
             }
+
+            var media = parts.slice(1);
+            imports.push({
+              token: topToken,
+              pos: i,
+              code: csso.translate(csso.cleanInfo(token)),
+              file: importFile,
+              media: media.filter(whitespaceAndComment).length ? media : []
+            });
           }
 
           break;
@@ -126,8 +135,13 @@ function processCssTree(tree, file, flowData){
   }
 
   var baseURI = path.dirname(file.filename);
+  var imports = [];
 
+  // walk tokens
   walkTree([tree]);
+
+  // import tokens
+  file.imports = imports;
 }
 
 function buildCssTree(file, flowData){

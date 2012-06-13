@@ -31,7 +31,7 @@ module.exports = function(flowData){
   //console.log(util.inspect(handler.dom, false, null));
 
   // save result in flowData
-  flowData.htmlTokens = handler.dom;
+  flowData.html.ast = handler.dom;
 };
 
 module.exports.handlerName = 'Parse html';

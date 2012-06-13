@@ -5,16 +5,17 @@ module.exports = function(flowData){
     return '/* CSS file ' + filename + ' not found */';
   });
 
+  var genericStyleFile = flowData.files.add({
+    outputFilename: '_generic',
+    source: 'generic',
+    type: 'style',
+    baseURI: flowData.baseURI,
+    content: ''
+  });
 
   flowData.css = {
     outputFiles: [],
-    genericFile: {
-      outputFilename: '_generic',
-      source: 'generic',
-      type: 'style',
-      baseURI: flowData.baseURI,
-      content: ''
-    }
+    genericFile: genericStyleFile
   };
 
 };
