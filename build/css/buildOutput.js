@@ -16,8 +16,10 @@ module.exports = function(flowData){
   // process files in reverse order
   for (var i = outputFiles.length - 1, file; file = outputFiles[i]; i--)
   {
-    console.log('  ' + file.outputFilename);
-    buildFile(file);
+    flowData.console.log(file.outputFilename);
+    flowData.console.incDeep();
+    buildFile(file, flowData);
+    flowData.console.decDeep();
   }
 }
 module.exports.handlerName = 'Build css files';
@@ -34,14 +36,14 @@ function packCommentToken(comment){
   return [{}, 'comment', comment.replace(/\*\//g, '* /')];
 }
 
-function buildFile(file, context){
+function buildFile(file, flowData, context){
   if (!context)
     context = [];
   else
   {
     if (context.indexOf(file) != -1)
     {
-      console.log('# [WARN] Recursion ' + context.map(relpath).join(' -> ') + ' -> ' + relpath(file));
+      flowData.console.log('# [WARN] Recursion ' + context.map(relpath).join(' -> ') + ' -> ' + relpath(file));
       return [
         {}, 'stylesheet',
         [{}, 's', ''],
@@ -53,7 +55,7 @@ function buildFile(file, context){
 
   if (file.used)
   {
-    console.log('# [WARN] Duplicate -> ignored ');
+    flowData.console.log('# [WARN] Duplicate -> ignored ');
     return [
       {}, 'stylesheet',
       [{}, 's', ''],
@@ -68,7 +70,7 @@ function buildFile(file, context){
 
   for (var i = file.imports.length - 1, importToken; importToken = file.imports[i]; i--)
   {
-    var injection = buildFile(importToken.file, context).slice(2);
+    var injection = buildFile(importToken.file, flowData, context).slice(2);
 
     if (importToken.media.length)
     {

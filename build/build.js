@@ -41,9 +41,18 @@ flow.forEach(function(handler){
   var title = handler.handlerName;
 
   if (title)
+  {
+    flowData.console.incDeep();
     console.log('\n' + title + '\n' + ('='.repeat(title.length)) + '\n');
+  }
 
   handler(flowData);
+
+  if (title)
+  {
+    flowData.console.decDeep();
+    console.log();
+  }
 });
 
 /*var map = {};

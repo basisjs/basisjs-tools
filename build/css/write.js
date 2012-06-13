@@ -8,6 +8,8 @@ module.exports = function(flowData){
 
   for (var i = 0, file; file = outputFiles[i]; i++)
   {
+    flowData.console.log(file.outputFilename);
+
     // write to file
     fs.writeFileSync(
       file.outputFilename,
