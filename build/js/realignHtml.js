@@ -17,4 +17,4 @@ module.exports = function(flowData){
   }*/
 };
 
-module.exports.title = 'Modify javascript in html file';
+module.exports.handlerName = 'Modify javascript in html file';

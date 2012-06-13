@@ -15,9 +15,12 @@ module.exports = function(flowData){
 
   // process files in reverse order
   for (var i = outputFiles.length - 1, file; file = outputFiles[i]; i--)
+  {
+    console.log('  ' + file.outputFilename);
     buildFile(file);
+  }
 }
-module.exports.title = 'Build css files';
+module.exports.handlerName = 'Build css files';
 
 //
 // main part
@@ -65,7 +68,6 @@ function buildFile(file, context){
 
   for (var i = file.imports.length - 1, importToken; importToken = file.imports[i]; i--)
   {
-    console.log('>>', file.filename, importToken.code);
     var injection = buildFile(importToken.file, context).slice(2);
 
     if (importToken.media.length)

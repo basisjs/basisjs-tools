@@ -29,4 +29,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.title = 'Write css files and modify html';
+module.exports.handlerName = 'Write css files and modify html';

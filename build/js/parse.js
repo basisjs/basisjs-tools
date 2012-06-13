@@ -13,7 +13,7 @@ module.exports = function JSFileHandler(flowData){
     }
 }
 
-module.exports.title = 'Parse javascript';
+module.exports.handlerName = 'Parse javascript';
 
 
 //
