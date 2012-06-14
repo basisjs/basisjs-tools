@@ -18,6 +18,7 @@ module.exports = function(flowData){
       fconsole.incDeep();
       processTemplate(file, flowData);
       fconsole.decDeep();
+      fconsole.log();
     }
   }
 }
@@ -33,7 +34,6 @@ function processTemplate(file, flowData){
 
   if (decl.resources.length)
   {
-    fconsole.incDeep();
     for (var i = 0, resourceFilename, ext; resourceFilename = decl.resources[i]; i++)
     {
       resourceFilename = path.resolve(baseURI, resourceFilename);
@@ -53,9 +53,7 @@ function processTemplate(file, flowData){
         fconsole.log('[!] ' + flowData.files.relpath(resourceFilename) + ' (unknown type ignored)');
       }
     }
-    fconsole.decDeep();
   }
-  fconsole.log();
 
   file.ast = decl.tokens;
   //resource.content = decl.toString();

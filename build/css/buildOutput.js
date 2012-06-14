@@ -22,7 +22,7 @@ module.exports = function(flowData){
     flowData.console.decDeep();
   }
 }
-module.exports.handlerName = 'Build css files';
+module.exports.handlerName = 'Build CSS files';
 
 //
 // main part

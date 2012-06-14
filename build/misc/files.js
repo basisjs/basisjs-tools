@@ -64,7 +64,7 @@ module.exports = function(flowData){
 
       if (path.existsSync(filename) && fs.statSync(filename).isFile())
       {
-        fconsole.log('[+] New file `' + relpath(filename) + '` added (' + data.type + ')');
+        fconsole.log('[+] ' + relpath(filename) + ' (' + data.type + ')');
         data.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
       }
       else

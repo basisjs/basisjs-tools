@@ -4,6 +4,7 @@ var path = require('path');
 module.exports = function(flowData){
   var files = flowData.files;
   var owner = flowData.buildFile;
+  var fconsole = flowData.console;
   var baseURI = flowData.baseURI;
   var processPoint = [];
   var inlineIndex = 0;
@@ -71,7 +72,7 @@ module.exports = function(flowData){
               flowData.js.basisScript = filename;
             }
 
-            console.log('[JS] ' + filename);
+            fconsole.log('External script found');
             file = {
               source: 'html:script',
               type: 'script',
@@ -81,7 +82,7 @@ module.exports = function(flowData){
           }
           else
           {
-            console.log('[JS] inline');
+            fconsole.log('Inline script found');
             file = {
               source: 'html:script',
               type: 'script',
@@ -99,7 +100,7 @@ module.exports = function(flowData){
           {
             var filename = path.resolve(baseURI, attrs.href);
 
-            console.log('[CSS] ' + filename);
+            fconsole.log('External style found (<link rel="stylesheet">)');
             file = {
               source: 'html:link',
               type: 'style',
@@ -113,7 +114,7 @@ module.exports = function(flowData){
           break;
 
         case 'style':
-          console.log('[CSS] inline');
+          fconsole.log('Inline style found');
           file = {
             source: 'html:style',
             type: 'style',
@@ -130,7 +131,9 @@ module.exports = function(flowData){
       if (file)
       {
         file.htmlInsertPoint = node;
+        fconsole.incDeep();
         file = files.add(file);
+        fconsole.decDeep();
 
         processPoint.push({
           node: node,
@@ -139,6 +142,8 @@ module.exports = function(flowData){
 
         if (file.type == 'style')
           flowData.css.outputFiles.push(file);
+
+        fconsole.log();
       }
 
       if (node.children)

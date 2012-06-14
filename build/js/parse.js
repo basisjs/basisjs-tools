@@ -11,13 +11,15 @@ module.exports = function JSFileHandler(flowData){
     {
       fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
       fconsole.incDeep();
+
       processScript(file, flowData);
+
       fconsole.decDeep();
       fconsole.log();
     }
 }
 
-module.exports.handlerName = 'Parse javascript';
+module.exports.handlerName = 'Parse and expand javascript';
 
 
 //

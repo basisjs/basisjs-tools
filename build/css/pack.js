@@ -15,4 +15,4 @@ module.exports = function(flowData){
     fconsole.log('Skiped.\nUse option --css-pack for CSS compression');
 }
 
-module.exports.handlerName = 'Compress CSS';
+module.exports.handlerName = 'Compress CSS files';
