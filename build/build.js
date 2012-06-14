@@ -53,7 +53,6 @@ flow.forEach(function(handler){
   handler(flowData);
 
   fconsole.resetDeep();
-  fconsole.log();
 });
 
 /*var map = {};

@@ -2,21 +2,26 @@
 var path = require('path')
 
 global.document = require('jsdom-nocontextifiy').jsdom();
-global.basis = require('../../build.test/basis/src/basis.js').basis;
-basis.require('basis.template');
 
 module.exports = function(flowData){
   var queue = flowData.files.queue;
+  var fconsole = flowData.console;
+
+  global.basis = require(flowData.js.basisScript).basis;
+  basis.require('basis.template');
 
   for (var i = 0, file; file = queue[i]; i++)
   {
     if (file.type == 'template')
     {
-      console.log('process template:', file.filename);
+      fconsole.log(flowData.files.relpath(file.filename));
+      fconsole.incDeep();
       processTemplate(file, flowData);
+      fconsole.decDeep();
     }
   }
 }
+module.exports.handlerName = 'Parse templates';
 
 function processTemplate(file, flowData){
   var baseURI = path.dirname(file.filename);
@@ -41,16 +46,16 @@ function processTemplate(file, flowData){
           filename: resourceFilename,
           baseURI: path.dirname(resourceFilename)
         });
-        fconsole.log('[+] ' + flowData.files.relpath(resourceFilename));
+        //fconsole.log('[+] ' + flowData.files.relpath(resourceFilename));
       }
       else
       {
         fconsole.log('[!] ' + flowData.files.relpath(resourceFilename) + ' (unknown type ignored)');
       }
     }
-    fconsole.log();
     fconsole.decDeep();
   }
+  fconsole.log();
 
   file.ast = decl.tokens;
   //resource.content = decl.toString();

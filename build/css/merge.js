@@ -22,7 +22,10 @@ module.exports = function(flowData){
       else
       {
         if (prev)
+        {
+          fconsole.log();
           fconsole.decDeep();
+        }
 
         prev = file;
         newOutputFiles.push(file);

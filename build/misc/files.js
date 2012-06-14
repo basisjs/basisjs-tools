@@ -11,10 +11,6 @@ var typeByExt = {
 };
 var typeNotFoundHandler = {};
 
-function relpath(filename){
-  return path.relative('.', filename).replace(/\\/g, '/');
-}
-
 module.exports = function(flowData){
   var fileMap = {};
   var queue = [];
@@ -31,6 +27,10 @@ module.exports = function(flowData){
 
   mkdir(BUILD_DIR);
   mkdir(BUILD_RESOURCE_DIR);
+
+  function relpath(filename){
+    return path.relative(flowData.baseURI, filename).replace(/\\/g, '/');
+  }
 
   function mkdir(dirpath){
     dirpath = path.resolve(flowData.baseURI, dirpath);
@@ -64,7 +64,7 @@ module.exports = function(flowData){
 
       if (path.existsSync(filename) && fs.statSync(filename).isFile())
       {
-        fconsole.log('[+] New file `' + relpath(filename) + '` added (type: ' + data.type + ')');
+        fconsole.log('[+] New file `' + relpath(filename) + '` added (' + data.type + ')');
         data.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
       }
       else

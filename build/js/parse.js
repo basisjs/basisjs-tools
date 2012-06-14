@@ -4,12 +4,16 @@
 
 module.exports = function JSFileHandler(flowData){
   var queue = flowData.files.queue;
+  var fconsole = flowData.console;
 
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
-      console.log('>', file.filename);
+      fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
+      fconsole.incDeep();
       processScript(file, flowData);
+      fconsole.decDeep();
+      fconsole.log();
     }
 }
 

@@ -55,11 +55,12 @@ function buildFile(file, flowData, context){
 
   if (file.used)
   {
-    flowData.console.log('# [WARN] Duplicate -> ignored ');
+    var msg = '[DUP] ' + (file.filename ? flowData.files.relpath(file.filename) : '[inline style]') + ' ignored as already used';
+    flowData.console.log('# ' + msg);
     return [
       {}, 'stylesheet',
       [{}, 's', ''],
-      packCommentToken(' [WARN] Duplicate -> ignored '),
+      packCommentToken(' ' + msg + ' '),
       [{}, 's', '\n\n']
     ];
   }
