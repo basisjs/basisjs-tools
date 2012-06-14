@@ -9,7 +9,9 @@ module.exports = function(flowData){
   flowData.console = {
     log: function(){
       var args = slice.call(arguments);
-      args.unshift(new Array(logDeep).join('  '));
+
+      if (logDeep)
+        args.unshift(new Array(logDeep + 1).join('  ').substr(1));
 
       if (logBuffer.length)
         logBuffer[logBuffer.length - 1].push(args);
@@ -17,12 +19,14 @@ module.exports = function(flowData){
         console.log.apply(console, args);
     },
     incDeep: function(){
-      //console.log('deep++');
       logDeep++;
     },
     decDeep: function(){
-      //console.log('deep--');
-      logDeep--;
+      if (logDeep > 0)
+        logDeep--;
+    },
+    resetDeep: function(){
+      logDeep = 0;
     },
     push: function(){
       logBuffer.push([]);
