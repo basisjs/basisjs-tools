@@ -17,23 +17,23 @@ module.exports = function(flowData){
   var options = flowData.options;
   var fconsole = flowData.console;
 
-  var BASE_PATH = path.normalize(flowData.baseURI);
+  /*var BASE_PATH = path.normalize(flowData.baseURI);
   var FILENAME = options.file;
-  var BASENAME = path.basename(flowData.buildFile, path.extname(flowData.buildFile));
+  var BASENAME = path.basename(flowData.inputFile, path.extname(flowData.inputFile));
   var INDEX_FILE = path.resolve(BASE_PATH, FILENAME);
   var INDEX_PATH = path.dirname(INDEX_FILE) + '/';
   var BUILD_DIR = path.resolve(BASE_PATH, 'build');
-  var BUILD_RESOURCE_DIR = BUILD_DIR + '/res';
+  var BUILD_RESOURCE_DIR = BUILD_DIR + '/res';*/
 
-  mkdir(BUILD_DIR);
-  mkdir(BUILD_RESOURCE_DIR);
+  mkdir(options.outputDir);
+  mkdir(options.outputResourceDir);
 
   function relpath(filename){
-    return path.relative(flowData.baseURI, filename).replace(/\\/g, '/');
+    return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
   }
 
   function mkdir(dirpath){
-    dirpath = path.resolve(flowData.baseURI, dirpath);
+    dirpath = path.resolve(flowData.inputDir, dirpath);
 
     if (!path.existsSync(dirpath))
       fs.mkdirSync(dirpath);  
@@ -98,7 +98,7 @@ module.exports = function(flowData){
     remove: removeFile,
     mkdir: mkdir,
     relpath: function(filename){
-      return path.relative(flowData.baseURI, filename).replace(/\\/g, '/');
+      return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
     },
     inspect: function(file){
       var result = {};

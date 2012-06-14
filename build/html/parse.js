@@ -8,7 +8,7 @@ var parserConfig = {
 };
 
 module.exports = function(flowData){
-  var filename = flowData.buildFile;
+  var filename = flowData.inputFilename;
 
   // check html file exists
   if (!path.existsSync(filename))

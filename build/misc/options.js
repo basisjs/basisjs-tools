@@ -1,9 +1,13 @@
-module.exports = function(flowData){
-  var commander = require('commander');
 
-  commander
+var path = require('path');
+var options = require('commander');
+
+module.exports = function(flowData){
+
+  options
     .option('-f, --file <filename>', 'File to build (index.html by default)', 'index.html')
     .option('-b, --base <path>', 'Base path for path resolving')
+    .option('-o, --output <path>', 'Path for output', 'build')
 
     // general
     .option('-p, --pack', 'Pack sources. It equals to: --js-build-mode --js-cut-dev --js-pack --css-pack')
@@ -27,8 +31,8 @@ module.exports = function(flowData){
     // parse argv
     .parse(process.argv);
 
-  commander.jsSingleFile = commander.singleFile && commander.jsSingleFile;
-  commander.cssSingleFile = commander.singleFile && commander.cssSingleFile;
+  options.jsSingleFile = options.singleFile && options.jsSingleFile;
+  options.cssSingleFile = options.singleFile && options.cssSingleFile;
 
   var optionOverride = [
     {
@@ -43,12 +47,41 @@ module.exports = function(flowData){
 
   for (var i = 0; i < optionOverride.length; i++)
   {
-    if (commander[optionOverride[i].option])
+    if (options[optionOverride[i].option])
       optionOverride[i].override.forEach(function(name){
-        commander[name] = true;
-        console.log(name, commander[name]);
+        options[name] = true;
+        console.log(name, options[name]);
       });
   }
 
-  flowData.options = commander;
+  // pathes
+
+  options.base = path.resolve('.', options.base);
+  var inputFilename = path.resolve(options.base, options.file);
+  var inputDir = path.normalize(path.dirname(inputFilename) + '/');
+  var inputBasename = path.basename(inputFilename, path.extname(inputFilename));
+
+  options.output = path.resolve(options.base, options.output);
+  var outputDir = path.normalize(options.output + '/');
+  var outputFilename = path.resolve(outputDir, path.basename(inputFilename));
+  var outputResourceDir = path.resolve(outputDir, 'res');
+
+  flowData.inputFilename = inputFilename;
+  flowData.inputDir = inputDir;
+  flowData.inputBasename = inputBasename;
+
+  flowData.outputFilename = outputFilename;
+  flowData.outputDir = outputDir;
+  flowData.outputResourceDir = outputResourceDir;
+
+  /*console.log({
+    base: options.base,
+    output: options.output
+  })
+  console.log(flowData);
+  process.exit();*/
+
+  // return
+
+  flowData.options = options;
 };

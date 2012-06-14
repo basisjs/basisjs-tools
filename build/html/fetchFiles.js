@@ -3,9 +3,8 @@ var path = require('path');
 
 module.exports = function(flowData){
   var files = flowData.files;
-  var owner = flowData.buildFile;
   var fconsole = flowData.console;
-  var baseURI = flowData.baseURI;
+  var inputDir = flowData.inputDir;
   var processPoint = [];
   var inlineIndex = 0;
   var headNode;
@@ -63,7 +62,7 @@ module.exports = function(flowData){
           // external script
           if (attrs.src)
           {
-            var filename = path.resolve(baseURI, attrs.src);
+            var filename = path.resolve(inputDir, attrs.src);
             var fileBaseURI = path.dirname(filename);
 
             if(attrs['basis-config'])
@@ -87,7 +86,7 @@ module.exports = function(flowData){
               source: 'html:script',
               type: 'script',
               inline: true,
-              baseURI: baseURI,
+              baseURI: inputDir,
               content: getText(node)
             };
           }
@@ -98,7 +97,7 @@ module.exports = function(flowData){
           var attrs = getAttrs(node);
           if (node.name == 'link' && attrs.rel == 'stylesheet')
           {
-            var filename = path.resolve(baseURI, attrs.href);
+            var filename = path.resolve(inputDir, attrs.href);
 
             fconsole.log('External style found (<link rel="stylesheet">)');
             file = {
@@ -106,7 +105,6 @@ module.exports = function(flowData){
               type: 'style',
               filename: filename,
               baseURI: path.dirname(filename),
-              owner: filename,
               media: attrs.media || 'all'
             };
           }
@@ -118,7 +116,7 @@ module.exports = function(flowData){
           file = {
             source: 'html:style',
             type: 'style',
-            baseURI: baseURI,
+            baseURI: inputDir,
             outputFilename: '_inline',
             inline: true,
             media: attrs.media || 'all',

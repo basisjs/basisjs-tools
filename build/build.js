@@ -3,14 +3,10 @@ var path = require('path');
 var utils = require('./misc/utils');
 
 
-var targetFile = '../build.test/index.html';
-var targetDir = path.dirname(path.resolve(targetFile)) + '/';
+//var inputFile = '../build.test/index.html';
+//var inputDir = path.dirname(path.resolve(inputFile)) + '/';
 
 var flowData = {
-  buildFile: targetFile,
-  baseURI: targetDir,
-  buildDir: path.resolve(targetDir, 'build') + '/',
-
   console: require('./misc/console')
 };
 

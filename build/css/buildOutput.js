@@ -18,7 +18,9 @@ module.exports = function(flowData){
   {
     flowData.console.log(file.outputFilename);
     flowData.console.incDeep();
+
     buildFile(file, flowData);
+
     flowData.console.decDeep();
   }
 }

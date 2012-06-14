@@ -38,7 +38,7 @@ module.exports = function(flowData){
               rel: 'stylesheet',
               type: 'text/css',
               media: file.media,
-              href: path.relative(flowData.buildDir, file.outputFilename)
+              href: path.relative(flowData.outputDir, file.outputFilename)
             }
           }
         : {

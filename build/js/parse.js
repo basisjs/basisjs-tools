@@ -129,7 +129,7 @@ function processScript(file, flowData){
           if (filename)
           {
             var parts = filename.split(/\./);
-            filename = path.resolve(flowData.js.base[parts[0]] || flowData.baseURI, parts.join('/')) + '.js';
+            filename = path.resolve(flowData.js.base[parts[0]] || flowData.inputDir, parts.join('/')) + '.js';
             
             flowData.files.add({
               source: 'js:basis.require',

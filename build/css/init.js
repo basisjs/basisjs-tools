@@ -9,7 +9,7 @@ module.exports = function(flowData){
     outputFilename: '_generic',
     source: 'generic',
     type: 'style',
-    baseURI: flowData.baseURI,
+    baseURI: flowData.inputDir,
     media: 'all',
     content: ''
   });

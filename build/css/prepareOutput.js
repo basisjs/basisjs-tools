@@ -2,7 +2,7 @@
 var path = require('path');
 
 module.exports = function(flowData){
-  var buildDir = flowData.buildDir;
+  var outputDir = flowData.outputDir;
   var outputFiles = flowData.files.queue.filter(function(file){
     if (file.type == 'style' && file.htmlInsertPoint)
       return file;
@@ -44,7 +44,7 @@ module.exports = function(flowData){
     while (targetMap[outputFilename])
       outputFilename = baseOutputFilename + (++idx);
 
-    file.outputFilename = path.resolve(buildDir + '/' + outputFilename + '.css');
+    file.outputFilename = path.resolve(outputDir + '/' + outputFilename + '.css');
     targetMap[outputFilename] = true;
   }
 }

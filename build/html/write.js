@@ -6,7 +6,7 @@ module.exports = function(flowData){
   var ast = flowData.html.ast;
 
   fs.writeFileSync(
-    flowData.buildDir + path.basename(flowData.buildFile),
+    flowData.outputDir + path.basename(flowData.inputFilename),
     ast.map(htmlparser.DomUtils.getOuterHTML, htmlparser.DomUtils).join(''),
     'utf-8'
   );
