@@ -36,6 +36,10 @@ module.exports = function(flowData){
   // main part
   //
 
+  function resolveFilename(filename){
+    return path.resolve(inputDir, filename)
+  }
+
   function getText(node){
     return (node.children && node.children[0] && node.children[0].data) || '';
   }
@@ -62,10 +66,10 @@ module.exports = function(flowData){
           // external script
           if (attrs.src)
           {
-            var filename = path.resolve(inputDir, attrs.src);
+            var filename = resolveFilename(attrs.src);
             var fileBaseURI = path.dirname(filename);
 
-            if(attrs['basis-config'])
+            if (attrs['basis-config'])
             {
               flowData.js.base.basis = fileBaseURI;
               flowData.js.basisScript = filename;
@@ -97,7 +101,7 @@ module.exports = function(flowData){
           var attrs = getAttrs(node);
           if (node.name == 'link' && attrs.rel == 'stylesheet')
           {
-            var filename = path.resolve(inputDir, attrs.href);
+            var filename = resolveFilename(attrs.href);
 
             fconsole.log('External style found (<link rel="stylesheet">)');
             file = {

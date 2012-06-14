@@ -16,7 +16,7 @@ module.exports = function(flowData){
   // process files in reverse order
   for (var i = outputFiles.length - 1, file; file = outputFiles[i]; i--)
   {
-    flowData.console.log(file.outputFilename);
+    flowData.console.log(file.relOutputFilename);
     flowData.console.incDeep();
 
     buildFile(file, flowData);

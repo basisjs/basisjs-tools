@@ -30,8 +30,8 @@ module.exports = function(flowData){
         prev = file;
         newOutputFiles.push(file);
 
-        file.outputFilename = path.dirname(file.outputFilename) + '/style' + (idx++) + '.css';
-        fconsole.log('Merge into ' + file.outputFilename);
+        file.outputFilename = 'style' + (idx++) + '.css';
+        fconsole.log('Merge into ' + file.relOutputFilename);
         fconsole.incDeep();
       }
 

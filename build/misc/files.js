@@ -1,6 +1,7 @@
 
 var path = require('path');
 var fs = require('fs');
+var crypto = require('crypto');
 
 var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
 //var moveToQueueEndFile = ['.css'];
@@ -10,6 +11,11 @@ var typeByExt = {
   '.tmpl': 'template'
 };
 var typeNotFoundHandler = {};
+
+
+//
+// export
+//
 
 module.exports = function(flowData){
   var fileMap = {};
@@ -25,12 +31,47 @@ module.exports = function(flowData){
   var BUILD_DIR = path.resolve(BASE_PATH, 'build');
   var BUILD_RESOURCE_DIR = BUILD_DIR + '/res';*/
 
-  mkdir(options.outputDir);
-  mkdir(options.outputResourceDir);
+  mkdir(flowData.outputDir);
+  mkdir(flowData.outputResourceDir);
 
   function relpath(filename){
     return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
   }
+
+  //
+  // file class
+  //
+
+  function File(cfg){
+    for (var key in cfg)
+      this[key] = cfg[key];
+  };
+  File.prototype = {
+    get outputFilename(){
+      return this.outputFilename_;
+    },
+    set outputFilename(filename){
+      console.log(flowData.outputDir, path.normalize(filename));
+      this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
+    },
+    get relpath(){
+      return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
+    },
+    get relOutputFilename(){
+      return this.outputFilename ? path.relative(flowData.outputDir, this.outputFilename).replace(/\\/g, '/') : '[no output filename]';
+    },
+    get digest(){
+      var hash = crypto.createHash('md5');
+      hash.update(this.content);
+      return hash.digest('base64')
+        // remove trailing == which always appear on md5 digest, save 2 bytes
+        .replace(/=+$/, '')
+        // make digest web safe
+        .replace(/\//g, '_')
+        .replace(/\+/g, '-');
+    }
+  };
+
 
   function mkdir(dirpath){
     dirpath = path.resolve(flowData.inputDir, dirpath);
@@ -40,6 +81,8 @@ module.exports = function(flowData){
   }
 
   function addFile(data){
+    var file;
+
     if (data.filename)
     {
       var filename = data.filename;
@@ -58,27 +101,34 @@ module.exports = function(flowData){
         return fileMap[filename];
       }
 
-      if (typeByExt[ext])
-        data.type = typeByExt[ext];
+      if (!data.type)
+        data.type = typeByExt[ext] || 'unknown';
 
+      // create file
+      file = new File(data);
 
+      // read content
       if (path.existsSync(filename) && fs.statSync(filename).isFile())
       {
-        fconsole.log('[+] ' + relpath(filename) + ' (' + data.type + ')');
-        data.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
+        fconsole.log('[+] ' + relpath(filename) + ' (' + file.type + ')');
+        file.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
       }
       else
       {
         fconsole.log('[WARN] File `' + relpath(filename) + '` not found');
-        data.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
+        file.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
       }
 
-      fileMap[filename] = data;
+      fileMap[filename] = file;
+    }
+    else
+    {
+      file = new File(data);
     }
 
-    queue.add(data);
+    queue.add(file);
 
-    return data;
+    return file;
   }
 
   function getFile(filename){

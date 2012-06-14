@@ -16,7 +16,7 @@ module.exports = function(flowData){
     // write to file
     if (fileContent)
     {
-      flowData.console.log('Write ' + file.outputFilename);
+      flowData.console.log('Write ' + file.relOutputFilename);
       fs.writeFileSync(
         file.outputFilename,
         fileContent,
@@ -25,7 +25,7 @@ module.exports = function(flowData){
     }
     else
     {
-      flowData.console.log('File ' + file.outputFilename + ' is empty - reject');
+      flowData.console.log('File ' + file.relOutputFilename + ' is empty - reject');
     }
 
     // replace token in html
@@ -38,7 +38,7 @@ module.exports = function(flowData){
               rel: 'stylesheet',
               type: 'text/css',
               media: file.media,
-              href: path.relative(flowData.outputDir, file.outputFilename)
+              href: file.relOutputFilename + '?' + file.digest
             }
           }
         : {
