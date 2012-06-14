@@ -13,7 +13,7 @@ module.exports = function(flowData){
 
 
   //
-  // build generic style file
+  // build generic style file (style from js & tmpl)
   //
 
   var genericStyle = flowData.files.queue.filter(function(file){
@@ -27,7 +27,6 @@ module.exports = function(flowData){
     genericFile.content = genericStyle.map(function(file){
       return '@import url(' + file.filename + ');'
     }).join('\n');
-    console.log(genericFile.content);
   }
 
 

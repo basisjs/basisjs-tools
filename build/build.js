@@ -9,11 +9,12 @@ var targetDir = path.dirname(path.resolve(targetFile)) + '/';
 var flowData = {
   buildFile: targetFile,
   baseURI: targetDir,
-  buildDir: path.resolve(targetDir, 'build') + '/'
+  buildDir: path.resolve(targetDir, 'build') + '/',
+
+  console: require('./misc/console')
 };
 
 var flow = [
-  require('./misc/console'),
   require('./misc/options'),
   require('./misc/files'),
 
@@ -32,6 +33,7 @@ var flow = [
   require('./css/prepareOutput'),
   require('./css/parse'),
   require('./css/buildOutput'),
+  require('./css/merge'),
   require('./css/pack'),
   require('./css/write'),
 
@@ -40,20 +42,18 @@ var flow = [
 
 flow.forEach(function(handler){
   var title = handler.handlerName;
+  var fconsole = flowData.console;
 
   if (title)
   {
-    flowData.console.incDeep();
-    console.log('\n' + title + '\n' + ('='.repeat(title.length)) + '\n');
+    fconsole.incDeep();
+    fconsole.log('\n' + title + '\n' + ('='.repeat(title.length)) + '\n');
   }
 
   handler(flowData);
 
-  if (title)
-  {
-    flowData.console.decDeep();
-    console.log();
-  }
+  fconsole.resetDeep();
+  fconsole.log();
 });
 
 /*var map = {};

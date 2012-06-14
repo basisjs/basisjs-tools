@@ -19,6 +19,7 @@ module.exports = function(flowData){
   var fileMap = {};
   var queue = [];
   var options = flowData.options;
+  var fconsole = flowData.console;
 
   var BASE_PATH = path.normalize(flowData.baseURI);
   var FILENAME = options.file;
@@ -46,7 +47,7 @@ module.exports = function(flowData){
 
       if (fileMap[filename]) // ignore duplicates
       {
-        console.log('[DUP] File `' + relpath(filename) + '` already in queue');
+        fconsole.log('[DUP] File `' + relpath(filename) + '` already in queue');
 
         /*if (moveToQueueEndFile.indexOf(ext) != -1)
         {
@@ -57,21 +58,19 @@ module.exports = function(flowData){
         return fileMap[filename];
       }
 
+      if (typeByExt[ext])
+        data.type = typeByExt[ext];
+
+
       if (path.existsSync(filename) && fs.statSync(filename).isFile())
       {
-        console.log('[+] New file `' + relpath(filename) + '` added');
+        fconsole.log('[+] New file `' + relpath(filename) + '` added (type: ' + data.type + ')');
         data.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
       }
       else
       {
-        console.log('[WARN] File `' + relpath(filename) + '` not found');
+        fconsole.log('[WARN] File `' + relpath(filename) + '` not found');
         data.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
-      }
-
-      if (typeByExt[ext])
-      {
-        data.type = typeByExt[ext];
-        console.log(data.type);
       }
 
       fileMap[filename] = data;

@@ -13,17 +13,20 @@ var base64PrefixRx = /^\s*base64\s*,\s*/i;
 module.exports = function(flowData){
 
   var queue = flowData.files.queue;
+  var fconsole = flowData.console;
 
   for (var i = 0, file; file = queue[i]; i++)
   {
     if (file.type == 'style')
     {
-      console.log('Style file', file.filename);
+      fconsole.log('Parse ' + (file.filename || '[inline style]'));
+      fconsole.incDeep();
       buildCssTree(file, flowData);
+      fconsole.decDeep();
     }
   }
 }
-
+module.exports.handlerName = 'Parse & expand CSS'
 
 //
 // main part
@@ -44,20 +47,6 @@ function unpackUriToken(token){
     return unpackStringToken(val[2]);
   else
     return val[2];
-}
-
-function packStringToken(string){
-  return [{}, 'string', '"' + string.replace(/\"/, '\\"') + '"'];
-}
-
-function packCommentToken(comment){
-  return [{}, 'comment', comment.replace(/\*\//g, '* /')];
-}
-
-function packUriToken(uri, token){
-  token = token || [{}, 'uri'];
-  token[2] = uri.indexOf(')') != -1 ? packStringToken(uri) : [{}, 'raw', uri];
-  return token;
 }
 
 function processCssTree(tree, file, flowData){
@@ -114,7 +103,7 @@ function processCssTree(tree, file, flowData){
             }
 
             var media = parts.slice(1);
-            imports.push({
+            file.imports.push({
               token: topToken,
               pos: i,
               code: csso.translate(csso.cleanInfo(token)),
@@ -135,25 +124,18 @@ function processCssTree(tree, file, flowData){
   }
 
   var baseURI = path.dirname(file.filename);
-  var imports = [];
+
+  // import tokens
+  file.imports = [];
 
   // walk tokens
   walkTree([tree]);
-
-  // import tokens
-  file.imports = imports;
 }
 
 function buildCssTree(file, flowData){
-  //console.log('buildCssTree:', filename);
-  var content = file.content;
-
   // parse css into tree
-  var cssTree = csso.parse(content, 'stylesheet');
+  file.ast = csso.parse(file.content, 'stylesheet');
 
   // search and extract css files
-  processCssTree(cssTree, file, flowData);
-
-  // save ast tree to file definition
-  file.ast = cssTree;
+  processCssTree(file.ast, file, flowData);
 }

@@ -8,52 +8,28 @@ module.exports = function(flowData){
   var mergeFile;
   var singleFileMode;
 
-  // merge files
-  if (flowData.options.cssSingleFile)
-  {
-    var ast = [{}, 'stylesheet'];
-
-    flowData.css.outputFiles.forEach(function(importFile, idx){
-      ast.push.apply(ast, importFile.ast.slice(2));
-    });
-
-    singleFileMode = true;
-    mergeFile = {
-      outputFilename: path.resolve(flowData.buildDir + '/style.css'),
-      ast: ast
-    };
-  }
-
   // write
   for (var i = 0, file; file = outputFiles[i]; i++)
   {
-    var insertPoint = file.htmlInsertPoint;
-    var fileContent = '';
+    var fileContent = csso.translate(csso.cleanInfo(file.ast));
 
-    if (singleFileMode)
+    // write to file
+    if (fileContent)
     {
-      if (file = mergeFile)
-        mergeFile = null;
+      flowData.console.log('Write ' + file.outputFilename);
+      fs.writeFileSync(
+        file.outputFilename,
+        fileContent,
+        'utf-8'
+      );
     }
-
-    if (file)
+    else
     {
-      fileContent = csso.translate(csso.cleanInfo(file.ast));
-      flowData.console.log(file.outputFilename);
-
-      // write to file
-      if (fileContent)
-      {
-        fs.writeFileSync(
-          file.outputFilename,
-          fileContent,
-          'utf-8'
-        );
-      }
+      flowData.console.log('File ' + file.outputFilename + ' is empty - reject');
     }
 
     // replace token in html
-    flowData.html.replaceToken(insertPoint,
+    flowData.html.replaceToken(file.htmlInsertPoint,
       fileContent
         ? {
             type: 'tag',
@@ -61,7 +37,7 @@ module.exports = function(flowData){
             attribs: {
               rel: 'stylesheet',
               type: 'text/css',
-              media: 'all',
+              media: file.media,
               href: path.relative(flowData.buildDir, file.outputFilename)
             }
           }

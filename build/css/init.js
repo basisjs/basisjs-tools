@@ -10,6 +10,7 @@ module.exports = function(flowData){
     source: 'generic',
     type: 'style',
     baseURI: flowData.baseURI,
+    media: 'all',
     content: ''
   });
 
