@@ -5,29 +5,71 @@ var csso = require('csso');
 
 module.exports = function(flowData){
   var outputFiles = flowData.css.outputFiles;
+  var mergeFile;
+  var singleFileMode;
 
+  // merge files
+  if (flowData.options.cssSingleFile)
+  {
+    var ast = [{}, 'stylesheet'];
+
+    flowData.css.outputFiles.forEach(function(importFile, idx){
+      ast.push.apply(ast, importFile.ast.slice(2));
+    });
+
+    singleFileMode = true;
+    mergeFile = {
+      outputFilename: path.resolve(flowData.buildDir + '/style.css'),
+      ast: ast
+    };
+  }
+
+  // write
   for (var i = 0, file; file = outputFiles[i]; i++)
   {
-    flowData.console.log(file.outputFilename);
+    var insertPoint = file.htmlInsertPoint;
+    var fileContent = '';
 
-    // write to file
-    fs.writeFileSync(
-      file.outputFilename,
-      csso.translate(csso.cleanInfo(file.ast)),
-      'utf-8'
-    );
+    if (singleFileMode)
+    {
+      if (file = mergeFile)
+        mergeFile = null;
+    }
+
+    if (file)
+    {
+      fileContent = csso.translate(csso.cleanInfo(file.ast));
+      flowData.console.log(file.outputFilename);
+
+      // write to file
+      if (fileContent)
+      {
+        fs.writeFileSync(
+          file.outputFilename,
+          fileContent,
+          'utf-8'
+        );
+      }
+    }
 
     // replace token in html
-    flowData.html.replaceToken(file.htmlInsertPoint, {
-      type: 'tag',
-      name: 'link',
-      attribs: {
-        rel: 'stylesheet',
-        type: 'text/css',
-        media: 'all',
-        href: path.relative(flowData.buildDir, file.outputFilename)
-      }
-    });
+    flowData.html.replaceToken(insertPoint,
+      fileContent
+        ? {
+            type: 'tag',
+            name: 'link',
+            attribs: {
+              rel: 'stylesheet',
+              type: 'text/css',
+              media: 'all',
+              href: path.relative(flowData.buildDir, file.outputFilename)
+            }
+          }
+        : {
+            type: 'text',
+            data: ''
+          }
+    );
   }
 }
 

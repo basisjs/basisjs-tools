@@ -32,6 +32,7 @@ var flow = [
   require('./css/prepareOutput'),
   require('./css/parse'),
   require('./css/buildOutput'),
+  require('./css/pack'),
   require('./css/write'),
 
   require('./html/write')

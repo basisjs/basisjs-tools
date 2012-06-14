@@ -29,10 +29,6 @@ module.exports = function(flowData){
     }).join('\n');
     console.log(genericFile.content);
   }
-  else
-  {
-    flowData.css.outputFiles.remove(genericFile);
-  }
 
 
   //
