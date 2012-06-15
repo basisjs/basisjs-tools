@@ -24,7 +24,7 @@ module.exports = function(flowData){
     flowData.console.decDeep();
   }
 }
-module.exports.handlerName = 'Build CSS files';
+module.exports.handlerName = 'Linear CSS files';
 
 //
 // main part

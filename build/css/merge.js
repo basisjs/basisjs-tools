@@ -9,7 +9,7 @@ module.exports = function(flowData){
   {
     var outputFiles = flowData.css.outputFiles;
     var newOutputFiles = [];
-    var idx = 1;
+    var idx = '';
 
     for (var i = 0, file, prev; file = outputFiles[i]; i++)
     {
@@ -30,7 +30,8 @@ module.exports = function(flowData){
         prev = file;
         newOutputFiles.push(file);
 
-        file.outputFilename = 'style' + (idx++) + '.css';
+        file.outputFilename = 'style' + idx + '.css';
+        idx++;
         fconsole.log('Merge into ' + file.relOutputFilename);
         fconsole.incDeep();
       }

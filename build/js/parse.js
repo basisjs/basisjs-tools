@@ -63,13 +63,13 @@ function getCallArgs(args, context){
       try
       {
         // very slow: vm.runInNewContext(translate(arg), context);
-        var result = Function('__dirname, __filename', translate(arg)).call(null, context.__dirname, context.__filename);
+        var result = Function('__dirname, __filename', 'return ' + translate(arg)).call(null, context.__dirname, context.__filename);
         if (typeof result == 'string')
           return result;
       }
       catch(e)
       {
-        //console.log('unable to evaluate "', code, '" in context ', context);
+        console.log('unable to evaluate "', translate(arg), '" in context ', context);
       }
     }
   });
@@ -81,9 +81,10 @@ function processScript(file, flowData){
   var code = file.content;
   var ast = parser.parse(code);
   var deps = [];
+  var inputDir = flowData.inputDir;
   var context = {
     __filename: file.filename ? file.filename : '',
-    __dirname: file.filename ? path.dirname(file.filename) : ''
+    __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
   };
 
   walker.with_walkers({
@@ -95,7 +96,7 @@ function processScript(file, flowData){
           //console.log('basis.resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
-            filename = path.resolve(context.__dirname, filename);
+            filename = path.resolve(inputDir, filename);
             flowData.files.add({
               source: 'js:basis.resource',
               filename: filename,

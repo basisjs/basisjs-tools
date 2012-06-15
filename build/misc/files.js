@@ -20,6 +20,7 @@ var typeNotFoundHandler = {};
 module.exports = function(flowData){
   var fileMap = {};
   var queue = [];
+  var outputQueue = [];
   var options = flowData.options;
   var fconsole = flowData.console;
 
@@ -51,24 +52,30 @@ module.exports = function(flowData){
       return this.outputFilename_;
     },
     set outputFilename(filename){
-      console.log(flowData.outputDir, path.normalize(filename));
       this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
     },
     get relpath(){
       return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
     },
     get relOutputFilename(){
-      return this.outputFilename ? path.relative(flowData.outputDir, this.outputFilename).replace(/\\/g, '/') : '[no output filename]';
+      return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
     },
     get digest(){
       var hash = crypto.createHash('md5');
-      hash.update(this.content);
+      hash.update(this.outputContent || this.content);
       return hash.digest('base64')
         // remove trailing == which always appear on md5 digest, save 2 bytes
         .replace(/=+$/, '')
         // make digest web safe
         .replace(/\//g, '_')
         .replace(/\+/g, '-');
+    },
+    get fileRef(){
+      return this.relOutputFilename + '?' + this.digest;
+    },
+    addToOutput: function(){
+      if (outputQueue.add(this))
+        fconsole.log('[+] ' + this.relOutputFilename + ' added to output list');
     }
   };
 
@@ -110,12 +117,12 @@ module.exports = function(flowData){
       // read content
       if (path.existsSync(filename) && fs.statSync(filename).isFile())
       {
-        fconsole.log('[+] ' + relpath(filename) + ' (' + file.type + ')');
+        fconsole.log('[+] ' + file.relpath + ' (' + file.type + ')');
         file.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
       }
       else
       {
-        fconsole.log('[WARN] File `' + relpath(filename) + '` not found');
+        fconsole.log('[WARN] File `' + file.relpath + '` not found');
         file.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
       }
 

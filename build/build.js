@@ -28,9 +28,10 @@ var flow = [
 
   require('./css/prepareOutput'),
   require('./css/parse'),
-  require('./css/buildOutput'),
+  require('./css/linear'),
   require('./css/merge'),
   require('./css/pack'),
+  require('./css/translate'),
   require('./css/write'),
 
   require('./html/write')
