@@ -7,7 +7,7 @@ module.exports = function(flowData){
   options
     .option('-f, --file <filename>', 'File to build (index.html by default)', 'index.html')
     .option('-b, --base <path>', 'Base path for path resolving')
-    .option('-o, --output <path>', 'Path for output', 'build2')
+    .option('-o, --output <path>', 'Path for output', 'build.new')
 
     // general
     .option('-p, --pack', 'Pack sources. It equals to: --js-build-mode --js-cut-dev --js-pack --css-pack')

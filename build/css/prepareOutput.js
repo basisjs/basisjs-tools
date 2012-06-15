@@ -1,5 +1,6 @@
 
 var path = require('path');
+var at = require('./ast_tools');
 
 module.exports = function(flowData){
   var outputDir = flowData.outputDir;
@@ -16,19 +17,27 @@ module.exports = function(flowData){
   // build generic style file (style from js & tmpl)
   //
 
-  var genericStyle = flowData.files.queue.filter(function(file){
-    if (file.type == 'style' && file.generic)
-      return file;
-  });
-
   var genericFile = flowData.css.genericFile;
-  if (genericStyle.length)
-  {
-    genericFile.content = genericStyle.map(function(file){
-      return '@import url(' + file.filename + ');'
-    }).join('\n');
-  }
 
+  genericFile.ast = [{}, 'stylesheet'];
+  genericFile.imports = flowData.files.queue
+    .filter(function(file){
+      return file.type == 'style' && file.generic;
+    })
+    .map(function(file, idx){
+      genericFile.ast.push(
+        at.packComment('placeholder'),
+        at.packWhiteSpace('\n')
+      );
+
+      return {
+        token: genericFile.ast,
+        pos: genericFile.ast.length - 2,
+        code: '@import url(' + file.filename + ');',
+        file: file,
+        media: []
+      };
+    });
 
   //
   // prepare output files

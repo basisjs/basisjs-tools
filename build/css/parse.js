@@ -66,7 +66,6 @@ module.exports = function(flowData){
               importFile = flowData.files.add({
                 source: 'css:import',
                 type: 'style',
-                filename: '__base64__',
                 baseURI: baseURI,
                 content: content
               });

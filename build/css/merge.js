@@ -17,7 +17,7 @@ module.exports = function(flowData){
       if (prev && prev.media == file.media)
       {
         prev.ast.push.apply(prev.ast, file.ast.slice(2));
-        flowData.html.replaceToken(file.htmlInsertPoint, { type: 'text', data: '' })
+        flowData.html.removeToken(file.htmlInsertPoint)
       }
       else
       {

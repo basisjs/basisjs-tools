@@ -1,6 +1,9 @@
 
 module.exports = function(flowData){
   flowData.html = {
+    removeToken: function(token){
+      this.replaceToken(token, { type: 'text', data: '' });
+    },
     replaceToken: function(token, cfg){
       for (var key in token)
         if (token.hasOwnProperty(key))

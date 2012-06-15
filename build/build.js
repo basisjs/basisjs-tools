@@ -24,8 +24,8 @@ var flow = [
 
   require('./tmpl/parse'),
 
-  require('./css/prepareOutput'),
   require('./css/parse'),
+  require('./css/prepareOutput'),
   require('./css/linear'),
   require('./css/merge'),
   require('./css/pack'),
