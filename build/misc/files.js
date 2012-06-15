@@ -48,6 +48,13 @@ module.exports = function(flowData){
       this[key] = cfg[key];
   };
   File.prototype = {
+    get baseURI(){
+      return this.filename ? path.dirname(this.filename) : this.baseURI_;
+    },
+    set baseURI(uri){
+      if (!this.filename)
+        this.baseURI_ = uri;
+    },
     get outputFilename(){
       return this.outputFilename_;
     },

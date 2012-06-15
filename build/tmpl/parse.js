@@ -43,8 +43,7 @@ function processTemplate(file, flowData){
         flowData.files.add({
           source: 'tmpl:resource',
           generic: true,
-          filename: resourceFilename,
-          baseURI: path.dirname(resourceFilename)
+          filename: resourceFilename
         });
         //fconsole.log('[+] ' + flowData.files.relpath(resourceFilename));
       }

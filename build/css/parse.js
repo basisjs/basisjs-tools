@@ -76,8 +76,7 @@ module.exports = function(flowData){
 
               importFile = flowData.files.add({
                 source: 'css:import',
-                filename: filename,
-                baseURI: path.dirname(filename)
+                filename: filename
               });
             }
 

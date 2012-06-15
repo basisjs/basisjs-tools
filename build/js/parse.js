@@ -100,8 +100,7 @@ function processScript(file, flowData){
             flowData.files.add({
               source: 'js:basis.resource',
               filename: filename,
-              generic: true,
-              baseURI: path.dirname(filename)
+              generic: true
             });
           }
 
@@ -116,8 +115,7 @@ function processScript(file, flowData){
             flowData.files.add({
               source: 'js:basis.resource',
               filename: filename,
-              generic: true,
-              baseURI: path.dirname(filename)
+              generic: true
             });
           }
 
@@ -134,8 +132,7 @@ function processScript(file, flowData){
             
             flowData.files.add({
               source: 'js:basis.require',
-              filename: filename,
-              baseURI: path.dirname(filename)
+              filename: filename
             });
 
             deps.push(filename);

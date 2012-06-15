@@ -79,8 +79,7 @@ module.exports = function(flowData){
             file = {
               source: 'html:script',
               type: 'script',
-              filename: filename,
-              baseURI: fileBaseURI
+              filename: filename
             };
           }
           else
@@ -108,7 +107,6 @@ module.exports = function(flowData){
               source: 'html:link',
               type: 'style',
               filename: filename,
-              baseURI: path.dirname(filename),
               media: attrs.media || 'all'
             };
           }
