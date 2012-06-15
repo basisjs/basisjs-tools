@@ -1,7 +1,5 @@
 
-var path = require('path');
-var fs = require('fs');
-var csso = require('csso');
+var at = require('./ast_tools');
 var relpath_;
 
 //
@@ -34,10 +32,6 @@ function relpath(file){
   return relpath_(file.filename);
 }
 
-function packCommentToken(comment){
-  return [{}, 'comment', comment.replace(/\*\//g, '* /')];
-}
-
 function buildFile(file, flowData, context){
   if (!context)
     context = [];
@@ -49,7 +43,7 @@ function buildFile(file, flowData, context){
       return [
         {}, 'stylesheet',
         [{}, 's', ''],
-        packCommentToken(' [WARN] Recursion: ' + context.map(relpath).join(' -> ') + ' -> ' + relpath(file) + ' '),
+        at.packComment(' [WARN] Recursion: ' + context.map(relpath).join(' -> ') + ' -> ' + relpath(file) + ' '),
         [{}, 's', '\n\n']
       ];
     }
@@ -62,7 +56,7 @@ function buildFile(file, flowData, context){
     return [
       {}, 'stylesheet',
       [{}, 's', ''],
-      packCommentToken(' ' + msg + ' '),
+      at.packComment(' ' + msg + ' '),
       [{}, 's', '\n\n']
     ];
   }
@@ -92,7 +86,7 @@ function buildFile(file, flowData, context){
 
     // inject
     injection.unshift(importToken.pos, 1,
-      packCommentToken(importToken.code),
+      at.packComment(importToken.code),
       [{}, 's', '\n\n']
     );
     importToken.token.splice.apply(importToken.token, injection);

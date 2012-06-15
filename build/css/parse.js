@@ -41,18 +41,19 @@ module.exports = function(flowData){
           if (token[2][1] == 'atkeyword' && token[2][2][1] == 'ident' && token[2][2][2] == 'import')
           {
             var parts = token.slice(3);
-            var pos = 3;
 
             if (parts[0][1] == 's')
-            {
-              pos++;
               parts.shift();
-            }
 
             var importFile;
-            var url = parts[0][1] == 'uri'
-              ? at.unpackUri(parts[0])
-              : at.unpackString(parts[0][2]);
+            var firstArg = parts.shift();
+            var url = firstArg[1] == 'uri'
+              ? at.unpackUri(firstArg)
+              : at.unpackString(firstArg[2]);
+
+            var media = parts;
+            if (media[0] && media[0][1] != 's')
+              media.unshift(at.packWhiteSpace(' '));
 
             if (dataUriRx.test(url))
             {
@@ -81,7 +82,6 @@ module.exports = function(flowData){
               });
             }
 
-            var media = parts.slice(1);
             file.imports.push({
               token: parentToken,
               pos: parentToken.indexOf(token),

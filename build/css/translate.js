@@ -1,13 +1,11 @@
 
-var path = require('path');
-var fs = require('fs');
-var csso = require('csso');
+var at = require('./ast_tools');
 
 module.exports = function(flowData){
   var fconsole = flowData.console;
 
   flowData.css.outputFiles.filter(function(file){
-    file.outputContent = csso.translate(csso.cleanInfo(file.ast));
+    file.outputContent = at.translate(file.ast);
 
     var isEmpty = !file.outputContent.length;
 
