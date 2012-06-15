@@ -8,7 +8,13 @@ var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
 var typeByExt = {
   '.js': 'script',
   '.css': 'style',
-  '.tmpl': 'template'
+  '.tmpl': 'template',
+  '.bmp': 'image',
+  '.gif': 'image',
+  '.png': 'image',
+  '.jpg': 'image',
+  '.jpeg': 'image',
+  '.tiff': 'image'
 };
 var typeNotFoundHandler = {};
 
@@ -49,11 +55,11 @@ module.exports = function(flowData){
   };
   File.prototype = {
     get baseURI(){
-      return this.filename ? path.dirname(this.filename) : this.baseURI_;
+      return this.filename ? path.dirname(this.filename) + '/' : this.baseURI_;
     },
     set baseURI(uri){
       if (!this.filename)
-        this.baseURI_ = uri;
+        this.baseURI_ = path.normalize(uri + '/');
     },
     get outputFilename(){
       return this.outputFilename_;

@@ -16,15 +16,16 @@ var flow = [
   require('./js/init'),
   require('./css/init'),
 
+  // extract files
   require('./html/parse'),
   require('./html/fetchFiles'),
-
-  //require('./js/realignHtml'),
+  require('./tmpl/init'),
   require('./js/parse'),
-
   require('./tmpl/parse'),
-
   require('./css/parse'),
+  require('./resource/parse'),
+
+  // process css
   require('./css/prepareOutput'),
   require('./css/linear'),
   require('./css/merge'),

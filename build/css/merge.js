@@ -1,5 +1,5 @@
 
-var path = require('path');
+var at = require('./ast_tools');
 
 module.exports = function(flowData){
   var fconsole = flowData.console;
@@ -32,7 +32,7 @@ module.exports = function(flowData){
 
         file.outputFilename = 'style' + idx + '.css';
         idx++;
-        fconsole.log('Merge into ' + file.relOutputFilename);
+        fconsole.log('Merge into ' + file.relOutputFilename + ' (media: ' + file.media + ')');
         fconsole.incDeep();
       }
 

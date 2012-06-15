@@ -1,14 +1,9 @@
 
 var path = require('path')
 
-global.document = require('jsdom-nocontextifiy').jsdom();
-
 module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
-
-  global.basis = require(flowData.js.basisScript).basis;
-  basis.require('basis.template');
 
   for (var i = 0, file; file = queue[i]; i++)
   {
@@ -16,7 +11,9 @@ module.exports = function(flowData){
     {
       fconsole.log(flowData.files.relpath(file.filename));
       fconsole.incDeep();
+
       processTemplate(file, flowData);
+
       fconsole.decDeep();
       fconsole.log();
     }
@@ -25,8 +22,7 @@ module.exports = function(flowData){
 module.exports.handlerName = 'Parse templates';
 
 function processTemplate(file, flowData){
-  var baseURI = path.dirname(file.filename);
-  var decl = basis.template.makeDeclaration(file.content, baseURI + '/', { classMap: false });
+  var decl = basis.template.makeDeclaration(file.content, file.baseURI + '/', { classMap: false });
   var fconsole = flowData.console;
 
   //if (cssOptimazeNames && decl.unpredictable)
@@ -36,7 +32,7 @@ function processTemplate(file, flowData){
   {
     for (var i = 0, resourceFilename, ext; resourceFilename = decl.resources[i]; i++)
     {
-      resourceFilename = path.resolve(baseURI, resourceFilename);
+      resourceFilename = path.resolve(file.baseURI, resourceFilename);
       ext = path.extname(resourceFilename);
       if (ext == '.css')
       {
