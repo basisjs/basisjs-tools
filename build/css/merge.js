@@ -43,7 +43,8 @@ module.exports = function(flowData){
   }
   else
   {
-    console.log('Skiped.\nDon\'t use --no-css-single-file or --no-single-file to allow css file merge.');
+    fconsole.log('Skiped.')
+    fconsole.log('Don\'t use --no-css-single-file or --no-single-file to allow css file merge.');
   }
 }
 

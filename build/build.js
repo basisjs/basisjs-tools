@@ -1,10 +1,8 @@
 
-var path = require('path');
 var utils = require('./misc/utils');
 
+var startTime = new Date();
 
-//var inputFile = '../build.test/index.html';
-//var inputDir = path.dirname(path.resolve(inputFile)) + '/';
 
 var flowData = {
   console: require('./misc/console')
@@ -47,10 +45,15 @@ flow.forEach(function(handler){
     fconsole.log('\n' + title + '\n' + ('='.repeat(title.length)) + '\n');
   }
 
+  var handlerTime = new Date();
   handler(flowData);
 
   fconsole.resetDeep();
+  fconsole.log('');
+  fconsole.log('Time: ' + ((new Date - handlerTime) / 1000).toFixed(3) + 's');
 });
+
+console.log('\n\nBuild done in ' + ((new Date - startTime) / 1000).toFixed(3) + 's');
 
 /*var map = {};
 flowData.files.queue.forEach(function(file){

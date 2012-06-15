@@ -16,6 +16,8 @@ module.exports = function(flowData){
 
   flowData.css = {
     outputFiles: [],
+    classNameMap: {},
+    urlTokens: [],
     genericFile: genericStyleFile
   };
 

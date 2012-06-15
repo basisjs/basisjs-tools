@@ -12,7 +12,10 @@ module.exports = function(flowData){
     });
   }
   else
-    fconsole.log('Skiped.\nUse option --css-pack for CSS compression');
+  {
+    fconsole.log('Skiped.')
+    fconsole.log('Use option --css-pack for CSS compression');
+  }
 }
 
 module.exports.handlerName = 'Compress CSS files';
