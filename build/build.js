@@ -33,7 +33,9 @@ var flow = [
   require('./css/translate'),
   require('./css/write'),
 
-  require('./html/write')
+  require('./html/translate'),
+
+  require('./misc/writeFiles')
 ];
 
 flow.forEach(function(handler){

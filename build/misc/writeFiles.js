@@ -1,0 +1,18 @@
+
+var fs = require('fs');
+
+module.exports = function(flowData){
+  var queue = flowData.files.queue;
+  var fconsole = flowData.console;
+
+  for (var i = 0, file; file = queue[i]; i++)
+  {
+    if (file.outputFilename)
+    {
+      fconsole.log(file.relpath + ' -> ' + file.relOutputFilename);
+      fs.writeFile(file.outputFilename, file.outputContent || file.content, file.encoding);
+    }
+  }
+}
+
+module.exports.handlerName = 'Write output files';

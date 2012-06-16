@@ -9,7 +9,9 @@ module.exports = function(flowData){
   var inlineIndex = 0;
   var headNode;
 
-  walkHtml(flowData.html.ast, flowData);
+  var ast = flowData.html.inputFile.ast;
+
+  walkHtml(ast, flowData);
 
   // insert generic insert point
   flowData.css.genericFile.htmlInsertPoint = {
@@ -22,10 +24,9 @@ module.exports = function(flowData){
     }
   };
 
+  var genericInsertNode = ast;
   if (headNode)
     genericInsertNode = headNode.children || (headNode.children = []);
-  else
-    genericInsertNode = flowData.html.ast;
 
   genericInsertNode.push(flowData.css.genericFile.htmlInsertPoint);
 
@@ -119,7 +120,6 @@ module.exports = function(flowData){
             source: 'html:style',
             type: 'style',
             baseURI: inputDir,
-            outputFilename: '_inline',
             inline: true,
             media: attrs.media || 'all',
             content: getText(node)

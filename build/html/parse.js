@@ -17,21 +17,23 @@ module.exports = function(flowData){
     process.exit();
   }
 
-  // get html file content
-  var rawHtml = fs.readFileSync(filename, 'utf-8');
+  var inputFile = flowData.files.add({
+    filename: filename
+  });
 
   // prepare parser
   var handler = new htmlparser.DefaultHandler();
   var parser = new htmlparser.Parser(handler, parserConfig);
 
   // parse html
-  parser.parseComplete(rawHtml);
+  parser.parseComplete(inputFile.content);
 
   // debug output
   //console.log(util.inspect(handler.dom, false, null));
 
   // save result in flowData
-  flowData.html.ast = handler.dom;
+  flowData.html.inputFile = inputFile;
+  inputFile.ast = handler.dom;
 };
 
 module.exports.handlerName = 'Parse html';

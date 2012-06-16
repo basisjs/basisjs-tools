@@ -9,14 +9,6 @@ module.exports = function(flowData){
   // write
   for (var i = 0, file; file = outputFiles[i]; i++)
   {
-    // write to file
-    flowData.console.log('Write ' + file.relOutputFilename);
-    fs.writeFileSync(
-      file.outputFilename,
-      file.outputContent,
-      'utf-8'
-    );
-
     // replace token in html
     flowData.html.replaceToken(file.htmlInsertPoint, {
       type: 'tag',

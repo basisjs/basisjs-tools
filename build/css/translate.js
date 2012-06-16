@@ -22,7 +22,6 @@ module.exports = function(flowData){
     else
     {
       fconsole.log('[OK] ' + file.relOutputFilename)
-      file.addToOutput();
     }
 
     return !isEmpty; // keep not empty

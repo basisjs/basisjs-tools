@@ -52,8 +52,8 @@ module.exports = function(flowData){
 
     while (targetMap[outputFilename])
       outputFilename = baseOutputFilename + (++idx);
+    targetMap[outputFilename] = true;
 
     file.outputFilename = outputFilename + '.css';
-    targetMap[file.outputFilename] = true;
   }
 }

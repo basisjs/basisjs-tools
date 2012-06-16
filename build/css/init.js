@@ -6,7 +6,6 @@ module.exports = function(flowData){
   });
 
   var genericStyleFile = flowData.files.add({
-    outputFilename: '_generic',
     source: 'generic',
     type: 'style',
     baseURI: flowData.inputDir,

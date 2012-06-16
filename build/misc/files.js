@@ -90,10 +90,6 @@ module.exports = function(flowData){
     },
     get fileRef(){
       return this.relOutputFilename + '?' + this.digest;
-    },
-    addToOutput: function(){
-      if (outputQueue.add(this))
-        fconsole.log('[+] ' + this.relOutputFilename + ' added to output list');
     }
   };
 
