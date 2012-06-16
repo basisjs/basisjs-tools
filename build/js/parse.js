@@ -99,9 +99,8 @@ function processScript(file, flowData){
             filename = path.resolve(inputDir, filename);
             flowData.files.add({
               source: 'js:basis.resource',
-              filename: filename,
-              generic: true
-            });
+              filename: filename
+            }).isResource = true;
           }
 
           break;
@@ -114,9 +113,8 @@ function processScript(file, flowData){
             filename = path.resolve(context.__dirname, filename);
             flowData.files.add({
               source: 'js:basis.resource',
-              filename: filename,
-              generic: true
-            });
+              filename: filename
+            }).isResource = true;
           }
 
           break;

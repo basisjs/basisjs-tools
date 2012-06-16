@@ -9,10 +9,31 @@ module.exports = function(flowData){
   {
     if (file.type == 'template')
     {
-      fconsole.log(flowData.files.relpath(file.filename));
+      fconsole.log(file.relpath);
       fconsole.incDeep();
 
-      processTemplate(file, flowData);
+      var decl = basis.template.makeDeclaration(file.content, file.baseURI, { classMap: false });
+
+      file.decl = decl;
+      file.ast = decl.tokens;
+
+      if (decl.resources.length)
+      {
+        for (var j = 0, resourceFilename; resourceFilename = decl.resources[j]; j++)
+        {
+          if (path.extname(resourceFilename) == '.css')
+          {
+            flowData.files.add({
+              source: 'tmpl:resource',
+              filename: path.resolve(file.baseURI, resourceFilename)
+            }).isResource = true;
+          }
+          else
+          {
+            fconsole.log('[!] ' + flowData.files.relpath(resourceFilename) + ' (unknown type ignored)');
+          }
+        }
+      }
 
       fconsole.decDeep();
       fconsole.log();
@@ -20,39 +41,3 @@ module.exports = function(flowData){
   }
 }
 module.exports.handlerName = 'Parse templates';
-
-function processTemplate(file, flowData){
-  var decl = basis.template.makeDeclaration(file.content, file.baseURI + '/', { classMap: false });
-  var fconsole = flowData.console;
-
-  //if (cssOptimazeNames && decl.unpredictable)
-  //  fconsole.log('  [WARN] Unpredictable class names in template, class names optimization is not safe\n');
-
-  if (decl.resources.length)
-  {
-    for (var i = 0, resourceFilename, ext; resourceFilename = decl.resources[i]; i++)
-    {
-      resourceFilename = path.resolve(file.baseURI, resourceFilename);
-      ext = path.extname(resourceFilename);
-      if (ext == '.css')
-      {
-        flowData.files.add({
-          source: 'tmpl:resource',
-          generic: true,
-          filename: resourceFilename
-        });
-        //fconsole.log('[+] ' + flowData.files.relpath(resourceFilename));
-      }
-      else
-      {
-        fconsole.log('[!] ' + flowData.files.relpath(resourceFilename) + ' (unknown type ignored)');
-      }
-    }
-  }
-
-  file.ast = decl.tokens;
-  //resource.content = decl.toString();
-
-  if (decl.classMap)
-    file.classMap = decl.classMap;
-}

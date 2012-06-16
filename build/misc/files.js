@@ -74,14 +74,19 @@ module.exports = function(flowData){
       return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
     },
     get digest(){
-      var hash = crypto.createHash('md5');
-      hash.update(this.outputContent || this.content);
-      return hash.digest('base64')
-        // remove trailing == which always appear on md5 digest, save 2 bytes
-        .replace(/=+$/, '')
-        // make digest web safe
-        .replace(/\//g, '_')
-        .replace(/\+/g, '-');
+      if (!this.digest_)
+      {
+        var hash = crypto.createHash('md5');
+        hash.update(this.outputContent || this.content);
+        this.digest_ = hash.digest('base64')
+          // remove trailing == which always appear on md5 digest, save 2 bytes
+          .replace(/=+$/, '')
+          // make digest web safe
+          .replace(/\//g, '_')
+          .replace(/\+/g, '-');
+      }
+
+      return this.digest_;
     },
     get fileRef(){
       return this.relOutputFilename + '?' + this.digest;

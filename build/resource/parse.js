@@ -28,16 +28,18 @@ module.exports = function(flowData){
             if (filename)
               filename = path.resolve(file.baseURI, filename);
 
-            files.add({
+            var resFile = files.add({
               source: 'style:url',
               isResource: true,
               filename: filename
             });
+            resFile.outputFilename = 'res/' + resFile.digest + path.extname(filename);
 
-            urlMap.push({
+            atCss.packUri(resFile.relOutputFilename, token);
+            /*urlMap.push({
               file: file,
               token: token
-            });
+            });*/
           }
         });
 

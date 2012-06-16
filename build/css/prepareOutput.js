@@ -22,7 +22,7 @@ module.exports = function(flowData){
   genericFile.ast = [{}, 'stylesheet'];
   genericFile.imports = flowData.files.queue
     .filter(function(file){
-      return file.type == 'style' && file.generic;
+      return file.type == 'style' && file.isResource;
     })
     .map(function(file, idx){
       genericFile.ast.push(

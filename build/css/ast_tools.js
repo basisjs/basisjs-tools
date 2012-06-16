@@ -23,16 +23,16 @@ function packWhiteSpace(ws){
 }
 
 function packString(string){
-  return [{}, 'string', '"' + string.replace(/\"/, '\\"') + '"'];
+  return [{}, 'string', '"' + String(string).replace(/\"/, '\\"') + '"'];
 }
 
 function packComment(comment){
-  return [{}, 'comment', comment.replace(/\*\//g, '* /')];
+  return [{}, 'comment', String(comment).replace(/\*\//g, '* /')];
 }
 
 function packUri(uri, token){
   token = token || [{}, 'uri'];
-  token[2] = uri.indexOf(')') != -1 ? packString(uri) : [{}, 'raw', uri];
+  token[2] = String(uri).indexOf(')') != -1 ? packString(uri) : [{}, 'raw', uri];
   return token;
 }
 
@@ -61,5 +61,7 @@ module.exports = {
   unpackString: unpackString,
   unpackUri: unpackUri,
   packWhiteSpace: packWhiteSpace,
+  packString: packString,
   packComment: packComment,
+  packUri: packUri
 };
