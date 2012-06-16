@@ -72,9 +72,6 @@ module.exports = function(flowData){
       }
 
       return this.digest_;
-    },
-    get fileRef(){
-      return this.relOutputFilename + '?' + this.digest;
     }
   };
 

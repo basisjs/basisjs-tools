@@ -24,7 +24,6 @@ module.exports = function(flowData){
 
       file.outputContent = outputContent;
 
-
       // replace token in html
       flowData.html.replaceToken(file.htmlInsertPoint, {
         type: 'tag',
@@ -33,7 +32,7 @@ module.exports = function(flowData){
           rel: 'stylesheet',
           type: 'text/css',
           media: file.media,
-          href: file.fileRef
+          href: file.relOutputFilename + '?' + file.digest
         }
       });
     }

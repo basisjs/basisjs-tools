@@ -1,12 +1,16 @@
 
 module.exports = function(flowData){
-  var queue = flowData.files.queue;
+  var uniqueMap = {};
 
-  for (var i = 0, file; file = queue[i]; i++)
+  for (var i = 0, file; file = flowData.files.queue[i]; i++)
   {
     if (file.cssResource)
     {
-      file.outputContent = file.content;
+      if (!uniqueMap[file.digest])
+      {
+        uniqueMap[file.digest] = true;
+        file.outputContent = file.content;
+      }
     }
   }
 }

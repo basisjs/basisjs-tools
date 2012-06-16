@@ -35,8 +35,9 @@ module.exports = function(flowData){
               });
               resFile.cssResource = true;
               resFile.outputFilename = 'res/' + resFile.digest + path.extname(filename);
+              resFile.fileRef = resFile.relOutputFilename;
 
-              atCss.packUri(resFile.relOutputFilename, token);
+              atCss.packUri(resFile.fileRef, token);
             }
             /*urlMap.push({
               file: file,
