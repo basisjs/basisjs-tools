@@ -81,6 +81,14 @@ module.exports = function(flowData){
   console.log(flowData);
   process.exit();*/
 
+  // check input file exists
+  if (!path.existsSync(inputFilename))
+  {
+    console.warn('Input file ' + inputFilename + ' not found');
+    process.exit();
+  }
+
+
   // return
 
   flowData.options = options;

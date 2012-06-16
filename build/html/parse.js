@@ -8,18 +8,7 @@ var parserConfig = {
 };
 
 module.exports = function(flowData){
-  var filename = flowData.inputFilename;
-
-  // check html file exists
-  if (!path.existsSync(filename))
-  {
-    console.warn(filename + ' not found');
-    process.exit();
-  }
-
-  var inputFile = flowData.files.add({
-    filename: filename
-  });
+  var inputFile = flowData.inputFile;
 
   // prepare parser
   var handler = new htmlparser.DefaultHandler();
@@ -32,7 +21,6 @@ module.exports = function(flowData){
   //console.log(util.inspect(handler.dom, false, null));
 
   // save result in flowData
-  flowData.html.inputFile = inputFile;
   inputFile.ast = handler.dom;
 };
 

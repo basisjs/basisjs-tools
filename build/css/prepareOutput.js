@@ -3,16 +3,6 @@ var path = require('path');
 var at = require('./ast_tools');
 
 module.exports = function(flowData){
-  var outputDir = flowData.outputDir;
-  var outputFiles = flowData.files.queue.filter(function(file){
-    if (file.type == 'style' && file.htmlInsertPoint)
-      return file;
-  });
-
-  // save output files
-  flowData.css.outputFiles = outputFiles;
-
-
   //
   // build generic style file (style from js & tmpl)
   //
@@ -40,20 +30,28 @@ module.exports = function(flowData){
     });
 
   //
-  // prepare output files
+  // output files
   //
+  flowData.css.outputFiles = flowData.files.queue.filter(function(file){
+    if (file.type == 'style' && file.htmlInsertPoint)
+    {
+      setOutputFilename(file);
+      return true;
+    }
+  });
+}
 
-  // make target filename for output
-  for (var i = 0, file, targetMap = {}; file = outputFiles[i]; i++)
-  {
-    var baseOutputFilename = file.outputFilename || (file.filename ? path.basename(file.filename, '.css') : '') || 'style';
-    var idx = 0;
-    var outputFilename = baseOutputFilename;
 
-    while (targetMap[outputFilename])
-      outputFilename = baseOutputFilename + (++idx);
-    targetMap[outputFilename] = true;
+var targetMap = {};
 
-    file.outputFilename = outputFilename + '.css';
-  }
+function setOutputFilename(file){
+  var baseOutputFilename = file.outputFilename || (file.filename ? path.basename(file.filename, '.css') : '') || 'style';
+  var idx = 0;
+  var outputFilename = baseOutputFilename;
+
+  while (targetMap[outputFilename])
+    outputFilename = baseOutputFilename + (++idx);
+  targetMap[outputFilename] = true;
+
+  file.outputFilename = outputFilename + '.css';
 }

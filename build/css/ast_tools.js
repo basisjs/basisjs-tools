@@ -37,6 +37,42 @@ function packUri(uri, token){
 }
 
 
+var dataUriRx = /^\s*data:\s*(\S+)\s*;/i;
+var base64PrefixRx = /^\s*base64\s*,\s*/i;
+var externalUri = /^(\/\/|\S+:)/i;
+
+function resolveUri(uri){
+  var m = uri.match(dataUriRx);
+
+  if (m)
+  {
+    var result = {
+      mime: m[1],
+      content: uri.replace(dataUriRx, '')
+    };
+
+    // decode from base64
+    if (base64PrefixRx.test(result.content))
+    {
+      result.base64 = true;
+      result.content = new Buffer(result.content.replace(base64PrefixRx, ''), 'base64').toString('utf-8');
+    };
+
+    return result;
+  }
+  else
+  {
+    if (externalUri.test(uri))
+      return {
+        url: uri
+      };
+    else
+      return {
+        filename: uri
+      };
+  }
+}
+
 module.exports = {
   translate: function(ast){
     return csso.translate(csso.cleanInfo(ast));
@@ -60,6 +96,7 @@ module.exports = {
   wsFilter: wsFilter,
   unpackString: unpackString,
   unpackUri: unpackUri,
+  resolveUri: resolveUri,
   packWhiteSpace: packWhiteSpace,
   packString: packString,
   packComment: packComment,

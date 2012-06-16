@@ -5,9 +5,8 @@ module.exports = function(flowData){
   var fconsole = flowData.console;
 
   flowData.css.outputFiles.filter(function(file){
-    file.outputContent = at.translate(file.ast);
-
-    var isEmpty = !file.outputContent.length;
+    var outputContent = at.translate(file.ast);
+    var isEmpty = !outputContent.length;
 
     if (isEmpty)
     {
@@ -22,6 +21,21 @@ module.exports = function(flowData){
     else
     {
       fconsole.log('[OK] ' + file.relOutputFilename)
+
+      file.outputContent = outputContent;
+
+
+      // replace token in html
+      flowData.html.replaceToken(file.htmlInsertPoint, {
+        type: 'tag',
+        name: 'link',
+        attribs: {
+          rel: 'stylesheet',
+          type: 'text/css',
+          media: file.media,
+          href: file.fileRef
+        }
+      });
     }
 
     return !isEmpty; // keep not empty

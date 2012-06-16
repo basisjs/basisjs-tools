@@ -25,14 +25,18 @@ var flow = [
   require('./css/parse'),
   require('./resource/parse'),
 
+  // css/html resources
+  require('./resource/translate'),
+
   // process css
   require('./css/prepareOutput'),
   require('./css/linear'),
   require('./css/merge'),
   require('./css/pack'),
   require('./css/translate'),
-  require('./css/write'),
+  //require('./css/write'),
 
+  // process html
   require('./html/translate'),
 
   require('./misc/writeFiles')

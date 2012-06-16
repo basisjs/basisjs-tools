@@ -30,21 +30,6 @@ module.exports = function(flowData){
   var options = flowData.options;
   var fconsole = flowData.console;
 
-  /*var BASE_PATH = path.normalize(flowData.baseURI);
-  var FILENAME = options.file;
-  var BASENAME = path.basename(flowData.inputFile, path.extname(flowData.inputFile));
-  var INDEX_FILE = path.resolve(BASE_PATH, FILENAME);
-  var INDEX_PATH = path.dirname(INDEX_FILE) + '/';
-  var BUILD_DIR = path.resolve(BASE_PATH, 'build');
-  var BUILD_RESOURCE_DIR = BUILD_DIR + '/res';*/
-
-  mkdir(flowData.outputDir);
-  mkdir(flowData.outputResourceDir);
-
-  function relpath(filename){
-    return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
-  }
-
   //
   // file class
   //
@@ -93,6 +78,9 @@ module.exports = function(flowData){
     }
   };
 
+  function relpath(filename){
+    return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
+  }
 
   function mkdir(dirpath){
     dirpath = path.resolve(flowData.inputDir, dirpath);
@@ -160,6 +148,15 @@ module.exports = function(flowData){
     queue.remove(fileMap[filename]);
     delete fileMap[filename];
   }  
+
+
+
+  mkdir(flowData.outputDir);
+  mkdir(flowData.outputResourceDir);
+
+  flowData.inputFile = addFile({
+    filename: flowData.inputFilename
+  });
 
   flowData.files = {
     queue: queue,

@@ -9,7 +9,7 @@ module.exports = function(flowData){
   var inlineIndex = 0;
   var headNode;
 
-  var ast = flowData.html.inputFile.ast;
+  var ast = flowData.inputFile.ast;
 
   walkHtml(ast, flowData);
 

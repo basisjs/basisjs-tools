@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 
 module.exports = function(flowData){
-  var inputFile = flowData.html.inputFile;
+  var inputFile = flowData.inputFile;
 
   inputFile.outputFilename = path.basename(flowData.inputFilename);
   inputFile.outputContent = inputFile.ast.map(htmlparser.DomUtils.getOuterHTML, htmlparser.DomUtils).join('');

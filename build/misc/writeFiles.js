@@ -7,10 +7,10 @@ module.exports = function(flowData){
 
   for (var i = 0, file; file = queue[i]; i++)
   {
-    if (file.outputFilename)
+    if (file.outputFilename && 'outputContent' in file)
     {
       fconsole.log(file.relpath + ' -> ' + file.relOutputFilename);
-      fs.writeFile(file.outputFilename, file.outputContent || file.content, file.encoding);
+      fs.writeFile(file.outputFilename, file.outputContent, file.encoding);
     }
   }
 }

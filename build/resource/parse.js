@@ -23,19 +23,21 @@ module.exports = function(flowData){
           'uri': function(token){
             fconsole.log('Found ' + atCss.translate(token));
 
-            var filename = atCss.unpackUri(token);
+            var uri = atCss.resolveUri(atCss.unpackUri(token));
 
-            if (filename)
-              filename = path.resolve(file.baseURI, filename);
+            if (uri.filename)
+            {
+              var filename = path.resolve(file.baseURI, uri.filename);
 
-            var resFile = files.add({
-              source: 'style:url',
-              isResource: true,
-              filename: filename
-            });
-            resFile.outputFilename = 'res/' + resFile.digest + path.extname(filename);
+              var resFile = files.add({
+                source: 'style:url',
+                filename: filename
+              });
+              resFile.cssResource = true;
+              resFile.outputFilename = 'res/' + resFile.digest + path.extname(filename);
 
-            atCss.packUri(resFile.relOutputFilename, token);
+              atCss.packUri(resFile.relOutputFilename, token);
+            }
             /*urlMap.push({
               file: file,
               token: token

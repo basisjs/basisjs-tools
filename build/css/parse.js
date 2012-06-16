@@ -3,19 +3,14 @@ var path = require('path')
 var csso = require('csso');
 var at = require('./ast_tools');
 
-var dataUriRx = /^\s*data:\s*text\/css\s*;/i;
-var base64PrefixRx = /^\s*base64\s*,\s*/i;
-
-
 //
 // export
 //
 
 module.exports = function(flowData){
-  var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
-  for (var i = 0, file; file = queue[i]; i++)
+  for (var i = 0, file; file = flowData.files.queue[i]; i++)
   {
     if (file.type == 'style')
     {
@@ -45,41 +40,38 @@ module.exports = function(flowData){
             if (parts[0][1] == 's')
               parts.shift();
 
-            var importFile;
             var firstArg = parts.shift();
-            var url = firstArg[1] == 'uri'
-              ? at.unpackUri(firstArg)
-              : at.unpackString(firstArg[2]);
+            var uri = at.resolveUri(
+              firstArg[1] == 'uri'
+                ? at.unpackUri(firstArg)
+                : at.unpackString(firstArg[2])
+            );
 
+            // ignore externals
+            if (uri.url)
+              return;
+
+            // resolve import file
+            var importFile = flowData.files.add(
+              uri.filename
+                ? {
+                    source: 'css:import',
+                    filename: path.resolve(baseURI, uri.filename)
+                  }
+                : {
+                    source: 'css:import',
+                    type: 'style',
+                    baseURI: baseURI,
+                    content: uri.content
+                  }
+            );
+
+            // resolve media
             var media = parts;
             if (media[0] && media[0][1] != 's')
               media.unshift(at.packWhiteSpace(' '));
 
-            if (dataUriRx.test(url))
-            {
-              var content = url.replace(dataUriRx, '');
-
-              // decode from base64
-              if (base64PrefixRx.test(content))
-                content = new Buffer(content.replace(base64PrefixRx, ''), 'base64').toString('utf-8');
-
-              importFile = flowData.files.add({
-                source: 'css:import',
-                type: 'style',
-                baseURI: baseURI,
-                content: content
-              });
-            }
-            else
-            {
-              var filename = path.resolve(baseURI, url);
-
-              importFile = flowData.files.add({
-                source: 'css:import',
-                filename: filename
-              });
-            }
-
+            // add import
             file.imports.push({
               token: parentToken,
               pos: parentToken.indexOf(token),
