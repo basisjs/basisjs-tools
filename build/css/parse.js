@@ -1,6 +1,7 @@
 
 var path = require('path')
 var csso = require('csso');
+var utils = require('../misc/utils');
 var at = require('./ast_tools');
 
 //
@@ -41,7 +42,7 @@ module.exports = function(flowData){
               parts.shift();
 
             var firstArg = parts.shift();
-            var uri = at.resolveUri(
+            var uri = utils.resolveUri(
               firstArg[1] == 'uri'
                 ? at.unpackUri(firstArg)
                 : at.unpackString(firstArg[2])

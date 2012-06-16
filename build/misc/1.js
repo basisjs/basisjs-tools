@@ -1,0 +1,1 @@
+console.log(new Buffer(new Buffer('asd')).toString('base64'))

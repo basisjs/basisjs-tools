@@ -1,5 +1,6 @@
 
 var atCss = require('../css/ast_tools');
+var utils = require('../misc/utils');
 var path = require('path');
 
 module.exports = function(flowData){
@@ -23,7 +24,7 @@ module.exports = function(flowData){
           'uri': function(token){
             fconsole.log('Found ' + atCss.translate(token));
 
-            var uri = atCss.resolveUri(atCss.unpackUri(token));
+            var uri = utils.resolveUri(atCss.unpackUri(token));
 
             if (uri.filename)
             {
