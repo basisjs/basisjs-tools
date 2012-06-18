@@ -39,6 +39,10 @@ var flow = [
   // process html
   require('./html/translate'),
 
+  //process l10n
+  require('./l10n/collect'),
+  require('./l10n/modifyCall'),
+  
   require('./misc/writeFiles')
 ];
 
