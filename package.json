@@ -1,0 +1,28 @@
+{
+  "author": "Roman Dvornov <rdvornov@gmail.com>",
+  "name": "basistools",
+  "description": "A set of tools for basis framework",
+  "version": "0.0.1",
+  "homepage": "https://github.com/lahmatiy/basistools",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lahmatiy/basistools.git"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "dependencies": {
+    "commander": "~0.6.1",
+    "htmlparser2": "~2.2.9",
+    "csso": "~1.2.14",
+    "uglify-js": "~1.3.0",
+    "jsdom-nocontextifiy": "~0.2.10"
+  },
+  "devDependencies": {
+    "jasmine-node": "~1.0.26"
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
