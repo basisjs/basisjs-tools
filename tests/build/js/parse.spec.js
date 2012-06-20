@@ -72,6 +72,8 @@ describe('js parse', function(){
       source: 'js:basis.require',
       filename: '/some/dir/app/some/package.js'
     });
+    var file = flowData.files.queue[0];
+    expect(file.deps).toEqual(['/some/dir/app/some/package.js']);
   });
 
   it('should evaluate `__dirname` in require/resource calls', function(){
