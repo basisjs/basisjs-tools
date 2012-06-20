@@ -115,6 +115,7 @@ module.exports = function(flowData){
           break;
 
         case 'style':
+          var attrs = getAttrs(node);
           fconsole.log('Inline style found');
           file = {
             source: 'html:style',
