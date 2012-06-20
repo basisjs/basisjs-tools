@@ -1,10 +1,5 @@
-var util = require('util');
 var htmlparser = require("htmlparser2");
 var fetchFiles = require('../../../build/html/fetchFiles.js');
-
-function inspect(obj){
-  console.log(util.inspect(obj, false, null, true));
-}
 
 var handler = new htmlparser.DefaultHandler();
 var parser = new htmlparser.Parser(handler,  { lowerCaseTags: true });
@@ -35,7 +30,7 @@ function getFlowData(ast, spy){
 }
 
 function getSpy(){
-  return jasmine.createSpy('files add').andCallFake(function(){
+  return jasmine.createSpy('files add').andReturn(function(){
     return 'script';
   });
 }

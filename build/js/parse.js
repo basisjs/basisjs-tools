@@ -17,7 +17,7 @@ module.exports = function JSFileHandler(flowData){
       fconsole.decDeep();
       fconsole.log();
     }
-}
+};
 
 module.exports.handlerName = 'Parse and expand javascript';
 
