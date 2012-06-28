@@ -20,7 +20,7 @@ module.exports.handlerName = 'Extract dictionary creation calls';
 var path = require('path');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
-var astUtils = require('../misc/js-ast-utils');
+var astUtils = require('../js/ast-utils');
 
 function process(file, flowData){
   var ast = file.ast;

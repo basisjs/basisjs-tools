@@ -52,7 +52,7 @@ function getAST(code){
   return parser.parse(code)[1][0][1];
 }
 
-function getCallArgs(args, context){
+function getCallArgs(args, context, onError){
   return args.map(function(arg){
     if (arg[0] == 'string')
     {
@@ -62,14 +62,13 @@ function getCallArgs(args, context){
     {
       try
       {
-        // very slow: vm.runInNewContext(translate(arg), context);
-        var result = Function('__dirname, __filename', 'return ' + translate(arg)).call(null, context.__dirname, context.__filename);
+        var result = vm.runInNewContext(translate(arg), context);
         if (typeof result == 'string')
           return result;
       }
       catch(e)
       {
-        console.log('unable to evaluate "', translate(arg), '" in context ', context);
+        onError('unable to evaluate "' + translate(arg) + '" in context ' + JSON.stringify(context));
       }
     }
   });
@@ -87,12 +86,16 @@ function processScript(file, flowData){
     __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
   };
 
+  function onError(msg){
+    flowData.console.log(msg);
+  }
+
   walker.with_walkers({
     "call": function(expr, args){
       switch (translate(expr))
       {
         case BASIS_RESOURCE:
-          var filename = getCallArgs(args, context)[0];
+          var filename = getCallArgs(args, context, onError)[0];
           //console.log('basis.resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
@@ -106,7 +109,7 @@ function processScript(file, flowData){
           break;
 
         case RESOURCE:
-          var filename = getCallArgs(args, context)[0];
+          var filename = getCallArgs(args, context, onError)[0];
           //console.log('resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
@@ -120,7 +123,7 @@ function processScript(file, flowData){
           break;
 
         case BASIS_REQUIRE:
-          var filename = getCallArgs(args, context)[0];
+          var filename = getCallArgs(args, context, onError)[0];
           //console.log('basis.require call found:', translateCallExpr(expr, args));
 
           if (filename)

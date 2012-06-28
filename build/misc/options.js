@@ -1,5 +1,6 @@
 
 var path = require('path');
+var fs = require('fs');
 var options = require('commander');
 
 module.exports = function(flowData){
@@ -82,7 +83,7 @@ module.exports = function(flowData){
   process.exit();*/
 
   // check input file exists
-  if (!path.existsSync(inputFilename))
+  if (!fs.existsSync(inputFilename))
   {
     console.warn('Input file ' + inputFilename + ' not found');
     process.exit();

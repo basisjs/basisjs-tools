@@ -9,6 +9,10 @@ var typeByExt = {
   '.js': 'script',
   '.css': 'style',
   '.tmpl': 'template',
+  '.html': 'html',
+  '.json': 'json',
+  '.xml': 'xml',
+  '.svg': 'svg',
   '.bmp': 'image',
   '.gif': 'image',
   '.png': 'image',
@@ -82,7 +86,7 @@ module.exports = function(flowData){
   function mkdir(dirpath){
     dirpath = path.resolve(flowData.inputDir, dirpath);
 
-    if (!path.existsSync(dirpath))
+    if (!fs.existsSync(dirpath))
       fs.mkdirSync(dirpath);  
   }
 
@@ -96,7 +100,7 @@ module.exports = function(flowData){
 
       if (fileMap[filename]) // ignore duplicates
       {
-        fconsole.log('[DUP] File `' + relpath(filename) + '` already in queue');
+        fconsole.log('[ ] File `' + relpath(filename) + '` already in queue');
 
         /*if (moveToQueueEndFile.indexOf(ext) != -1)
         {
@@ -114,7 +118,7 @@ module.exports = function(flowData){
       file = new File(data);
 
       // read content
-      if (path.existsSync(filename) && fs.statSync(filename).isFile())
+      if (fs.existsSync(filename) && fs.statSync(filename).isFile())
       {
         fconsole.log('[+] ' + file.relpath + ' (' + file.type + ')');
         file.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');

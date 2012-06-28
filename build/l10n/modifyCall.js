@@ -18,7 +18,7 @@ module.exports = function(flowData){
 };
 
 var processor = require("uglify-js").uglify;
-var astUtils = require('../misc/js-ast-utils');
+var astUtils = require('../js/ast-utils');
 var path = require('path');
 var util = require('util');
 
