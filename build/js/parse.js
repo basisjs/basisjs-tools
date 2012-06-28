@@ -28,57 +28,13 @@ module.exports.handlerName = 'Parse and expand javascript';
 
 var fs = require('fs');
 var path = require('path');
-var vm = require('vm');
-var parser = require("uglify-js").parser;
-var processor = require("uglify-js").uglify;
+var at = require('./ast-utils');
 
-
-var walker = processor.ast_walker();
-
-var BASIS_RESOURCE = translate(getAST('basis.resource'));
-var RESOURCE = translate(getAST('resource'));
-var BASIS_REQUIRE = translate(getAST('basis.require'));
-
-function translate(ast){
-  return processor.gen_code(ast);
-}
-
-function translateCallExpr(expr, args){
-  return translate(expr) + '(' + args.map(translate).join(', ') + ')';
-}
-
-function getAST(code){
-  //return top level statement's ast
-  return parser.parse(code)[1][0][1];
-}
-
-function getCallArgs(args, context, onError){
-  return args.map(function(arg){
-    if (arg[0] == 'string')
-    {
-      return arg[1];
-    }
-    else
-    {
-      try
-      {
-        var result = vm.runInNewContext(translate(arg), context);
-        if (typeof result == 'string')
-          return result;
-      }
-      catch(e)
-      {
-        onError('unable to evaluate "' + translate(arg) + '" in context ' + JSON.stringify(context));
-      }
-    }
-  });
-}
-
+var BASIS_RESOURCE = at.normalize('basis.resource');
+var RESOURCE = at.normalize('resource');
+var BASIS_REQUIRE = at.normalize('basis.require');
 
 function processScript(file, flowData){
-
-  var code = file.content;
-  var ast = parser.parse(code);
   var deps = [];
   var inputDir = flowData.inputDir;
   var context = {
@@ -86,69 +42,65 @@ function processScript(file, flowData){
     __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
   };
 
-  function onError(msg){
-    flowData.console.log(msg);
-  }
-
-  walker.with_walkers({
+  // extend file info
+  file.deps = deps;
+  file.ast = at.parse(file.content);
+  
+  at.walk(file.ast, {
     "call": function(expr, args){
+      var filename;
+      var file;
+
       switch (translate(expr))
       {
         case BASIS_RESOURCE:
-          var filename = getCallArgs(args, context, onError)[0];
+          filename = at.getCallArgs(args, context)[0];
           //console.log('basis.resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
-            filename = path.resolve(inputDir, filename);
-            flowData.files.add({
+            file = flowData.files.add({
               source: 'js:basis.resource',
-              filename: filename
-            }).isResource = true;
+              filename: path.resolve(inputDir, filename)
+            });
+            file.isResource = true;
           }
 
           break;
 
         case RESOURCE:
-          var filename = getCallArgs(args, context, onError)[0];
+          filename = at.getCallArgs(args, context)[0];
           //console.log('resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
-            filename = path.resolve(context.__dirname, filename);
-            flowData.files.add({
+            file = flowData.files.add({
               source: 'js:basis.resource',
-              filename: filename
-            }).isResource = true;
+              filename: path.resolve(context.__dirname, filename)
+            });
+            file.isResource = true;
           }
 
           break;
 
         case BASIS_REQUIRE:
-          var filename = getCallArgs(args, context, onError)[0];
+          filename = at.getCallArgs(args, context)[0];
           //console.log('basis.require call found:', translateCallExpr(expr, args));
-
           if (filename)
           {
             var parts = filename.split(/\./);
             filename = path.resolve(flowData.js.base[parts[0]] || flowData.inputDir, parts.join('/')) + '.js';
             
-            flowData.files.add({
+            file = flowData.files.add({
               source: 'js:basis.require',
               filename: filename
             });
 
-            deps.push(filename);
+            deps.push(file);
           }
 
           break;
       }
     }
-  }, function(){
-    return walker.walk(ast);
   });
-
-  // extend file info
-  file.ast = ast;
-  file.deps = deps;
 }
 
 
