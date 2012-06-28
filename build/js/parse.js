@@ -26,9 +26,8 @@ module.exports.handlerName = 'Parse and expand javascript';
 // main part
 //
 
-var fs = require('fs');
 var path = require('path');
-var at = require('./ast-utils');
+var at = require('./ast_tools');
 
 var BASIS_RESOURCE = at.normalize('basis.resource');
 var RESOURCE = at.normalize('resource');
@@ -51,7 +50,7 @@ function processScript(file, flowData){
       var filename;
       var file;
 
-      switch (translate(expr))
+      switch (at.translate(expr))
       {
         case BASIS_RESOURCE:
           filename = at.getCallArgs(args, context)[0];

@@ -2,6 +2,10 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
+
+  flowData.dictList = {};
+  flowData.l10nKeys = [];
+
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
@@ -18,25 +22,23 @@ module.exports = function(flowData){
 module.exports.handlerName = 'Extract dictionary creation calls';
 
 var path = require('path');
-var parser = require("uglify-js").parser;
-var processor = require("uglify-js").uglify;
-var astUtils = require('../js/ast-utils');
+
+var at = require('../js/ast_tools');
+var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 
 function process(file, flowData){
-  var ast = file.ast;
   var context = {
     __filename: file.filename || '',
     __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
   };
-  var walker = processor.ast_walker();
   var dictList = {};
   var l10nKeys = [];
 
-  walker.with_walkers({
+  at.walk(file.ast, {
     call: function(expr, args){
-      if (astUtils.isAstEqualsCode(expr, 'basis.l10n.createDictionary'))
+      if (at.translate(expr) == CREATE_DICTIONARY)
       {
-        var eargs = astUtils.getCallArgs(args, context);
+        var eargs = at.getCallArgs(args, context);
         keys = Object.keys(eargs[2]);
 
         dictList[eargs[0]] = {
@@ -49,12 +51,9 @@ function process(file, flowData){
         });  
       }
     }
-  }, function(){
-    return walker.walk(ast);
   });
   
-  flowData.dictList = flowData.dictList || {};
+  flowData.l10nKeys.push.apply(flowData.l10nKeys, l10nKeys);
   for (var i in dictList)
     flowData.dictList[i] = dictList[i];
-  flowData.l10nKeys = flowData.l10nKeys ? flowData.l10nKeys.concat(l10nKeys) : l10nKeys;
 }

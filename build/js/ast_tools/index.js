@@ -58,6 +58,9 @@ function getCallArgs(args, context){
 
 module.exports = {
   parse: parse,
+  map: function(tokens, fn){
+    return processor.MAP(tokens, fn || walker.walk);
+  },
   getAstTop: getAstTop,
   normalize: normalize,
   getCallArgs: getCallArgs,

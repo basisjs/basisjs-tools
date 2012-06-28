@@ -44,7 +44,7 @@ module.exports = function(flowData){
   };
   File.prototype = {
     get baseURI(){
-      return this.filename ? path.dirname(this.filename) + '/' : this.baseURI_;
+      return this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '';
     },
     set baseURI(uri){
       if (!this.filename)

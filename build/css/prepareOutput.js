@@ -34,10 +34,7 @@ module.exports = function(flowData){
   //
   flowData.css.outputFiles = flowData.files.queue.filter(function(file){
     if (file.type == 'style' && file.htmlInsertPoint)
-    {
-      setOutputFilename(file);
-      return true;
-    }
+      return setOutputFilename(file);
   });
 }
 
@@ -54,4 +51,5 @@ function setOutputFilename(file){
   targetMap[outputFilename] = true;
 
   file.outputFilename = outputFilename + '.css';
+  return file.outputFilename;
 }

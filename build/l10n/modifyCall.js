@@ -17,11 +17,10 @@ module.exports = function(flowData){
   }
 };
 
-var processor = require("uglify-js").uglify;
-var astUtils = require('../js/ast-utils');
-var path = require('path');
-var util = require('util');
+module.exports.handlerName = 'Modify dictionary creation calls';
 
+var at = require('../js/ast_tools');
+var path = require('path');
 
 function createDictionaryKeyMap(keys){
   keys = keys.sort();
@@ -115,7 +114,6 @@ function packDictionary(dict, map){
 }
 
 function process(file, flowData){
-  var ast = file.ast;
   var context = {
     __filename: file.filename || '',
     __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
@@ -125,14 +123,13 @@ function process(file, flowData){
     l10nKeys: flowData.l10nKeys
   };
 
-  var walker = processor.ast_walker();
   var dictionaryKeyMap = createDictionaryKeyMap(dictInfo.l10nKeys);
 
-  file.ast = walker.with_walkers({
+  file.ast = at.walk(file.ast, {
     call: function(expr, args){
-      if (astUtils.isAstEqualsCode(expr, 'basis.l10n.createDictionary'))
+      if (at.isAstEqualsCode(expr, 'basis.l10n.createDictionary'))
       {
-        var newArgs = astUtils.getCallArgs(args, context);
+        var newArgs = at.getCallArgs(args, context);
         var id = newArgs[0];
         var tokens = newArgs[2];
         var dict = {};
@@ -141,11 +138,9 @@ function process(file, flowData){
         newArgs[0] = ['string', id];
         newArgs[1] = ['string', ''];
         newArgs[2] = ['array', newTokens.map(function(token){ return ['string', String(token)]; })];
-        return [ this[0], walker.walk(expr), processor.MAP(newArgs, walker.walk) ];
+        return [ this[0], walker.walk(expr), at.map(newArgs) ];
       }
     }
-  }, function(){
-    return walker.walk(ast);
   });
 
 }
