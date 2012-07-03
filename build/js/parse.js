@@ -6,6 +6,9 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
+  //console.log(JSON.stringify(at.parse('1+2')));
+  //process.exit();
+
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
@@ -47,7 +50,6 @@ function processScript(file, flowData){
     content = content
       .replace(/;;;.*([\r\n]|$)/g, '')
       .replace(/\/\*\*\s*@cut.*?\*\/.*([\r\n]|$)/g, '');
-    console.log(content);
   }
 
   // extend file info

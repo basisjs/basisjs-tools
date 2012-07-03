@@ -7,6 +7,7 @@ module.exports = function(flowData){
   // build generic style file (style from js & tmpl)
   //
 
+  var fconsole = flowData.console;
   var genericFile = flowData.css.genericFile;
 
   genericFile.ast = [{}, 'stylesheet'];
@@ -34,15 +35,19 @@ module.exports = function(flowData){
   //
   flowData.css.packages = flowData.files.queue.filter(function(file){
     if (file.type == 'style' && file.htmlInsertPoint)
-      return setOutputFilename(file);
-  });
+    {
+      setOutputFilename(file, this);
+
+      fconsole.log(file.relOutputFilename);
+
+      return file;
+    }
+  }, {});
 }
 
 module.exports.handlerName = 'Make CSS packages';
 
-var targetMap = {};
-
-function setOutputFilename(file){
+function setOutputFilename(file, targetMap){
   var baseOutputFilename = file.outputFilename || (file.filename ? path.basename(file.filename, '.css') : '') || 'style';
   var idx = 0;
   var outputFilename = baseOutputFilename;
@@ -52,5 +57,6 @@ function setOutputFilename(file){
   targetMap[outputFilename] = true;
 
   file.outputFilename = outputFilename + '.css';
+
   return file.outputFilename;
 }

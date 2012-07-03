@@ -2,6 +2,11 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
+  // build dictionary
+  var dictionaryKeyMap = createDictionaryKeyMap(flowData.l10nKeys);
+
+  ////
+
   for (var i = 0, file; file = queue[i]; i++)
   {
     if (file.type == 'script')
@@ -9,7 +14,7 @@ module.exports = function(flowData){
       fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
       fconsole.incDeep();
 
-      process(file, flowData);
+      process(file, dictionaryKeyMap);
 
       fconsole.decDeep();
       fconsole.log();
@@ -113,17 +118,12 @@ function packDictionary(dict, map){
   return result;
 }
 
-function process(file, flowData){
+function process(file, dictionaryKeyMap){
   var context = {
     __filename: file.filename || '',
-    __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
+    __dirname: file.filename ? path.dirname(file.filename) + '/' : '',
+    namespace: file.namespace || ''
   };
-  var dictInfo = {
-    dictList: flowData.dictList,
-    l10nKeys: flowData.l10nKeys
-  };
-
-  var dictionaryKeyMap = createDictionaryKeyMap(dictInfo.l10nKeys);
 
   file.ast = at.walk(file.ast, {
     call: function(expr, args){
@@ -135,9 +135,13 @@ function process(file, flowData){
         var dict = {};
         dict[id] = tokens;
         var newTokens = packDictionary(dict, dictionaryKeyMap.map);
+
         newArgs[0] = ['string', id];
         newArgs[1] = ['string', ''];
-        newArgs[2] = ['array', newTokens.map(function(token){ return ['string', String(token)]; })];
+        newArgs[2] = ['array', newTokens.map(function(token){
+          return [typeof token == 'number' ? 'num' : 'string', token];
+        })];
+
         return [ this[0], at.walker.walk(expr), at.map(newArgs) ];
       }
     }

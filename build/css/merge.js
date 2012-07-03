@@ -36,7 +36,7 @@ module.exports = function(flowData){
         fconsole.incDeep();
       }
 
-      fconsole.log(filename);
+      fconsole.log(file.relpath);
     }
 
     flowData.css.packages = newPackages;

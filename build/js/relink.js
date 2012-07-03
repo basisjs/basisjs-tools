@@ -47,7 +47,7 @@ function relinkScript(file, flowData){
             {
               var old = at.translate(this);
               arg0[1] = file.jsRef;
-              console.log(old + ' -> ' + at.translate(this));
+              flowData.console.log(old + ' -> ' + at.translate(this));
             }
           }
 

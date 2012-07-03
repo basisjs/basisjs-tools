@@ -19,7 +19,7 @@ module.exports = function(flowData){
     }
 };
 
-module.exports.handlerName = 'Extract dictionary creation calls';
+module.exports.handlerName = 'Collect l10n dictionary declarations';
 
 var path = require('path');
 
@@ -29,7 +29,8 @@ var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 function process(file, flowData){
   var context = {
     __filename: file.filename || '',
-    __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
+    __dirname: file.filename ? path.dirname(file.filename) + '/' : '',
+    namespace: file.namespace || ''
   };
   var dictList = {};
   var l10nKeys = [];
