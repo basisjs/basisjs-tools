@@ -7,11 +7,11 @@ module.exports = function(flowData){
   // merge files
   if (flowData.options.cssSingleFile)
   {
-    var outputFiles = flowData.css.outputFiles;
-    var newOutputFiles = [];
+    var packages = flowData.css.packages;
+    var newPackages = [];
     var idx = '';
-
-    for (var i = 0, file, prev; file = outputFiles[i]; i++)
+    
+    for (var i = 0, file, prev; file = packages[i]; i++)
     {
       var filename = file.outputFilename;
       if (prev && prev.media == file.media)
@@ -28,7 +28,7 @@ module.exports = function(flowData){
         }
 
         prev = file;
-        newOutputFiles.push(file);
+        newPackages.push(file);
 
         file.outputFilename = 'style' + idx + '.css';
         idx++;
@@ -39,7 +39,7 @@ module.exports = function(flowData){
       fconsole.log(filename);
     }
 
-    flowData.css.outputFiles = newOutputFiles;
+    flowData.css.packages = newPackages;
   }
   else
   {
@@ -48,4 +48,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = 'Merge CSS files';
+module.exports.handlerName = 'Merge CSS packages';

@@ -32,12 +32,13 @@ module.exports = function(flowData){
   //
   // output files
   //
-  flowData.css.outputFiles = flowData.files.queue.filter(function(file){
+  flowData.css.packages = flowData.files.queue.filter(function(file){
     if (file.type == 'style' && file.htmlInsertPoint)
       return setOutputFilename(file);
   });
 }
 
+module.exports.handlerName = 'Make CSS packages';
 
 var targetMap = {};
 

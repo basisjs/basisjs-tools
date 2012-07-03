@@ -26,7 +26,7 @@ var flow = [
   require('./resource/parse'),
 
   // process css
-  require('./css/prepareOutput'),
+  require('./css/makePackages'),
   require('./css/linear'),
   require('./css/merge'),
   require('./css/pack'),

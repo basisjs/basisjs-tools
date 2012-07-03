@@ -7,12 +7,12 @@ var relpath_;
 //
 
 module.exports = function(flowData){
-  var outputFiles = flowData.css.outputFiles;
+  var packages = flowData.css.packages;
 
   relpath_ = flowData.files.relpath;
 
   // process files in reverse order
-  for (var i = outputFiles.length - 1, file; file = outputFiles[i]; i--)
+  for (var i = packages.length - 1, file; file = packages[i]; i--)
   {
     flowData.console.log(file.relOutputFilename);
     flowData.console.incDeep();

@@ -6,7 +6,7 @@ module.exports = function(flowData){
 
   if (flowData.options.cssPack)
   {
-    flowData.css.outputFiles.forEach(function(file){
+    flowData.css.packages.forEach(function(file){
       fconsole.log('Pack ' + file.relOutputFilename);
       file.ast = csso.compress(file.ast);
     });

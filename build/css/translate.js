@@ -4,7 +4,7 @@ var at = require('./ast_tools');
 module.exports = function(flowData){
   var fconsole = flowData.console;
 
-  flowData.css.outputFiles.filter(function(file){
+  flowData.css.packages.filter(function(file){
     var outputContent = at.translate(file.ast);
     var isEmpty = !outputContent.length;
 
