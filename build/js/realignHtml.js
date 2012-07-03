@@ -1,5 +1,47 @@
 
 module.exports = function(flowData){
+  var queue = flowData.files.queue;
+
+  for (var i = 0; file = queue[i]; i++)
+    if (file.type == 'script' && file.htmlInsertPoint)
+    {
+      console.log(file.relpath, JSON.stringify(file.htmlInsertPoint));
+      console.log(file.outputFilename);
+      if (file.outputFilename)
+      {
+        flowData.html.replaceToken(file.htmlInsertPoint, {
+          type: 'script',
+          name: 'script',
+          attribs: {
+            type: 'text/javascript',
+            src: file.relOutputFilename + '?' + file.digest
+          }
+        });
+      }
+      else
+      {
+        flowData.html.replaceToken(file.htmlInsertPoint, 
+          file.outputContent
+            ? {
+                type: 'script',
+                name: 'script',
+                attribs: {
+                  type: 'text/javascript'
+                },
+                children: [
+                  {
+                    type: 'text',
+                    data: file.outputContent
+                  }
+                ]
+              }
+            : {
+                type: 'text',
+                data: ''
+              }
+        );
+      }
+    }
 /*  var points = flowData.htmlProcessPoint;
 
   for (var i = 0, point; point = points[i]; i++)
@@ -17,4 +59,4 @@ module.exports = function(flowData){
   }*/
 };
 
-module.exports.handlerName = 'Modify javascript in html file';
+module.exports.handlerName = 'Modify <script> entry in html file';

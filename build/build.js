@@ -48,6 +48,7 @@ var flow = [
   require('./js/merge'),
   require('./js/translate'),
   require('./js/makePackages'),
+  require('./js/realignHtml'),
 
   // process html
   require('./html/translate'),

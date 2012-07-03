@@ -24,6 +24,9 @@ module.exports = function(flowData){
 
   // build source map
   var basisFile = flowData.files.get(flowData.js.basisScript);
+  var htmlInsertPoint = basisFile.htmlInsertPoint;
+
+  delete basisFile.htmlInsertPoint;
 
   // inject resources
   var inserted = false;
@@ -58,10 +61,17 @@ module.exports = function(flowData){
   {
     console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
 
-    flowData.files.add({
+    var isCoreFile = flowData.options.jsSingleFile || packageName == 'basis';
+    var packageFile = flowData.files.add({
+      type: 'script',
       outputFilename: name + '.js',
-      outputContent: wrapPackage(packages[name], flowData, flowData.options.jsSingleFile || packageName == 'basis' ? at.translate(basisFile.ast) : '')
+      outputContent: wrapPackage(packages[name], flowData, isCoreFile ? at.translate(basisFile.ast) : '')
     });
+
+    if (isCoreFile)
+    {
+      packageFile.htmlInsertPoint = htmlInsertPoint;
+    }
   }
 }
 module.exports.handlerName = 'Make javascript packages';
