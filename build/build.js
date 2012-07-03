@@ -37,14 +37,16 @@ var flow = [
   require('./l10n/modifyCall'),
 
   // process tmpl
-  //require('./tmpl/translate'),
+  require('./tmpl/translate'),
 
   // css/html resources
   require('./resource/translate'),
   require('./resource/buildMap'),
 
   // process js
+  require('./js/relink'),
   require('./js/merge'),
+  require('./js/translate'),
   require('./js/makePackages'),
 
   // process html

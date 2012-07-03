@@ -17,7 +17,26 @@ module.exports = function(flowData){
   flowData.js.packages = packages;
 
   // create package files
-  var basisFileContent = flowData.files.get(flowData.js.basisScript).content.replace(/this\.__resources__ \|\| \{\}/, JSON.stringify(flowData.js.resourceMap));
+  var basisFileContent = flowData.files.get(flowData.js.basisScript).content
+    .replace(/this\.__resources__ \|\| \{\}/, function(){
+      var res = [];
+
+      for (var filename in flowData.js.resourceMap)
+      {
+        var file = flowData.js.resourceMap[filename];
+        var content = file.jsResourceContent || file.outputContent || file.content;
+
+        if (typeof content == 'function')
+          content = content.toString().replace(/function\s+anonymous/, 'function');
+        else
+          content = JSON.stringify(content);
+
+        res.push('"' + file.jsRef + '":' + content);
+      }
+
+      return '{\n' + res.join(',\n') + '\n}';
+    });
+
   for (var name in packages)
   {
     console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
@@ -54,11 +73,13 @@ function buildDep(file, package){
 // wrap package
 //
 
+var path = require('path');
+
 function extractBuildContent(file){
   return '// ' + file.filename + '\n' +
     '[' +
-      '"' + file.namespace + '", function(basis, global, __dirname, exports, resource, module, __filename){' +
-        file.content +
+      '"' + file.namespace + '", function(basis, module, exports, resource, global, __dirname, __filename){' +
+        file.outputContent +
       '}' + 
     ']';
 }
@@ -67,10 +88,10 @@ function extractSourceContent(file){
   return '//\n// ' + file.relpath + '\n//\n' +
     '{\n' +
     '  ns: "' + file.namespace + '",\n' + 
-    '  path: "' + file.relpath + '/",\n' + 
-    '  fn: "' + file.baseURI + '",\n' +
+    '  path: "' + path.dirname(file.relpath) + '/",\n' + 
+    '  fn: "' + path.basename(file.relpath) + '",\n' +
     '  body: function(){\n' +
-         file.content + '\n' +
+         file.outputContent + '\n' +
     '  }\n' + 
     '}';
 }
@@ -83,7 +104,7 @@ var packageWrapper = [
 ];
 
 function wrapPackage(package, flowData, contentPrepend){
-  return !flowData.options.buildMode
+  return false//!flowData.options.buildMode
     // source mode
     ? [
         '// filelist: \n//   ' + package.map(function(file){
@@ -123,7 +144,8 @@ function wrapPackage(package, flowData, contentPrepend){
         '].forEach(' + function(module){
            var fn = module[1];
            var ns = basis.namespace(module[0]);
-           fn.call(ns, basis, this, "", ns.exports, basis.resource, ns, '');
+           // basis, module, exports, resource, global, __dirname, __filename
+           fn.call(ns, basis, ns, ns.exports, basis.resource, this, "", "");
            Object.complete(ns, ns.exports);
          } + ', this)',
 

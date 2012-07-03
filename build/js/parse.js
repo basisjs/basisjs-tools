@@ -43,9 +43,7 @@ function processScript(file, flowData){
 
   // extend file info
   file.deps = deps;
-  file.ast = at.parse(file.content);
-
-  at.walk(file.ast, {
+  file.ast = at.walk(at.parse(file.content), {
     "call": function(expr, args){
       var filename;
       var file;
@@ -54,8 +52,6 @@ function processScript(file, flowData){
       {
         case BASIS_RESOURCE:
           filename = at.getCallArgs(args, context)[0];
-          //console.log('basis.resource call found:', translateCallExpr(expr, args));
-          //console.log(JSON.stringify(arguments));
           if (filename)
           {
             file = flowData.files.add({
@@ -63,6 +59,14 @@ function processScript(file, flowData){
               filename: path.resolve(inputDir, filename)
             });
             file.isResource = true;
+
+            return [
+              'call',
+              ['dot', ['name', 'basis'], 'resource'],
+              [
+                ['string', file.filename]
+              ]
+            ];
           }
 
           break;
@@ -78,6 +82,15 @@ function processScript(file, flowData){
               filename: path.resolve(context.__dirname, filename)
             });
             file.isResource = true;
+
+            
+            return [
+              'call',
+              ['dot', ['name', 'basis'], 'resource'],
+              [
+                ['string', file.filename]
+              ]
+            ];
           }
 
           break;

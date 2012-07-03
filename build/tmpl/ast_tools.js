@@ -61,5 +61,8 @@ module.exports = {
     }
 
     walk(ast);
+  },
+  translate: function(ast){
+    return JSON.stringify(ast);
   }
 };
