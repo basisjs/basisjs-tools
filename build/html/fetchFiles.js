@@ -155,6 +155,36 @@ module.exports = function(flowData){
         headNode = node;
     }
   }
+
+  if (!flowData.js.basisScript)
+  {
+    console.warn('Basis.js not found in html');
+    process.exit();
+  }
+/*    [
+  '../../../src/basis/date.js',
+  '../../../src/basis/ua.js',
+  '../../../src/basis/dom.js',
+  '../../../src/basis/event.js',
+  '../../../src/basis/data.js',
+  '../../../src/basis/data/dataset.js',
+  '../../../src/basis/timer.js',
+  '../../../src/basis/dom/event.js',
+  '../../../src/basis/cssom.js',
+  '../../../src/basis/data/property.js',
+  '../../../src/basis/data/index.js',
+  '../../../src/basis/l10n.js',
+  '../../../src/basis/dom/wrapper.js',
+  '../../../src/basis/template.js',
+  '../../../src/basis/html.js',
+  '../../../src/basis/ui.js',
+  '../../../src/basis/layout.js',
+  '../../../src/basis/dragdrop.js',
+  '../../../src/basis/ui/paginator.js',
+  'blog.js',
+  '../../../src/basis/entity.js'].forEach(function(fn){
+    flowData.files.add({filename:resolveFilename(fn)});
+  })*/
 }
 
 module.exports.handlerName = 'Walk through html tokens and collect files';

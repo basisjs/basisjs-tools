@@ -4,6 +4,7 @@ var path = require('path')
 module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
+  //process.exit();
 
   for (var i = 0, file; file = queue[i]; i++)
   {

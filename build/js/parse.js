@@ -2,14 +2,14 @@
 // export handler
 //
 
-module.exports = function JSFileHandler(flowData){
+module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
-      fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
+      fconsole.log(file.filename ? file.relpath : '[inline script]');
       fconsole.incDeep();
 
       processScript(file, flowData);
@@ -44,7 +44,7 @@ function processScript(file, flowData){
   // extend file info
   file.deps = deps;
   file.ast = at.parse(file.content);
-  
+
   at.walk(file.ast, {
     "call": function(expr, args){
       var filename;
@@ -55,6 +55,7 @@ function processScript(file, flowData){
         case BASIS_RESOURCE:
           filename = at.getCallArgs(args, context)[0];
           //console.log('basis.resource call found:', translateCallExpr(expr, args));
+          //console.log(JSON.stringify(arguments));
           if (filename)
           {
             file = flowData.files.add({
@@ -68,6 +69,7 @@ function processScript(file, flowData){
 
         case RESOURCE:
           filename = at.getCallArgs(args, context)[0];
+          //console.log(JSON.stringify(arguments));
           //console.log('resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
@@ -85,13 +87,20 @@ function processScript(file, flowData){
           //console.log('basis.require call found:', translateCallExpr(expr, args));
           if (filename)
           {
-            var parts = filename.split(/\./);
-            filename = path.resolve(flowData.js.base[parts[0]] || flowData.inputDir, parts.join('/')) + '.js';
-            
+            var namespace = filename;
+            var parts = namespace.split(/\./);
+            var root = parts[0];
+            filename = path.resolve(flowData.js.base[root] || flowData.inputDir, parts.join('/')) + '.js';
+
             file = flowData.files.add({
               source: 'js:basis.require',
               filename: filename
             });
+            file.namespace = namespace;
+            file.package = root;
+
+            //if (!flowData.js.package[root])
+            //  flowData.js.package[root].push(file);
 
             deps.push(file);
           }

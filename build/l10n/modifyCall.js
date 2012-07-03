@@ -138,7 +138,7 @@ function process(file, flowData){
         newArgs[0] = ['string', id];
         newArgs[1] = ['string', ''];
         newArgs[2] = ['array', newTokens.map(function(token){ return ['string', String(token)]; })];
-        return [ this[0], walker.walk(expr), at.map(newArgs) ];
+        return [ this[0], at.walker.walk(expr), at.map(newArgs) ];
       }
     }
   });

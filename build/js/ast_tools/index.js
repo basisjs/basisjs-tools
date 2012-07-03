@@ -2,7 +2,7 @@
 var vm = require('vm');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
-var namesEqual = require('./name-compare');
+//var namesEqual = require('./name-compare');
 
 var walker = processor.ast_walker();
 
@@ -61,6 +61,7 @@ module.exports = {
   map: function(tokens, fn){
     return processor.MAP(tokens, fn || walker.walk);
   },
+  walker: walker,
   getAstTop: getAstTop,
   normalize: normalize,
   getCallArgs: getCallArgs,

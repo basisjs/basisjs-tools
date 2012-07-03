@@ -25,24 +25,32 @@ var flow = [
   require('./css/parse'),
   require('./resource/parse'),
 
-  // css/html resources
-  require('./resource/translate'),
-
   // process css
   require('./css/prepareOutput'),
   require('./css/linear'),
   require('./css/merge'),
   require('./css/pack'),
   require('./css/translate'),
-  //require('./css/write'),
+
+  // process l10n
+  require('./l10n/collect'),
+  require('./l10n/modifyCall'),
+
+  // process tmpl
+  //require('./tmpl/translate'),
+
+  // css/html resources
+  require('./resource/translate'),
+  require('./resource/buildMap'),
+
+  // process js
+  require('./js/merge'),
+  require('./js/makePackages'),
 
   // process html
   require('./html/translate'),
-
-  //process l10n
-  require('./l10n/collect'),
-  require('./l10n/modifyCall'),
   
+  // flush output
   require('./misc/writeFiles')
 ];
 
