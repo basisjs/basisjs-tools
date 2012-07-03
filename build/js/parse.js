@@ -36,14 +36,23 @@ var BASIS_REQUIRE = at.normalize('basis.require');
 function processScript(file, flowData){
   var deps = [];
   var inputDir = flowData.inputDir;
+  var content = file.content;
   var context = {
     __filename: file.filename ? file.filename : '',
     __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
   };
 
+  if (flowData.options.buildMode)
+  {
+    content = content
+      .replace(/;;;.*([\r\n]|$)/g, '')
+      .replace(/\/\*\*\s*@cut.*?\*\/.*([\r\n]|$)/g, '');
+    console.log(content);
+  }
+
   // extend file info
   file.deps = deps;
-  file.ast = at.walk(at.parse(file.content), {
+  file.ast = at.walk(at.parse(content), {
     "call": function(expr, args){
       var filename;
       var file;

@@ -91,6 +91,7 @@ module.exports = function(flowData){
 
 
   // return
+  options.buildMode = true;
 
   flowData.options = options;
 };

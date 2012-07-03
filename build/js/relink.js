@@ -28,6 +28,7 @@ module.exports.handlerName = 'Modify basis.resource calls in javascript';
 
 var at = require('./ast_tools');
 var BASIS_RESOURCE = at.normalize('basis.resource');
+var BASIS_REQUIRE = at.normalize('basis.require');
 
 function relinkScript(file, flowData){
   file.ast = at.walk(file.ast, {
@@ -51,6 +52,8 @@ function relinkScript(file, flowData){
           }
 
           break;
+        case BASIS_REQUIRE:
+          return ['block'];
       }
     }
   });

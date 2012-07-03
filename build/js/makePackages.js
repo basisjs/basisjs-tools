@@ -1,4 +1,7 @@
 
+var at = require('./ast_tools');
+var RESOURCE = at.normalize('this.__resources__');
+
 module.exports = function(flowData){
 
   var packages = {};
@@ -17,25 +20,39 @@ module.exports = function(flowData){
   flowData.js.packages = packages;
 
   // create package files
-  var basisFileContent = flowData.files.get(flowData.js.basisScript).content
-    .replace(/this\.__resources__ \|\| \{\}/, function(){
-      var res = [];
+  //["dot",["name","this"],"__resource__"]
 
-      for (var filename in flowData.js.resourceMap)
+  // build source map
+  var basisFile = flowData.files.get(flowData.js.basisScript);
+
+  // inject resources
+  var inserted = false;
+  basisFile.ast = at.walk(basisFile.ast, {
+    'dot': function(expr){
+      if (!inserted && at.translate(this) == RESOURCE)
       {
-        var file = flowData.js.resourceMap[filename];
-        var content = file.jsResourceContent || file.outputContent || file.content;
+        inserted = true;
+        return at.parse('0,' + (function(){
+          var res = [];
 
-        if (typeof content == 'function')
-          content = content.toString().replace(/function\s+anonymous/, 'function');
-        else
-          content = JSON.stringify(content);
+          for (var filename in flowData.js.resourceMap)
+          {
+            var file = flowData.js.resourceMap[filename];
+            var content = file.jsResourceContent || file.outputContent || file.content;
 
-        res.push('"' + file.jsRef + '":' + content);
+            if (typeof content == 'function')
+              content = content.toString().replace(/function\s+anonymous/, 'function');
+            else
+              content = JSON.stringify(content);
+
+            res.push('"' + file.jsRef + '":' + content);
+          }
+
+          return '{\n' + res.join(',\n') + '\n}';
+        })())[1][0][1][2];
       }
-
-      return '{\n' + res.join(',\n') + '\n}';
-    });
+    }
+  });
 
   for (var name in packages)
   {
@@ -43,7 +60,7 @@ module.exports = function(flowData){
 
     flowData.files.add({
       outputFilename: name + '.js',
-      outputContent: wrapPackage(packages[name], flowData, flowData.options.jsSingleFile || packageName == 'basis' ? basisFileContent : '')
+      outputContent: wrapPackage(packages[name], flowData, flowData.options.jsSingleFile || packageName == 'basis' ? at.translate(basisFile.ast) : '')
     });
   }
 }
@@ -76,7 +93,7 @@ function buildDep(file, package){
 var path = require('path');
 
 function extractBuildContent(file){
-  return '// ' + file.filename + '\n' +
+  return '// ' + file.relpath + '\n' +
     '[' +
       '"' + file.namespace + '", function(basis, module, exports, resource, global, __dirname, __filename){' +
         file.outputContent +
@@ -104,7 +121,7 @@ var packageWrapper = [
 ];
 
 function wrapPackage(package, flowData, contentPrepend){
-  return false//!flowData.options.buildMode
+  return !flowData.options.buildMode
     // source mode
     ? [
         '// filelist: \n//   ' + package.map(function(file){
@@ -114,7 +131,7 @@ function wrapPackage(package, flowData, contentPrepend){
         packageWrapper[0],
         contentPrepend,
 
-        '[\n',
+        ';[\n',
           package.map(extractSourceContent).join(',\n'),
         '].forEach(' + function(module){
            var path = module.path;    
@@ -130,7 +147,7 @@ function wrapPackage(package, flowData, contentPrepend){
 
         packageWrapper[1]
       ].join('')
-    // pack mode
+    // build mode
     : [
         '// filelist: \n//   ' + package.map(function(file){
           return file.relpath;
@@ -139,7 +156,7 @@ function wrapPackage(package, flowData, contentPrepend){
         packageWrapper[0],
         contentPrepend,
 
-        '[\n',
+        ';[\n',
           package.map(extractBuildContent).join(',\n'),
         '].forEach(' + function(module){
            var fn = module[1];
