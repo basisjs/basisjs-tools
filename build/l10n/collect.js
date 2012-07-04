@@ -27,11 +27,7 @@ var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 
 function process(file, flowData){
-  var context = {
-    __filename: file.filename || '',
-    __dirname: file.filename ? path.dirname(file.filename) + '/' : '',
-    namespace: file.namespace || ''
-  };
+  var context = flowData.js.getFileContext(file);
   var dictList = {};
   var l10nKeys = [];
 

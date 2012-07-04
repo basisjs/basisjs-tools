@@ -14,7 +14,7 @@ module.exports = function(flowData){
       fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
       fconsole.incDeep();
 
-      process(file, dictionaryKeyMap);
+      process(file, flowData, dictionaryKeyMap);
 
       fconsole.decDeep();
       fconsole.log();
@@ -118,12 +118,8 @@ function packDictionary(dict, map){
   return result;
 }
 
-function process(file, dictionaryKeyMap){
-  var context = {
-    __filename: file.filename || '',
-    __dirname: file.filename ? path.dirname(file.filename) + '/' : '',
-    namespace: file.namespace || ''
-  };
+function process(file, flowData, dictionaryKeyMap){
+  var context = flowData.js.getFileContext(file);
 
   file.ast = at.walk(file.ast, {
     call: function(expr, args){
