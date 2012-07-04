@@ -76,6 +76,9 @@ module.exports = function(flowData){
       }
 
       return this.digest_;
+    },
+    get encoding(){
+      return this.type == 'image' ? 'binary' : 'utf-8';
     }
   };
 
