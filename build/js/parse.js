@@ -37,7 +37,6 @@ var RESOURCE = at.normalize('resource');
 var BASIS_REQUIRE = at.normalize('basis.require');
 
 function processScript(file, flowData){
-  var deps = [];
   var inputDir = flowData.inputDir;
   var content = file.content;
   var context = flowData.js.getFileContext(file);
@@ -50,23 +49,30 @@ function processScript(file, flowData){
   }
 
   // extend file info
+  var deps = [];
+  var resources = [];
+
   file.deps = deps;
+  file.resources = resources;
+
   file.ast = at.walk(at.parse(content), {
     "call": function(expr, args){
-      var filename;
+      var newFilename;
       var newFile;
 
       switch (at.translate(expr))
       {
         case BASIS_RESOURCE:
-          filename = at.getCallArgs(args, context)[0];
-          if (filename)
+          newFilename = at.getCallArgs(args, context)[0];
+          if (newFilename)
           {
             newFile = flowData.files.add({
               source: 'js:basis.resource',
-              filename: filename
+              filename: newFilename
             });
             newFile.isResource = true;
+
+            resources.push(newFile);
 
             return [
               'call',
@@ -80,16 +86,18 @@ function processScript(file, flowData){
           break;
 
         case RESOURCE:
-          filename = at.getCallArgs(args, context)[0];
+          newFilename = at.getCallArgs(args, context)[0];
           //console.log(JSON.stringify(arguments));
           //console.log('resource call found:', translateCallExpr(expr, args));
-          if (filename)
+          if (newFilename)
           {
             newFile = flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(file.baseURI, filename)
+              filename: path.resolve(file.baseURI, newFilename)
             });
             newFile.isResource = true;
+
+            resources.push(newFile);
             
             return [
               'call',
@@ -103,24 +111,21 @@ function processScript(file, flowData){
           break;
 
         case BASIS_REQUIRE:
-          filename = at.getCallArgs(args, context)[0];
+          newFilename = at.getCallArgs(args, context)[0];
           //console.log('basis.require call found:', translateCallExpr(expr, args));
-          if (filename)
+          if (newFilename)
           {
-            var namespace = filename;
+            var namespace = newFilename;
             var parts = namespace.split(/\./);
             var root = parts[0];
-            filename = path.resolve(flowData.js.rootBaseURI[root] || flowData.inputDir, parts.join('/')) + '.js';
+            newFilename = path.resolve(flowData.js.rootBaseURI[root] || flowData.inputDir, parts.join('/')) + '.js';
 
             newFile = flowData.files.add({
               source: 'js:basis.require',
-              filename: filename
+              filename: newFilename
             });
             newFile.namespace = namespace;
             newFile.package = root;
-
-            //if (!flowData.js.package[root])
-            //  flowData.js.package[root].push(file);
 
             deps.push(newFile);
           }

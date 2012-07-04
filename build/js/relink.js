@@ -7,7 +7,7 @@ module.exports = function(flowData){
   var fconsole = flowData.console;
 
   for (var i = 0, file; file = queue[i]; i++)
-    if (file.type == 'script')
+    if (file.type == 'script' && (file.deps.length || file.resources.length))
     {
       fconsole.log(file.filename ? file.relpath : '[inline script]');
       fconsole.incDeep();
@@ -52,6 +52,7 @@ function relinkScript(file, flowData){
           }
 
           break;
+
         case BASIS_REQUIRE:
           return ['block'];
       }
