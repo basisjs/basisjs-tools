@@ -5,11 +5,11 @@ module.exports = function(flowData){
   // build dictionary
   var dictionaryKeyMap = createDictionaryKeyMap(flowData.l10nKeys);
 
-  ////
+  //
 
   for (var i = 0, file; file = queue[i]; i++)
   {
-    if (file.type == 'script')
+    if (file.type == 'script' && file.l10nDict.length)
     {
       fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
       fconsole.incDeep();

@@ -31,6 +31,9 @@ function process(file, flowData){
   var dictList = {};
   var l10nKeys = [];
 
+  var l10nDict = [];
+  file.l10nDict = l10nDict;
+
   at.walk(file.ast, {
     call: function(expr, args){
       if (at.translate(expr) == CREATE_DICTIONARY)
@@ -38,10 +41,13 @@ function process(file, flowData){
         var eargs = at.getCallArgs(args, context);
         keys = Object.keys(eargs[2]);
 
-        dictList[eargs[0]] = {
+        var dict = {
           path: eargs[1],
           keys: keys
         };
+
+        l10nDict.push(dict);
+        dictList[eargs[0]] = dict;
 
         keys.forEach(function(key){
           l10nKeys.push(eargs[0] + '.' + key);
