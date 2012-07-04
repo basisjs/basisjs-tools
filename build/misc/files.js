@@ -57,7 +57,7 @@ module.exports = function(flowData){
       this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
     },
     get relpath(){
-      return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
+      return this.filename ? relpath(this.filename) : '[no filename]';
     },
     get relOutputFilename(){
       return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
@@ -79,6 +79,10 @@ module.exports = function(flowData){
     }
   };
 
+  function normpath(filename){
+    return relpath(path.resolve(flowData.inputDir, filename));
+  }
+
   function relpath(filename){
     return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
   }
@@ -95,12 +99,13 @@ module.exports = function(flowData){
 
     if (data.filename)
     {
-      var filename = data.filename;
+      var filename = path.resolve(flowData.inputDir, data.filename).replace(/\\/g, '/');
+      var fileid = relpath(filename);
       var ext = path.extname(filename);
 
-      if (fileMap[filename]) // ignore duplicates
+      if (fileMap[fileid]) // ignore duplicates
       {
-        fconsole.log('[ ] File `' + relpath(filename) + '` already in queue');
+        fconsole.log('[ ] File `' + fileid + '` already in queue');
 
         /*if (moveToQueueEndFile.indexOf(ext) != -1)
         {
@@ -108,7 +113,7 @@ module.exports = function(flowData){
           queue.add(fileMap[filename]);
         }*/
 
-        return fileMap[filename];
+        return fileMap[fileid];
       }
 
       if (!data.type)
@@ -129,7 +134,7 @@ module.exports = function(flowData){
         file.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
       }
 
-      fileMap[filename] = file;
+      fileMap[fileid] = file;
     }
     else
     {
@@ -142,10 +147,12 @@ module.exports = function(flowData){
   }
 
   function getFile(filename){
+    filename = normpath(filename);
     return fileMap[filename];
   }
 
   function removeFile(filename){
+    filename = normpath(filename);
     queue.remove(fileMap[filename]);
     delete fileMap[filename];
   }  

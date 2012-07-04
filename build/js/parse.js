@@ -67,7 +67,7 @@ function processScript(file, flowData){
           {
             file = flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(inputDir, filename)
+              filename: filename
             });
             file.isResource = true;
 
@@ -75,7 +75,7 @@ function processScript(file, flowData){
               'call',
               ['dot', ['name', 'basis'], 'resource'],
               [
-                ['string', file.filename]
+                ['string', file.relpath]
               ]
             ];
           }
@@ -99,7 +99,7 @@ function processScript(file, flowData){
               'call',
               ['dot', ['name', 'basis'], 'resource'],
               [
-                ['string', file.filename]
+                ['string', file.relpath]
               ]
             ];
           }
