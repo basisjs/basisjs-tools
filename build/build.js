@@ -57,9 +57,11 @@ var flow = [
   require('./misc/writeFiles')
 ];
 
+var fconsole = flowData.console;
+var times = [];
+
 flow.forEach(function(handler){
   var title = handler.handlerName;
-  var fconsole = flowData.console;
 
   if (title)
   {
@@ -71,18 +73,50 @@ flow.forEach(function(handler){
   handler(flowData);
 
   fconsole.resetDeep();
+
+  var elapsedTime = (new Date - handlerTime);
   fconsole.log('');
-  fconsole.log('Time: ' + ((new Date - handlerTime) / 1000).toFixed(3) + 's');
+  fconsole.log('Time: ' + (elapsedTime / 1000).toFixed(3) + 's');
+
+  // save time
+  times.push([elapsedTime, title]);
 });
 
-console.log('\n\nBuild done in ' + ((new Date - startTime) / 1000).toFixed(3) + 's');
+//
+// show totals
+//
 
-/*var map = {};
+fconsole.log('\nBuild stat\n==========\n');
+fconsole.incDeep();
+
+// file types
+fconsole.log('File stat:');
+fconsole.incDeep();
+
+var fileTypeMap = {};
 flowData.files.queue.forEach(function(file){
-  if (!map[file.type])
-    map[file.type] = [];
+  if (!this[file.type])
+    this[file.type] = [];
 
-  map[file.type].push(file.filename);
-})
+  this[file.type].push(file.filename);
+}, fileTypeMap);
+           
+for (var key in fileTypeMap)
+  fconsole.log(key + ': ' + fileTypeMap[key].length);
 
-console.log(map);*/
+fconsole.decDeep();
+fconsole.log('');
+
+// timing
+fconsole.log('Timing:');
+fconsole.incDeep();
+for (var i = 0; i < times.length; i++)
+{
+  var t = String(times[i][0]);
+  fconsole.log(' '.repeat(5 - t.length) + t + '  ' + (times[i][1] || '[No title step]'));
+}
+fconsole.decDeep();
+fconsole.log('');
+
+// total time
+fconsole.log('Build done in ' + ((new Date - startTime) / 1000).toFixed(3) + 's');

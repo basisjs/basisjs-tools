@@ -4,3 +4,5 @@ module.exports = function(flowData){
   global.basis = require(flowData.js.basisScript).basis;
   basis.require('basis.template');
 }
+
+module.exports.handlerName = 'Template processing init';
