@@ -6,7 +6,14 @@ module.exports = function(flowData){
   });
 
   flowData.js = {
-    base: {}
+    rootBaseURI: {},
+    getFileContext: function(file){
+      return {
+        __filename: file.filename || '',
+        __dirname: file.baseURI,
+        namespace: file.namespace || ''
+      };
+    }
   };
 
 };

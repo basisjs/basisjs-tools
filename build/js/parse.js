@@ -40,10 +40,7 @@ function processScript(file, flowData){
   var deps = [];
   var inputDir = flowData.inputDir;
   var content = file.content;
-  var context = {
-    __filename: file.filename ? file.filename : '',
-    __dirname: file.filename ? path.dirname(file.filename) + '/' : ''
-  };
+  var context = flowData.js.getFileContext(file);
 
   if (flowData.options.buildMode)
   {
@@ -57,7 +54,7 @@ function processScript(file, flowData){
   file.ast = at.walk(at.parse(content), {
     "call": function(expr, args){
       var filename;
-      var file;
+      var newFile;
 
       switch (at.translate(expr))
       {
@@ -65,17 +62,17 @@ function processScript(file, flowData){
           filename = at.getCallArgs(args, context)[0];
           if (filename)
           {
-            file = flowData.files.add({
+            newFile = flowData.files.add({
               source: 'js:basis.resource',
               filename: filename
             });
-            file.isResource = true;
+            newFile.isResource = true;
 
             return [
               'call',
               ['dot', ['name', 'basis'], 'resource'],
               [
-                ['string', file.relpath]
+                ['string', newFile.relpath]
               ]
             ];
           }
@@ -88,18 +85,17 @@ function processScript(file, flowData){
           //console.log('resource call found:', translateCallExpr(expr, args));
           if (filename)
           {
-            file = flowData.files.add({
+            newFile = flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(context.__dirname, filename)
+              filename: path.resolve(file.baseURI, filename)
             });
-            file.isResource = true;
-
+            newFile.isResource = true;
             
             return [
               'call',
               ['dot', ['name', 'basis'], 'resource'],
               [
-                ['string', file.relpath]
+                ['string', newFile.relpath]
               ]
             ];
           }
@@ -114,19 +110,19 @@ function processScript(file, flowData){
             var namespace = filename;
             var parts = namespace.split(/\./);
             var root = parts[0];
-            filename = path.resolve(flowData.js.base[root] || flowData.inputDir, parts.join('/')) + '.js';
+            filename = path.resolve(flowData.js.rootBaseURI[root] || flowData.inputDir, parts.join('/')) + '.js';
 
-            file = flowData.files.add({
+            newFile = flowData.files.add({
               source: 'js:basis.require',
               filename: filename
             });
-            file.namespace = namespace;
-            file.package = root;
+            newFile.namespace = namespace;
+            newFile.package = root;
 
             //if (!flowData.js.package[root])
             //  flowData.js.package[root].push(file);
 
-            deps.push(file);
+            deps.push(newFile);
           }
 
           break;

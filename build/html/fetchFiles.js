@@ -72,7 +72,7 @@ module.exports = function(flowData){
 
             if (attrs['basis-config'])
             {
-              flowData.js.base.basis = fileBaseURI;
+              flowData.js.rootBaseURI.basis = fileBaseURI;
               flowData.js.basisScript = filename;
             }
 

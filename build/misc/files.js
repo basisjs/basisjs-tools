@@ -48,7 +48,7 @@ module.exports = function(flowData){
     },
     set baseURI(uri){
       if (!this.filename)
-        this.baseURI_ = path.normalize(uri + '/');
+        this.baseURI_ = path.normalize(path.resolve(flowData.inputPath, uri) + '/').replace(/\\/g, '/');
     },
     get outputFilename(){
       return this.outputFilename_;
@@ -80,6 +80,10 @@ module.exports = function(flowData){
   };
 
   function normpath(filename){
+    return path.normalize(path.resolve(flowData.inputDir, filename)).replace(/\\/g, '/');
+  }
+
+  function getFileId(filename){
     return relpath(path.resolve(flowData.inputDir, filename));
   }
 
@@ -99,8 +103,9 @@ module.exports = function(flowData){
 
     if (data.filename)
     {
-      var filename = path.resolve(flowData.inputDir, data.filename).replace(/\\/g, '/');
-      var fileid = relpath(filename);
+      data.filename = normpath(data.filename);
+      var filename = data.filename;
+      var fileid = getFileId(filename);
       var ext = path.extname(filename);
 
       if (fileMap[fileid]) // ignore duplicates
@@ -147,12 +152,12 @@ module.exports = function(flowData){
   }
 
   function getFile(filename){
-    filename = normpath(filename);
+    filename = getFileId(filename);
     return fileMap[filename];
   }
 
   function removeFile(filename){
-    filename = normpath(filename);
+    filename = getFileId(filename);
     queue.remove(fileMap[filename]);
     delete fileMap[filename];
   }  
