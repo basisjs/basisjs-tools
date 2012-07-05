@@ -37,6 +37,11 @@ module.exports = function(flowData){
         inserted = true;
         return at.parse('0,' + (function(){
           var res = [];
+          var resourceTypeWeight = {
+            'json': 1,
+            'tmpl': 2,
+            'script': 100
+          };
 
           for (var jsRef in flowData.js.resourceMap)
           {
@@ -48,10 +53,18 @@ module.exports = function(flowData){
             else
               content = JSON.stringify(content);
 
-            res.push('"' + file.jsRef + '":' + content);
+            res.push([file.type, file.jsRef, content]);
           }
 
-          return '{\n' + res.join(',\n') + '\n}';
+          return '{\n' +
+            res.sort(function(a, b){
+              var wa = resourceTypeWeight[a[0]] || 0;
+              var wb = resourceTypeWeight[b[0]] || 0;
+              return wa > wb ? 1 : (wa < wb ? -1 : 0);
+            }).map(function(item){
+              return '"' + item[1] + '":' + item[2]
+            }).join(',\n') + 
+          '\n}';
         })())[1][0][1][2];
       }
     }
