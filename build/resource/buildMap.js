@@ -8,8 +8,10 @@ module.exports = function(flowData){
   {
     if (file.isResource && file.type != 'style')
     {
-      file.jsRef = i + path.extname(file.filename);
-      jsResourceMap[file.filename] = file;
+      if (!file.jsRef)
+        file.jsRef = i + path.extname(file.filename);
+
+      jsResourceMap[file.jsRef] = file;
     }
   }
 

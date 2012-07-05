@@ -2,9 +2,6 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
-  // build dictionary
-  var dictionaryKeyMap = createDictionaryKeyMap(flowData.l10nKeys);
-
   //
 
   for (var i = 0, file; file = queue[i]; i++)
@@ -14,7 +11,7 @@ module.exports = function(flowData){
       fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
       fconsole.incDeep();
 
-      process(file, flowData, dictionaryKeyMap);
+      process(file, flowData);
 
       fconsole.decDeep();
       fconsole.log();
@@ -22,103 +19,13 @@ module.exports = function(flowData){
   }
 };
 
-module.exports.handlerName = 'Modify dictionary creation calls';
+module.exports.handlerName = '[l10n] Modify dictionary declarations';
 
 var at = require('../js/ast_tools');
 var path = require('path');
 
-function createDictionaryKeyMap(keys){
-  keys = keys.sort();
 
-  var stack = [];
-  var res = [];
-  var map = [];
-  var pathMap = {};
-  var keyIndex = 0;
-  for (var i = 0, key; key = keys[i]; i++)
-  {
-    var parts = key.split('.');
-    var reset = false;
-    var offset = 0;
-
-    if (stack.length && stack[0] != parts[0])
-    {
-      res.push('#');
-      stack = [];
-    }
-
-    if (!stack.length)
-      reset = true;
-    else
-    {
-      for (; offset < parts.length; offset++){
-        if (parts[offset] != stack[offset])
-        {
-          if (stack[offset])
-          {
-            reset = true;
-            res.push(new Array(stack.length - offset + 1).join('<'));
-            stack.splice(offset);
-          }
-          break;
-        }
-      }
-    }
-
-    while (parts[offset])
-    {
-      if (!reset)
-        res.push('>');
-
-      reset = false;
-      res.push(parts[offset]);
-      stack.push(parts[offset]);
-      offset++;
-
-      var path = stack.join('.');
-      map.push(path);
-    }
-
-  }
-
-  return {
-    map: map,
-    content: res.join('')
-  };
-}
-
-function packDictionary(dict, map){
-  var linear = {};
-  var result = [];
-
-  for (var dictName in dict){
-    for (var key in dict[dictName]){
-      linear[dictName + '.' + key] = dict[dictName][key];
-    }
-  }
-
-  for (var i = 0, gap = -1; i < map.length; i++)
-  {
-    if (linear[map[i]])
-    {
-      if (gap != -1)
-        result.push(gap);
-
-      result.push(linear[map[i]]);
-
-      gap = -1;
-    }
-    else
-      gap++;
-  }
-
-  if (typeof result[result.length - 1] == 'number')
-    result.pop();
-
-  return result;
-}
-
-function process(file, flowData, dictionaryKeyMap){
+function process(file, flowData){
   var context = flowData.js.getFileContext(file);
 
   file.ast = at.walk(file.ast, {
@@ -130,7 +37,8 @@ function process(file, flowData, dictionaryKeyMap){
         var tokens = newArgs[2];
         var dict = {};
         dict[id] = tokens;
-        var newTokens = packDictionary(dict, dictionaryKeyMap.map);
+
+        var newTokens = flowData.l10n.packDictionary(dict);
 
         newArgs[0] = ['string', id];
         newArgs[1] = ['string', ''];

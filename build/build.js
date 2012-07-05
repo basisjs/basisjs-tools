@@ -33,7 +33,9 @@ var flow = [
   require('./css/translate'),
 
   // process l10n
+  require('./l10n/init'),
   require('./l10n/collect'),
+  require('./l10n/makeDict'),
   require('./l10n/modifyCall'),
 
   // process tmpl

@@ -38,9 +38,9 @@ module.exports = function(flowData){
         return at.parse('0,' + (function(){
           var res = [];
 
-          for (var filename in flowData.js.resourceMap)
+          for (var jsRef in flowData.js.resourceMap)
           {
-            var file = flowData.js.resourceMap[filename];
+            var file = flowData.js.resourceMap[jsRef];
             var content = file.jsResourceContent || file.outputContent || file.content;
 
             if (typeof content == 'function')

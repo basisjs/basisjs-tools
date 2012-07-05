@@ -42,7 +42,6 @@ function getCallArgs(args, context){
     {
       try
       {
-        //var result = new Function('context', 'with(context){ return ' + processor.gen_code(arg) + '}')(context);
         var code = '0,' + translate(arg);
         var result = vm.runInNewContext(code, context);
         if (typeof result == 'string' || typeof result == 'object')
@@ -50,7 +49,7 @@ function getCallArgs(args, context){
       }
       catch(e)
       {
-        console.log('unable to evaluate "', code, '" in context ', context);
+        console.log('Unable to evaluate "', code, '" in context ', context);
       }
     }
   });
