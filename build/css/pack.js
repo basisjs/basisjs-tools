@@ -14,7 +14,7 @@ module.exports = function(flowData){
   else
   {
     fconsole.log('Skiped.')
-    fconsole.log('Use option --css-pack for CSS compression');
+    fconsole.log('Use option --css-pack for compression');
   }
 }
 

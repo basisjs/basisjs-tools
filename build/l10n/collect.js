@@ -32,7 +32,6 @@ var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 function scanFile(file, flowData){
   var context = flowData.js.getFileContext(file);
   var dictList = {};
-  var l10nKeys = [];
   var fconsole = flowData.console;
   var defList = flowData.l10n.defList;
 
@@ -45,9 +44,16 @@ function scanFile(file, flowData){
       {
         case CREATE_DICTIONARY:
           var eargs = at.getCallArgs(args, context);
+          var entry = {
+            args: args,
+            name: eargs[0],
+            path: eargs[1],
+            keys: eargs[2],
+            file: file
+          };
 
-          defList.push(eargs.concat(file));
-          fconsole.log('[FOUND] ' + eargs[0] + ' -> ' + eargs[1]);
+          defList.push(entry);
+          fconsole.log('[FOUND] ' + entry.name + ' -> ' + entry.path);
 
           keys = Object.keys(eargs[2]);
           
@@ -59,10 +65,6 @@ function scanFile(file, flowData){
           l10nDict.push(dict);
           dictList[eargs[0]] = dict;
 
-          keys.forEach(function(key){
-            l10nKeys.push(eargs[0] + '.' + key);
-          });  
-          
           break;
 
         case SET_CULTURE_LIST:
@@ -83,13 +85,11 @@ function scanFile(file, flowData){
             fconsole.log('        [!] Can\'t convert into array (ignored)');
           }
 
-
           break;
       }
     }
   });
   
-  flowData.l10nKeys.push.apply(flowData.l10nKeys, l10nKeys);
   for (var i in dictList)
     flowData.dictList[i] = dictList[i];
 }

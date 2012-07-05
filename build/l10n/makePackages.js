@@ -7,7 +7,8 @@ module.exports = function(flowData){
   var fconsole = flowData.console;
   var cultureList = flowData.l10n.cultureList;
 
-  var dictMap = flowData.l10n.dictMap;
+  var packages = flowData.l10n.packages;
+  var baseMap = flowData.l10n.baseMap;
   var keyMap = flowData.l10n.keys;
   var pathes = flowData.l10n.pathes;
 
@@ -39,7 +40,7 @@ module.exports = function(flowData){
           var dictPack = JSON.parse(fs.readFileSync(cultureFile, 'utf-8'));
           for (var dictName in dictPack)
           {
-            if (!dictMap[dictName])
+            if (!baseMap[dictName])
             {
               fconsole.log('[!] Unknown dictionary (ignored):', dictName);
             }
@@ -91,21 +92,12 @@ module.exports = function(flowData){
   {
     fconsole.log(culture);
 
-    var jsRef = 'l10n/' + culture + '.json';
-    var content = cultureContentMap[culture];
-
-    if (false)
-    {
-      content = flowData.l10n.packDictionary(content);
-      fconsole.log('  [OK] Pack');
-    }
-
-    flowData.files.add({
-      jsRef: jsRef,
+    packages.push(flowData.files.add({
+      jsRef: 'l10n/' + culture + '.json',
       type: 'json',
       isResource: true,
-      jsResourceContent: content
-    });
+      jsResourceContent: cultureContentMap[culture]
+    }));
 
     fconsole.log('  [OK] Add to resource map');
   }

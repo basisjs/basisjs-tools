@@ -21,33 +21,26 @@ module.exports = function(flowData){
 module.exports.handlerName = '[l10n] Modify dictionary declarations';
 
 var at = require('../js/ast_tools');
-var path = require('path');
-
+var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 
 function process(file, flowData){
-  var context = flowData.js.getFileContext(file);
-
   file.ast = at.walk(file.ast, {
     call: function(expr, args){
-      if (at.isAstEqualsCode(expr, 'basis.l10n.createDictionary'))
+      if (at.translate(expr) == CREATE_DICTIONARY)
       {
-        var newArgs = at.getCallArgs(args, context);
-        var id = newArgs[0];
-        var tokens = newArgs[2];
-        var dict = {};
-        dict[id] = tokens;
+        var entry = flowData.l10n.defList.shift();
 
-        var newTokens = flowData.l10n.packDictionary(dict);
+        entry.args[1] = ['string', 'l10n'];
 
-        newArgs[0] = ['string', id];
-        newArgs[1] = ['string', 'l10n'];
-        newArgs[2] = ['array', newTokens.map(function(token){
-          return [typeof token == 'number' ? 'num' : 'string', token];
-        })];
+        console.log(JSON.stringify(args));
+        console.log(JSON.stringify(entry.args));
 
-        return [ this[0], at.walker.walk(expr), at.map(newArgs) ];
+        return [
+          this[0],
+          at.walker.walk(expr),
+          entry.args
+        ];
       }
     }
   });
-
 }

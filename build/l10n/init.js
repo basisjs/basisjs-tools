@@ -2,17 +2,16 @@
 module.exports = function(flowData){
 
   flowData.dictList = {};
-  flowData.l10nKeys = [];
 
   flowData.l10n = {
     cultureList: [],
     defList: [],
-    linearDictionary: linearDictionary,
-    packDictionary: function(dict, isLinear){
+    packages: [],
+    packDictionary: function(dict){
       if (!flowData.l10n.index)
         throw 'l10n index is not built yet';
 
-      return packDictionary(isLinear ? dict : linearDictionary(dict), flowData.l10n.index.map);
+      return packDictionary(linearDictionary(dict), flowData.l10n.index.map);
     }
   }
 }
