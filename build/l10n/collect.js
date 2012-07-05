@@ -31,12 +31,8 @@ var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 
 function scanFile(file, flowData){
   var context = flowData.js.getFileContext(file);
-  var dictList = {};
   var fconsole = flowData.console;
   var defList = flowData.l10n.defList;
-
-  var l10nDict = [];
-  file.l10nDict = l10nDict;
 
   at.walk(file.ast, {
     call: function(expr, args){
@@ -62,8 +58,7 @@ function scanFile(file, flowData){
             keys: keys
           };
 
-          l10nDict.push(dict);
-          dictList[eargs[0]] = dict;
+          file.hasL10n = true;
 
           break;
 
@@ -89,7 +84,4 @@ function scanFile(file, flowData){
       }
     }
   });
-  
-  for (var i in dictList)
-    flowData.dictList[i] = dictList[i];
 }

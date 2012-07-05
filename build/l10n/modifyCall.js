@@ -5,7 +5,7 @@ module.exports = function(flowData){
   // process javascript files
   for (var i = 0, file; file = queue[i]; i++)
   {
-    if (file.type == 'script' && file.l10nDict.length)
+    if (file.type == 'script' && file.hasL10n)
     {
       fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
       fconsole.incDeep();
@@ -29,15 +29,13 @@ function process(file, flowData){
       if (at.translate(expr) == CREATE_DICTIONARY)
       {
         var entry = flowData.l10n.defList.shift();
+        flowData.console.log(entry.name);
 
         entry.args[1] = ['string', 'l10n'];
 
-        console.log(JSON.stringify(args));
-        console.log(JSON.stringify(entry.args));
-
         return [
           this[0],
-          at.walker.walk(expr),
+          expr,
           entry.args
         ];
       }

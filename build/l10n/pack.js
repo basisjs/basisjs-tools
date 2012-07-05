@@ -6,6 +6,11 @@ module.exports = function(flowData){
 
   if (flowData.options.l10nPack)
   {
+    var l10nIndex = flowData.l10n.index;
+
+    if (!l10nIndex)
+      throw 'l10n index must be build first';
+
     // pack definitions
     fconsole.log('Pack definitions');
     fconsole.incDeep();
@@ -15,7 +20,7 @@ module.exports = function(flowData){
       var dict = {};
       dict[entry.name] = entry.keys;
 
-      entry.args[2] = ['array', flowData.l10n.packDictionary(dict).map(function(token){
+      entry.args[2] = ['array', packDictionary(dict, l10nIndex.map).map(function(token){
         return [typeof token == 'number' ? 'num' : 'string', token];
       })];
     });
@@ -27,8 +32,10 @@ module.exports = function(flowData){
     fconsole.incDeep();
     flowData.l10n.packages.forEach(function(file){
       fconsole.log(file.jsRef);
-      file.jsResourceContent = flowData.l10n.packDictionary(file.jsResourceContent);
+      file.jsResourceContent = packDictionary(file.jsResourceContent, l10nIndex.map);
     });
+    fconsole.decDeep();
+    fconsole.log();
 
     // add index to resources
     fconsole.log('# Add index into resource map');
@@ -36,7 +43,7 @@ module.exports = function(flowData){
       jsRef: '_l10nIndex_',
       type: 'text',
       isResource: true,
-      jsResourceContent: flowData.l10n.index.content
+      jsResourceContent: l10nIndex.content
     });
 
     // if l10n module exists, inject index initialization
@@ -72,3 +79,40 @@ module.exports = function(flowData){
 }
 
 module.exports.handlerName = '[l10n] Compress';
+
+//
+// tools
+//
+
+function packDictionary(dict, map){
+  var result = [];
+  var flattenDict = {};
+
+  // linear
+  for (var dictName in dict){
+    for (var key in dict[dictName]){
+      flattenDict[dictName + '.' + key] = dict[dictName][key];
+    }
+  }
+
+  // pack
+  for (var i = 0, gap = -1; i < map.length; i++)
+  {
+    if (flattenDict[map[i]])
+    {
+      if (gap != -1)
+        result.push(gap);
+
+      result.push(flattenDict[map[i]]);
+
+      gap = -1;
+    }
+    else
+      gap++;
+  }
+
+  if (typeof result[result.length - 1] == 'number')
+    result.pop();
+
+  return result;
+}
