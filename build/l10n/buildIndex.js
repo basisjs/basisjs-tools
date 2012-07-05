@@ -7,9 +7,10 @@ module.exports = function(flowData){
   var fconsole = flowData.console;
   var cultureList = flowData.l10n.cultureList;
   var list = flowData.l10n.defList;
+
   var dictMap = {};
   var l10nKeys = {};
-  var pathes = {}
+  var pathes = {};
 
   // collect all keys and dictionaries
   for (var i = 0, entry; entry = list[i]; i++)
@@ -39,53 +40,16 @@ module.exports = function(flowData){
   }
   fconsole.log();
 
-  var cultureContentMap = {};
-  for (var i = 0; culture = cultureList[i]; i++)
-    cultureContentMap[culture] = [];
-
-  // ok, now check out pathes and collect culture files
-
-  for (var i = 0; culture = cultureList[i]; i++)
-  {
-    fconsole.log('Process ' + culture);
-    fconsole.incDeep();
-
-    for (var path in pathes)
-    {
-      var cultureFile = path + '/' + culture + '.json';
-      if (fs.existsSync(cultureFile))
-      {
-        var cultureMap = cultureContentMap[culture];
-        fconsole.log('[+] ' + cultureFile);
-        fconsole.incDeep();
-        try {
-          var dictChunk = flowData.l10n.linearDictionary(JSON.parse(fs.readFileSync(cultureFile, 'utf-8')));
-          for (var key in dictChunk)
-          {
-            if (!l10nKeys[key])
-              fconsole.log('[!] Unknown key ' + key + ' (ignored)');
-            else
-            {
-              // TODO: check for duplicates
-              cultureMap[key] = dictChunk[key];
-            }
-          }
-        } catch(e) {
-          fconsole.log('[!] Can\'t parse ' + cultureFile, e);
-        }
-        fconsole.decDeep();
-      }
-    }
-
-    fconsole.decDeep();
-    fconsole.log();
-  }
+  // extend l10n with info
+  flowData.l10n.keys = l10nKeys;
+  flowData.l10n.pathes = pathes;
+  flowData.l10n.dictMap = dictMap;
 
   // build index
-  fconsole.log('Build index');
+  fconsole.log('# Build index');
   flowData.l10n.index = createDictionaryKeyMap(Object.keys(l10nKeys));
 
-  fconsole.log('Add index into resource map');
+  fconsole.log('# Add index into resource map');
   flowData.files.add({
     jsRef: '_l10nIndex_',
     type: 'text',
@@ -94,7 +58,7 @@ module.exports = function(flowData){
   });
 
   // if l10n module exists, inject index initialization
-  fconsole.log('Inject index init into basis.l10n');
+  fconsole.log('# Inject index init into basis.l10n');
   if (flowData.l10n.module)
   {
     at.append(flowData.l10n.module.ast, at.parse('(' + function(){
@@ -117,33 +81,9 @@ module.exports = function(flowData){
       }
     } + ')()'));
   }
-
-  fconsole.log('');
-
-  // make culture packs
-  fconsole.log('Make lang packages');
-  fconsole.incDeep();
-  for (var culture in cultureContentMap)
-  {
-    fconsole.log(culture);
-
-    var jsRef = 'l10n/' + culture + '.json';
-    var content = flowData.l10n.packDictionary(cultureContentMap[culture], true);
-
-    fconsole.log('  [OK] Pack dictionary');
-
-    flowData.files.add({
-      jsRef: jsRef,
-      type: 'json',
-      isResource: true,
-      jsResourceContent: content
-    });
-
-    fconsole.log('  [OK] Add to resource map');
-  }
 }
 
-module.exports.handlerName = '[l10n] Make dictionary';
+module.exports.handlerName = '[l10n] Build index';
 
 function createDictionaryKeyMap(keys){
   keys = keys.sort();

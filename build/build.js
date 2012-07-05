@@ -35,7 +35,8 @@ var flow = [
   // process l10n
   require('./l10n/init'),
   require('./l10n/collect'),
-  require('./l10n/makeDict'),
+  require('./l10n/buildIndex'),
+  require('./l10n/makePackages'),
   require('./l10n/modifyCall'),
 
   // process tmpl
