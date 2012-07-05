@@ -5,8 +5,16 @@ module.exports = function(flowData){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
+      // scan file for basis.l10n.createDictionary & basis.l10n.setCultureList
       fconsole.log(file.filename ? file.relpath : '[inline script]');
       fconsole.incDeep();
+
+      // store reference for basis.l10n module
+      if (file.namespace == 'basis.l10n')
+      {
+        fconsole.log('[i] basis.l10n module found, store reference for it');
+        flowData.l10n.module = file;
+      }
 
       scanFile(file, flowData);
 

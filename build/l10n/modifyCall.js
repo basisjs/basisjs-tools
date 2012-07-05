@@ -2,8 +2,7 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
-  //
-
+  // process javascript files
   for (var i = 0, file; file = queue[i]; i++)
   {
     if (file.type == 'script' && file.l10nDict.length)
@@ -41,7 +40,7 @@ function process(file, flowData){
         var newTokens = flowData.l10n.packDictionary(dict);
 
         newArgs[0] = ['string', id];
-        newArgs[1] = ['string', ''];
+        newArgs[1] = ['string', 'l10n'];
         newArgs[2] = ['array', newTokens.map(function(token){
           return [typeof token == 'number' ? 'num' : 'string', token];
         })];

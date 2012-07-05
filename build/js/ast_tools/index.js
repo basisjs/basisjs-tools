@@ -70,6 +70,10 @@ module.exports = {
   translate: translate,
   translateCallExpr: translateCallExpr,
 
+  append: function(ast, appendAst){
+    ast[1].push.apply(ast[1], appendAst[1]);
+  },
+
   walk: function(ast, handlers){
     return walker.with_walkers(handlers, function(){
       return walker.walk(ast);

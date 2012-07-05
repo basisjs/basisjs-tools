@@ -1,5 +1,6 @@
 
 var fs = require('fs');
+var at = require('../js/ast_tools');
 
 module.exports = function(flowData){
 
@@ -86,11 +87,36 @@ module.exports = function(flowData){
 
   fconsole.log('Add index into resource map');
   flowData.files.add({
-    jsRef: 'l10nindex',
+    jsRef: '_l10nIndex_',
     type: 'text',
     isResource: true,
     jsResourceContent: flowData.l10n.index.content
   });
+
+  // if l10n module exists, inject index initialization
+  fconsole.log('Inject index init into basis.l10n');
+  if (flowData.l10n.module)
+  {
+    at.append(flowData.l10n.module.ast, at.parse('(' + function(){
+      var parts = basis.resource("_l10nIndex_").fetch().split(/([\<\>\#])/);
+      var stack = [];
+      for (var i = 0; i < parts.length; i++)
+      {
+        switch(parts[i])
+        {
+          case '#': stack.length = 0; break;
+          case '<': stack.pop(); break;
+          case '>': break;
+          default:
+            if (parts[i])
+            {
+              stack.push(parts[i]);
+              getToken(stack.join('.'));
+            }
+        }
+      }
+    } + ')()'));
+  }
 
   fconsole.log('');
 
@@ -101,7 +127,7 @@ module.exports = function(flowData){
   {
     fconsole.log(culture);
 
-    var jsRef = culture + '.json';
+    var jsRef = 'l10n/' + culture + '.json';
     var content = flowData.l10n.packDictionary(cultureContentMap[culture], true);
 
     fconsole.log('  [OK] Pack dictionary');
