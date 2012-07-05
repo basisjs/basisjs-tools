@@ -2,23 +2,30 @@
 var at = require('../js/ast_tools');
 
 module.exports = function(flowData){
+  function packKey(key){
+    return l10nIndex.keys.hasOwnProperty(key)
+      ? '#' + l10nIndex.keys[key].toString(36)
+      : '';
+  }
+
   function packBind(name){
-     if (name.substr(0, 5) == 'l10n:')
-     {
-       var l10nKey = name.substr(5);
-       if (l10nIndex.keys.hasOwnProperty(l10nKey))
-       {
-         var packed = 'l10n:#' + l10nIndex.keys[l10nKey].toString(36);
+    if (name.substr(0, 5) == 'l10n:')
+    {
+      var packed = packKey(name.substr(5));
 
-         fconsole.log(name + ' -> ' + packed);
+      if (packed)
+      {
+        packed = 'l10n:' + packed;
 
-         return packed;
-       }
-       else
-         fconsole.log('[!] l10n key ' + l10nKey + ' not found (ignored)');
-     }
+        fconsole.log(name + ' -> ' + packed);
 
-     return name;
+        return packed;
+      }
+      else
+        fconsole.log('[!] l10n key ' + packed + ' not found (ignored)');
+    }
+
+    return name;
   }
 
   var fconsole = flowData.console;
@@ -33,7 +40,7 @@ module.exports = function(flowData){
     //
     // pack definitions
     //
-    fconsole.log('Pack definitions');
+    fconsole.log('Pack createDictionary');
     fconsole.incDeep();
     flowData.l10n.defList.forEach(function(entry){
       fconsole.log(entry.name);
@@ -44,6 +51,28 @@ module.exports = function(flowData){
       entry.args[2] = ['array', packDictionary(dict, l10nIndex.map).map(function(token){
         return [typeof token == 'number' ? 'num' : 'string', token];
       })];
+    });
+    fconsole.decDeep();
+    fconsole.log();
+
+
+    //
+    // pack getToken
+    //
+    fconsole.log('Pack getToken');
+    fconsole.incDeep();
+    flowData.l10n.getTokenList.forEach(function(entry){
+      var key = entry.args[0][1];
+      var packed = packKey(key);
+
+      if (packed)
+      {
+        fconsole.log(key + ' -> ' + packed);
+        entry.args[0][1] = packed;
+      }
+      else
+        fconsole.log('[!] l10n key ' + key + ' not found (ignored)');
+
     });
     fconsole.decDeep();
     fconsole.log();

@@ -2,6 +2,8 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
+  /*global.xcount = 0;
+  global.xsize= 0;*/
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
@@ -21,18 +23,22 @@ module.exports = function(flowData){
       fconsole.decDeep();
       fconsole.log();
     }
+
+  //console.log('getToken count:', xcount, xsize);
 };
 
 module.exports.handlerName = '[l10n] Collect dictionary declarations';
 
 var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
+var GET_TOKEN = at.normalize('basis.l10n.getToken');
 var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 
 function scanFile(file, flowData){
   var context = flowData.js.getFileContext(file);
   var fconsole = flowData.console;
   var defList = flowData.l10n.defList;
+  var getTokenList = flowData.l10n.getTokenList;
 
   at.walk(file.ast, {
     call: function(expr, args){
@@ -48,18 +54,26 @@ function scanFile(file, flowData){
             file: file
           };
 
+          file.hasL10n = true;
           defList.push(entry);
+
           fconsole.log('[FOUND] ' + entry.name + ' -> ' + entry.path);
 
-          keys = Object.keys(eargs[2]);
-          
-          var dict = {
-            path: eargs[1],
-            keys: keys
-          };
+          break;
 
-          file.hasL10n = true;
-
+        //case L10N_TOKEN:
+        case GET_TOKEN:
+          if (args.length == 1 && args[0][0] == 'string')
+          {
+            file.hasL10n = true;
+            getTokenList.push({
+              args: args,
+              file: file
+            });
+            /*console.log('~~~', at.translateCallExpr(expr, args));
+            xsize += args[0][1].length - 3;
+            xcount++;*/
+          }
           break;
 
         case SET_CULTURE_LIST:

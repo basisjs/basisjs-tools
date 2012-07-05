@@ -4,6 +4,7 @@ module.exports = function(flowData){
   flowData.l10n = {
     cultureList: [],
     defList: [],
+    getTokenList: [],
     packages: []
   }
 
