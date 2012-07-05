@@ -3,8 +3,8 @@ var tmpl = global.basis.template;
 
 var typeMap = {};
 typeMap[tmpl.TYPE_ELEMENT] = 'tag';
-typeMap[tmpl.TYPE_ATTRIBUTE]    = 'attr';
-typeMap[tmpl.TYPE_TEXT]    = 'text';
+typeMap[tmpl.TYPE_ATTRIBUTE] = 'attr';
+typeMap[tmpl.TYPE_TEXT] = 'text';
 typeMap[tmpl.TYPE_COMMENT] = 'comment';
 
 module.exports = {

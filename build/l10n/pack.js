@@ -2,6 +2,25 @@
 var at = require('../js/ast_tools');
 
 module.exports = function(flowData){
+  function packBind(name){
+     if (name.substr(0, 5) == 'l10n:')
+     {
+       var l10nKey = name.substr(5);
+       if (l10nIndex.keys.hasOwnProperty(l10nKey))
+       {
+         var packed = 'l10n:#' + l10nIndex.keys[l10nKey].toString(36);
+
+         fconsole.log(name + ' -> ' + packed);
+
+         return packed;
+       }
+       else
+         fconsole.log('[!] l10n key ' + l10nKey + ' not found (ignored)');
+     }
+
+     return name;
+  }
+
   var fconsole = flowData.console;
 
   if (flowData.options.l10nPack)
@@ -9,9 +28,11 @@ module.exports = function(flowData){
     var l10nIndex = flowData.l10n.index;
 
     if (!l10nIndex)
-      throw 'l10n index must be build first';
+      throw 'l10n index must be built before compression';
 
+    //
     // pack definitions
+    //
     fconsole.log('Pack definitions');
     fconsole.incDeep();
     flowData.l10n.defList.forEach(function(entry){
@@ -27,7 +48,10 @@ module.exports = function(flowData){
     fconsole.decDeep();
     fconsole.log();
 
+
+    //
     // pack packages
+    //
     fconsole.log('Pack packages');
     fconsole.incDeep();
     flowData.l10n.packages.forEach(function(file){
@@ -37,7 +61,42 @@ module.exports = function(flowData){
     fconsole.decDeep();
     fconsole.log();
 
+
+    //
+    // process templates
+    //
+    var tmplAt = require('../tmpl/ast_tools');
+
+    fconsole.log('Pack keys in templates');
+    fconsole.incDeep();
+    flowData.files.queue.forEach(function(file){
+      if (file.type == 'template')
+      {
+        fconsole.log(file.relpath);
+        fconsole.incDeep();
+
+        tmplAt.walk(file.ast, {
+          text: function(token){
+            if (token[1])
+              token[1] = packBind(token[1]);
+          },
+          attr: function(token){
+            if (token[3] != 'class' && token[3] != 'style' && token[1])
+              token[1][0] = token[1][0].map(packBind)
+          }
+        });
+
+        fconsole.decDeep();
+        fconsole.log();
+      }
+    });
+    fconsole.decDeep();
+    fconsole.log();
+
+
+    //
     // add index to resources
+    //
     fconsole.log('# Add index into resource map');
     flowData.files.add({
       jsRef: '_l10nIndex_',
@@ -46,7 +105,10 @@ module.exports = function(flowData){
       jsResourceContent: l10nIndex.content
     });
 
+
+    //
     // if l10n module exists, inject index initialization
+    //
     fconsole.log('# Inject index init into basis.l10n');
     if (flowData.l10n.module)
     {

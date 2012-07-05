@@ -59,7 +59,7 @@ function createDictionaryKeyMap(keys){
   var stack = [];
   var res = [];
   var map = [];
-  var pathMap = {};
+  var pathIndex = {};
   var keyIndex = 0;
   for (var i = 0, key; key = keys[i]; i++)
   {
@@ -103,12 +103,14 @@ function createDictionaryKeyMap(keys){
 
       var path = stack.join('.');
       map.push(path);
+      pathIndex[path] = map.length;
     }
 
   }
 
   return {
     map: map,
+    keys: pathIndex,
     content: res.join('')
   };
 }
