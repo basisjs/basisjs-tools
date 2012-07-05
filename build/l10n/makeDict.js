@@ -81,23 +81,39 @@ module.exports = function(flowData){
   }
 
   // build index
+  fconsole.log('Build index');
   flowData.l10n.index = createDictionaryKeyMap(Object.keys(l10nKeys));
+
+  fconsole.log('Add index into resource map');
+  flowData.files.add({
+    jsRef: 'l10nindex',
+    type: 'text',
+    isResource: true,
+    jsResourceContent: flowData.l10n.index.content
+  });
+
+  fconsole.log('');
 
   // make culture packs
   fconsole.log('Make lang packages');
   fconsole.incDeep();
   for (var culture in cultureContentMap)
   {
-    var jsRef = culture + '.json';
+    fconsole.log(culture);
 
-    fconsole.log('[+] ' + jsRef);
+    var jsRef = culture + '.json';
+    var content = flowData.l10n.packDictionary(cultureContentMap[culture], true);
+
+    fconsole.log('  [OK] Pack dictionary');
 
     flowData.files.add({
       jsRef: jsRef,
       type: 'json',
       isResource: true,
-      jsResourceContent: flowData.l10n.packDictionary(cultureContentMap[culture], true)
+      jsResourceContent: content
     });
+
+    fconsole.log('  [OK] Add to resource map');
   }
 }
 
