@@ -8,3 +8,5 @@ module.exports = function(flowData){
   inputFile.outputFilename = path.basename(flowData.inputFilename);
   inputFile.outputContent = htmlparser.DomUtils.getInnerHTML({ children: inputFile.ast });
 }
+
+module.exports.handlerName = '[html] Translate';

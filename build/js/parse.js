@@ -22,7 +22,7 @@ module.exports = function(flowData){
     }
 };
 
-module.exports.handlerName = 'Parse and expand javascript';
+module.exports.handlerName = '[js] Parse and expand javascript';
 
 
 //

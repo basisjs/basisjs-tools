@@ -17,4 +17,4 @@ module.exports = function(flowData){
 
 }
 
-module.exports.handlerName = 'Merge javascript';
+module.exports.handlerName = '[js] Merge';

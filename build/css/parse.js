@@ -88,4 +88,4 @@ module.exports = function(flowData){
     }
   }
 }
-module.exports.handlerName = 'Parse & expand CSS'
+module.exports.handlerName = '[css] Parse & expand';

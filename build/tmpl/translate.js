@@ -14,4 +14,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = 'Translate templates';
+module.exports.handlerName = '[tmpl] Translate';

@@ -44,4 +44,4 @@ module.exports = function(flowData){
     }
 };
 
-module.exports.handlerName = 'Modify <script> entry in html file';
+module.exports.handlerName = '[js] Modify <script> entry in html file';

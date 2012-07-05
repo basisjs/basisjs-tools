@@ -22,7 +22,7 @@ module.exports = function(flowData){
     flowData.console.decDeep();
   }
 }
-module.exports.handlerName = 'Linear CSS files';
+module.exports.handlerName = '[css] Linear files';
 
 //
 // main part

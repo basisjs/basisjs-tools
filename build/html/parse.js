@@ -24,4 +24,4 @@ module.exports = function(flowData){
   inputFile.ast = handler.dom;
 };
 
-module.exports.handlerName = 'Parse html';
+module.exports.handlerName = '[html] Parse';

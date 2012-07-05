@@ -41,4 +41,4 @@ module.exports = function(flowData){
   });
 }
 
-module.exports.handlerName = 'Translate CSS into text';
+module.exports.handlerName = '[css] Translate';

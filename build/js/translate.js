@@ -24,5 +24,5 @@ module.exports = function(flowData){
     }
 };
 
-module.exports.handlerName = 'Translate javascript';
+module.exports.handlerName = '[js] Translate';
 

@@ -74,4 +74,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = 'Search for resources';
+module.exports.handlerName = '[res] Search for resources';

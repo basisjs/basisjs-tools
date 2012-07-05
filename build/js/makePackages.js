@@ -74,7 +74,7 @@ module.exports = function(flowData){
     }
   }
 }
-module.exports.handlerName = 'Make javascript packages';
+module.exports.handlerName = '[js] Make packages';
 
 //
 // make require file list

@@ -48,4 +48,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = 'Merge CSS packages';
+module.exports.handlerName = '[css] Merge packages';

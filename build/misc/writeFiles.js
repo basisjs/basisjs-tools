@@ -15,4 +15,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = 'Write output files';
+module.exports.handlerName = '[fs] Write output files';

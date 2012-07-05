@@ -18,4 +18,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = 'Compress CSS files';
+module.exports.handlerName = '[css] Compress';

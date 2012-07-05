@@ -19,7 +19,7 @@ module.exports = function(flowData){
     }
 };
 
-module.exports.handlerName = 'Modify basis.resource calls in javascript';
+module.exports.handlerName = '[js] Modify basis.resource calls';
 
 
 //

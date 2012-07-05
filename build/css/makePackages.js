@@ -45,7 +45,7 @@ module.exports = function(flowData){
   }, {});
 }
 
-module.exports.handlerName = 'Make CSS packages';
+module.exports.handlerName = '[css] Make packages';
 
 function setOutputFilename(file, targetMap){
   var baseOutputFilename = file.outputFilename || (file.filename ? path.basename(file.filename, '.css') : '') || 'style';

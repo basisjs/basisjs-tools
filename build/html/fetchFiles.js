@@ -187,4 +187,4 @@ module.exports = function(flowData){
   })*/
 }
 
-module.exports.handlerName = 'Walk through html tokens and collect files';
+module.exports.handlerName = '[html] Walk through and collect file references';

@@ -5,4 +5,4 @@ module.exports = function(flowData){
   basis.require('basis.template');
 }
 
-module.exports.handlerName = 'Template processing init';
+module.exports.handlerName = '[tmpl] Init';
