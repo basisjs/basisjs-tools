@@ -17,3 +17,5 @@ module.exports = function(flowData){
   };
 
 };
+
+module.exports.handlerName = '[js] Init';

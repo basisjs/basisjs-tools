@@ -21,3 +21,5 @@ module.exports = function(flowData){
   };
 
 };
+
+module.exports.handlerName = '[css] Init';

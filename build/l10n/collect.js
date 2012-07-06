@@ -27,7 +27,7 @@ module.exports = function(flowData){
   //console.log('getToken count:', xcount, xsize);
 };
 
-module.exports.handlerName = '[l10n] Collect dictionary declarations';
+module.exports.handlerName = '[l10n] Scan javascript';
 
 var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
