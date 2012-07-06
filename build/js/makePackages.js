@@ -30,6 +30,14 @@ module.exports = function(flowData){
 
   // inject resources
   var inserted = false;
+  var resourceToc = [];
+  var resTypeByFirstChar = {
+    '[': 'array',
+    '{': 'object',
+    '"': 'string',
+    'f': 'function'
+  };
+
   basisFile.ast = at.walk(basisFile.ast, {
     'dot': function(expr){
       if (!inserted && at.translate(this) == RESOURCE)
@@ -39,7 +47,7 @@ module.exports = function(flowData){
           var res = [];
           var resourceTypeWeight = {
             'json': 1,
-            'tmpl': 2,
+            'template': 2,
             'script': 100
           };
 
@@ -53,15 +61,16 @@ module.exports = function(flowData){
             else
               content = JSON.stringify(content);
 
-            res.push([file.type, file.jsRef, content]);
+            res.push([file, file.jsRef, content]);
           }
 
           return '{\n' +
             res.sort(function(a, b){
-              var wa = resourceTypeWeight[a[0]] || 0;
-              var wb = resourceTypeWeight[b[0]] || 0;
+              var wa = resourceTypeWeight[a[0].type] || 0;
+              var wb = resourceTypeWeight[b[0].type] || 0;
               return wa > wb ? 1 : (wa < wb ? -1 : 0);
             }).map(function(item){
+              resourceToc.push('[' + (resTypeByFirstChar[item[2].charAt(0)] || 'unknown') + '] ' + item[0].relpath + ' -> ' + item[1]);
               return '"' + item[1] + '":' + item[2]
             }).join(',\n') + 
           '\n}';
@@ -78,7 +87,9 @@ module.exports = function(flowData){
     var packageFile = flowData.files.add({
       type: 'script',
       outputFilename: name + '.js',
-      outputContent: wrapPackage(packages[name], flowData, isCoreFile ? at.translate(basisFile.ast) : '')
+      outputContent: 
+        (isCoreFile ? '// resources (' + resourceToc.length + '):\n//  ' + resourceToc.join('\n//  ') + '\n//\n' : '') +
+        wrapPackage(packages[name], flowData, isCoreFile ? at.translate(basisFile.ast) : '')
     });
 
     if (isCoreFile)
@@ -147,7 +158,7 @@ function wrapPackage(package, flowData, contentPrepend){
   return !flowData.options.buildMode
     // source mode
     ? [
-        '// filelist: \n//   ' + package.map(function(file){
+        '// filelist (' + package.length + '): \n//   ' + package.map(function(file){
           return file.relpath;
         }).join('\n//   ') + '\n',
 
@@ -172,7 +183,7 @@ function wrapPackage(package, flowData, contentPrepend){
       ].join('')
     // build mode
     : [
-        '// filelist: \n//   ' + package.map(function(file){
+        '// filelist (' + package.length + '): \n//   ' + package.map(function(file){
           return file.relpath;
         }).join('\n//   ') + '\n',
 
