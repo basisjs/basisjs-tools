@@ -18,3 +18,5 @@ module.exports = function(flowData){
   flowData.js.resourceMap = jsResourceMap;
   //console.log(jsResourceMap);
 }
+
+module.exports.handlerName = '[res] Build map';

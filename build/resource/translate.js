@@ -1,7 +1,6 @@
 
 module.exports = function(flowData){
   var uniqueMap = {};
-  var jsResourceMap = {};
 
   for (var i = 0, file; file = flowData.files.queue[i]; i++)
   {
@@ -15,3 +14,5 @@ module.exports = function(flowData){
     }
   }
 }
+
+module.exports.handlerName = '[res] Translate';

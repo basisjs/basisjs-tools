@@ -54,10 +54,10 @@ function scanFile(file, flowData){
             file: file
           };
 
+          fconsole.log('[FOUND] createDictionary ' + entry.name + ' -> ' + entry.path);
+
           file.hasL10n = true;
           defList.push(entry);
-
-          fconsole.log('[FOUND] ' + entry.name + ' -> ' + entry.path);
 
           break;
 
@@ -65,6 +65,8 @@ function scanFile(file, flowData){
         case GET_TOKEN:
           if (args.length == 1 && args[0][0] == 'string')
           {
+            fconsole.log('[FOUND] getToken ' + args[0][0]);
+
             file.hasL10n = true;
             getTokenList.push({
               args: args,
@@ -86,6 +88,12 @@ function scanFile(file, flowData){
 
           if (Array.isArray(list))
           {
+            for (var i = 0, cultureDef; cultureDef = list[i]; i++)
+            {
+              var clist = cultureDef.split(/\//);
+              list[i] = clist[0];
+            }
+
             fconsole.log('        [OK] Set culture list ' + JSON.stringify(list));
             list.forEach(flowData.l10n.cultureList.add, flowData.l10n.cultureList);
           }

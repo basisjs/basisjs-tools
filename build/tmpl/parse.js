@@ -41,4 +41,4 @@ module.exports = function(flowData){
     }
   }
 }
-module.exports.handlerName = '[tmpl] Parse';
+module.exports.handlerName = '[tmpl] Parse & expand';
