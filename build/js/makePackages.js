@@ -81,7 +81,7 @@ module.exports = function(flowData){
 
   for (var name in packages)
   {
-    console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
+    flowData.console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
 
     var isCoreFile = flowData.options.jsSingleFile || packageName == 'basis';
     var packageFile = flowData.files.add({

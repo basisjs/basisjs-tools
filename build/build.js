@@ -65,17 +65,16 @@ flow.forEach(function(handler){
   var title = handler.handlerName;
 
   if (title)
-  {
-    fconsole.incDeep();
     fconsole.log('\n' + title + '\n' + ('='.repeat(title.length)) + '\n');
-  }
+
+  fconsole.incDeep();
 
   var handlerTime = new Date();
   handler(flowData);
+  var elapsedTime = (new Date - handlerTime);
 
   fconsole.resetDeep();
 
-  var elapsedTime = (new Date - handlerTime);
   fconsole.log('');
   fconsole.log('Time: ' + (elapsedTime / 1000).toFixed(3) + 's');
 

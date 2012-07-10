@@ -8,8 +8,7 @@ module.exports = function(flowData){
     if (file.type == 'script')
     {
       // scan file for basis.l10n.createDictionary & basis.l10n.setCultureList
-      fconsole.log(file.filename ? file.relpath : '[inline script]');
-      fconsole.incDeep();
+      fconsole.start(file.filename ? file.relpath : '[inline script]');
 
       // store reference for basis.l10n module
       if (file.namespace == 'basis.l10n')
@@ -20,8 +19,7 @@ module.exports = function(flowData){
 
       scanFile(file, flowData);
 
-      fconsole.decDeep();
-      fconsole.log();
+      fconsole.endl();
     }
 
   //console.log('getToken count:', xcount, xsize);

@@ -32,6 +32,18 @@ function Console(){
       logDeep = 0;
     },
 
+    start: function(){
+      this.log.apply(this, arguments);
+      this.incDeep();
+    },
+    end: function(){
+      this.decDeep();
+    },
+    endl: function(){
+      this.decDeep();
+      this.log();
+    },
+
     push: function(){
       logBuffer.push([]);
     },

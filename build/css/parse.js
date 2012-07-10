@@ -15,8 +15,7 @@ module.exports = function(flowData){
   {
     if (file.type == 'style')
     {
-      fconsole.log('Parse ' + file.relpath);
-      fconsole.incDeep();
+      fconsole.start('Parse ' + file.relpath);
 
       //
       // Main part
@@ -84,7 +83,7 @@ module.exports = function(flowData){
         }
       });
 
-      fconsole.decDeep();
+      fconsole.end();
     }
   }
 }

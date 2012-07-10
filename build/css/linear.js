@@ -8,18 +8,18 @@ var relpath_;
 
 module.exports = function(flowData){
   var packages = flowData.css.packages;
+  var fconsole = flowData.console;
 
   relpath_ = flowData.files.relpath;
 
   // process files in reverse order
   for (var i = packages.length - 1, file; file = packages[i]; i--)
   {
-    flowData.console.log(file.relOutputFilename);
-    flowData.console.incDeep();
+    fconsole.start(file.relOutputFilename);
 
     buildFile(file, flowData);
 
-    flowData.console.decDeep();
+    fconsole.endl();
   }
 }
 module.exports.handlerName = '[css] Linear files';

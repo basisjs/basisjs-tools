@@ -17,8 +17,7 @@ module.exports = function(flowData){
     switch (file.type)
     {
       case 'style':
-        fconsole.log('Scan (' + file.type + ') ' + file.relpath);
-        fconsole.incDeep();
+        fconsole.start('Scan (' + file.type + ') ' + file.relpath);
 
         atCss.walk(file.ast, {
           'uri': function(token){
@@ -47,13 +46,11 @@ module.exports = function(flowData){
           }
         });
 
-        fconsole.log();
-        fconsole.decDeep();
+        fconsole.endl();
       break;
 
       case 'template':
-        fconsole.log('Scan (' + file.type + ') ' + file.relpath);
-        fconsole.incDeep();
+        fconsole.start('Scan (' + file.type + ') ' + file.relpath);
 
         atTmpl.walk(file.ast, {
           attr: function(token, parentToken){
@@ -67,8 +64,7 @@ module.exports = function(flowData){
           }
         })
 
-        fconsole.log();
-        fconsole.decDeep();
+        fconsole.endl();
       break;
     }
   }

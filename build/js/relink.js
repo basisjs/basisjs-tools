@@ -9,13 +9,11 @@ module.exports = function(flowData){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && (file.deps.length || file.resources.length))
     {
-      fconsole.log(file.filename ? file.relpath : '[inline script]');
-      fconsole.incDeep();
+      fconsole.start(file.filename ? file.relpath : '[inline script]');
 
       relinkScript(file, flowData);
 
-      fconsole.decDeep();
-      fconsole.log();
+      fconsole.endl();
     }
 };
 
