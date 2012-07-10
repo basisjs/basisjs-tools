@@ -1,12 +1,9 @@
 
 var utils = require('./misc/utils');
+var Flow = require('./misc/flow');
 
 var startTime = new Date();
-
-
-var flowData = {
-  console: require('./misc/console')
-};
+var flowData = new Flow();
 
 var flow = [
   require('./misc/options'),
@@ -123,4 +120,4 @@ fconsole.decDeep();
 fconsole.log('');
 
 // total time
-fconsole.log('Build done in ' + ((new Date - startTime) / 1000).toFixed(3) + 's');
+fconsole.log('Build done in ' + (flowData.time() / 1000).toFixed(3) + 's');

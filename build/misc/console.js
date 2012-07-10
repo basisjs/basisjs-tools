@@ -1,50 +1,57 @@
 
-var logDeep = 0;
-var logBuffer = [];
+module.exports = Console;
 
 var slice = Array.prototype.slice;
 var push = Array.prototype.push;
 
-module.exports = {
-  log: function(){
-    var args = slice.call(arguments);
+function Console(){
+  var logDeep = 0;
+  var logBuffer = [];
 
-    if (logDeep)
-      args.unshift(new Array(logDeep + 1).join('  ').substr(1));
+  return {
+    log: function(){
+      var args = slice.call(arguments);
 
-    if (logBuffer.length)
-      logBuffer[logBuffer.length - 1].push(args);
-    else
-      console.log.apply(console, args);
-  },
-  incDeep: function(){
-    logDeep++;
-  },
-  decDeep: function(){
-    if (logDeep > 0)
-      logDeep--;
-  },
-  resetDeep: function(){
-    logDeep = 0;
-  },
-  push: function(){
-    logBuffer.push([]);
-  },
-  pop: function(){
-    return logBuffer.pop();
-  },
-  flush: function(messages){
-    if (logBuffer.length)
-      push.apply(logBuffer[logBuffer.length - 1], messages);
-    else
-      messages.forEach(function(args){
+      if (logDeep)
+        args.unshift(new Array(logDeep + 1).join('  ').substr(1));
+
+      if (logBuffer.length)
+        logBuffer[logBuffer.length - 1].push(args);
+      else
         console.log.apply(console, args);
-      });
-  },
-  flushAll: function(){
-    while (logBuffer.length)
-      this.flush(this.pop());
+    },
 
-    logDeep = 0;
-  }
-};
+    incDeep: function(){
+      logDeep++;
+    },
+    decDeep: function(){
+      if (logDeep > 0)
+        logDeep--;
+    },
+    resetDeep: function(){
+      logDeep = 0;
+    },
+
+    push: function(){
+      logBuffer.push([]);
+    },
+    pop: function(){
+      return logBuffer.pop();
+    },
+
+    flush: function(messages){
+      if (logBuffer.length)
+        push.apply(logBuffer[logBuffer.length - 1], messages);
+      else
+        messages.forEach(function(args){
+          console.log.apply(console, args);
+        });
+    },
+    flushAll: function(){
+      while (logBuffer.length)
+        this.flush(this.pop());
+
+      logDeep = 0;
+    }
+  };
+}
