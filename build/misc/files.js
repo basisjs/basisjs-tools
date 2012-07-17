@@ -20,7 +20,15 @@ var typeByExt = {
   '.jpeg': 'image',
   '.tiff': 'image'
 };
-var typeNotFoundHandler = {};
+
+var typeNotFoundHandler = {
+  '.js': function(filename){
+    return '/* Javascript file ' + filename + ' not found */';
+  },
+  '.css': function(filename){
+    return '/* CSS file ' + filename + ' not found */'
+  }
+};
 
 
 //
@@ -192,9 +200,6 @@ module.exports = function(flowData){
           result[key] = file[key];
 
       return result;
-    },
-    addNotFoundHandler: function(ext, fn){
-      typeNotFoundHandler[ext] = fn;
     }
   };
 };

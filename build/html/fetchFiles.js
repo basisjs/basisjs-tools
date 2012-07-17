@@ -30,8 +30,6 @@ module.exports = function(flowData){
 
   genericInsertNode.push(flowData.css.genericFile.htmlInsertPoint);
 
-  //flowData.htmlProcessPoint = processPoint;
-
 
   //
   // main part
@@ -77,22 +75,22 @@ module.exports = function(flowData){
             }
 
             fconsole.log('External script found');
-            file = {
+            file = files.add({
               source: 'html:script',
               type: 'script',
               filename: filename
-            };
+            });
           }
           else
           {
             fconsole.log('Inline script found');
-            file = {
+            file = files.add({
               source: 'html:script',
               type: 'script',
               inline: true,
               baseURI: inputDir,
               content: getText(node)
-            };
+            });
           }
 
           break;
@@ -104,12 +102,12 @@ module.exports = function(flowData){
             var filename = resolveFilename(attrs.href);
 
             fconsole.log('External style found (<link rel="stylesheet">)');
-            file = {
+            file = files.add({
               source: 'html:link',
               type: 'style',
               filename: filename,
               media: attrs.media || 'all'
-            };
+            });
           }
 
           break;
@@ -117,14 +115,14 @@ module.exports = function(flowData){
         case 'style':
           var attrs = getAttrs(node);
           fconsole.log('Inline style found');
-          file = {
+          file = files.add({
             source: 'html:style',
             type: 'style',
             baseURI: inputDir,
             inline: true,
             media: attrs.media || 'all',
             content: getText(node)
-          };
+          });
 
           break;
       }
@@ -132,9 +130,6 @@ module.exports = function(flowData){
       if (file)
       {
         file.htmlInsertPoint = node;
-        fconsole.incDeep();
-        file = files.add(file);
-        fconsole.decDeep();
 
         processPoint.push({
           node: node,
@@ -161,30 +156,6 @@ module.exports = function(flowData){
     console.warn('Basis.js not found in html');
     process.exit();
   }
-/*    [
-  '../../../src/basis/date.js',
-  '../../../src/basis/ua.js',
-  '../../../src/basis/dom.js',
-  '../../../src/basis/event.js',
-  '../../../src/basis/data.js',
-  '../../../src/basis/data/dataset.js',
-  '../../../src/basis/timer.js',
-  '../../../src/basis/dom/event.js',
-  '../../../src/basis/cssom.js',
-  '../../../src/basis/data/property.js',
-  '../../../src/basis/data/index.js',
-  '../../../src/basis/l10n.js',
-  '../../../src/basis/dom/wrapper.js',
-  '../../../src/basis/template.js',
-  '../../../src/basis/html.js',
-  '../../../src/basis/ui.js',
-  '../../../src/basis/layout.js',
-  '../../../src/basis/dragdrop.js',
-  '../../../src/basis/ui/paginator.js',
-  'blog.js',
-  '../../../src/basis/entity.js'].forEach(function(fn){
-    flowData.files.add({filename:resolveFilename(fn)});
-  })*/
 }
 
 module.exports.handlerName = '[html] Walk through and collect file references';
