@@ -58,32 +58,35 @@ module.exports = function(flowData){
         case 'script':
           var attrs = getAttrs(node);
 
-          // ignore script with type other than text/javscript
+          // ignore <script> tags with type other than text/javascript
           if (attrs.type && attrs.type != 'text/javascript')
+          {
+            fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
             return;
+          }
 
           // external script
           if (attrs.src)
           {
-            var filename = resolveFilename(attrs.src);
-            var fileBaseURI = path.dirname(filename);
+            fconsole.log('External script found: <script src="' + attrs.src + '">');
 
-            if (attrs['basis-config'])
-            {
-              flowData.js.rootBaseURI.basis = fileBaseURI;
-              flowData.js.basisScript = filename;
-            }
-
-            fconsole.log('External script found');
             file = files.add({
               source: 'html:script',
               type: 'script',
-              filename: filename
+              filename: attrs.src
             });
+
+            if (attrs.hasOwnProperty('basis-config'))
+            {
+              fconsole.log('[i] basis.js marker found (basis-config attribute)');
+              file.basisScript = true;
+              file.basisConfig = attrs['basis-config'];
+            }
           }
           else
           {
             fconsole.log('Inline script found');
+
             file = files.add({
               source: 'html:script',
               type: 'script',
@@ -97,11 +100,11 @@ module.exports = function(flowData){
 
         case 'tag':
           var attrs = getAttrs(node);
-          if (node.name == 'link' && attrs.rel == 'stylesheet')
+          if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
           {
             var filename = resolveFilename(attrs.href);
 
-            fconsole.log('External style found (<link rel="stylesheet">)');
+            fconsole.log('External style found: <link rel="' + attrs.rel + '">');
             file = files.add({
               source: 'html:link',
               type: 'style',
@@ -114,7 +117,16 @@ module.exports = function(flowData){
 
         case 'style':
           var attrs = getAttrs(node);
+
+          // ignore <style> with type other than text/css
+          if (attrs.type && attrs.type != 'text/css')
+          {
+            fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
+            return;
+          }
+
           fconsole.log('Inline style found');
+
           file = files.add({
             source: 'html:style',
             type: 'style',
@@ -149,12 +161,6 @@ module.exports = function(flowData){
       if (node.type == 'tag' && node.name == 'head' && !headNode)
         headNode = node;
     }
-  }
-
-  if (!flowData.js.basisScript)
-  {
-    console.warn('Basis.js not found in html');
-    process.exit();
   }
 }
 

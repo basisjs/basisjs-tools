@@ -116,12 +116,12 @@ module.exports = function(flowData){
     {
       data.filename = normpath(data.filename);
       var filename = data.filename;
-      var fileid = getFileId(filename);
+      var fileId = getFileId(filename);
       var ext = path.extname(filename);
 
-      if (fileMap[fileid]) // ignore duplicates
+      if (fileMap[fileId]) // ignore duplicates
       {
-        fconsole.log('[ ] File `' + fileid + '` already in queue');
+        fconsole.log('[ ] File `' + fileId + '` already in queue');
 
         /*if (moveToQueueEndFile.indexOf(ext) != -1)
         {
@@ -129,7 +129,7 @@ module.exports = function(flowData){
           queue.add(fileMap[filename]);
         }*/
 
-        return fileMap[fileid];
+        return fileMap[fileId];
       }
 
       if (!data.type)
@@ -150,7 +150,7 @@ module.exports = function(flowData){
         file.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
       }
 
-      fileMap[fileid] = file;
+      fileMap[fileId] = file;
     }
     else
     {

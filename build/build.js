@@ -10,14 +10,13 @@ var flow = [
   require('./misc/files'),
 
   require('./html/init'),
-  require('./js/init'),
   require('./css/init'),
 
   // extract files
   require('./html/parse'),
   require('./html/fetchFiles'),
+  require('./js/extract'),
   require('./tmpl/init'),
-  require('./js/parse'),
   require('./tmpl/parse'),
   require('./css/parse'),
   require('./resource/parse'),

@@ -1,14 +1,47 @@
-//
-// export handler
-//
 
 module.exports = function(flowData){
-  var queue = flowData.files.queue;
+
   var fconsole = flowData.console;
+  var queue = flowData.files.queue;
 
-  //console.log(JSON.stringify(at.parse('1+2')));
-  //process.exit();
+  //
+  // Init js section
+  //
 
+  fconsole.log('Init js');
+  flowData.js = {
+    rootBaseURI: {},
+    getFileContext: getFileContext
+  };
+
+  //
+  // Search for basis.js
+  //
+
+  fconsole.start('Search for basis.js');
+
+  for (var i = 0; file = queue[i]; i++)
+    if (file.type == 'script' && file.basisScript)
+    {
+      fconsole.log('[OK] basis.js found at path ' + file.relPath);
+      flowData.js.rootBaseURI.basis = file.baseURI;
+      flowData.js.basisScript = file.filename;
+      break;
+    }
+
+  if (!flowData.js.basisScript)
+  {
+    fconsole.log('[FAULT] basis.js not found (should be a <script> tag with src & basis-config attributes)');
+    process.exit();
+  }
+
+  fconsole.endl();
+
+  //
+  // Process files
+  //
+
+  fconsole.start('Process scripts');
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
@@ -18,9 +51,10 @@ module.exports = function(flowData){
 
       fconsole.endl();
     }
+  fconsole.endl();
 };
 
-module.exports.handlerName = '[js] Parse & expand';
+module.exports.handlerName = '[js] Extract (init, parse and expand)';
 
 
 //
@@ -34,10 +68,17 @@ var BASIS_RESOURCE = at.normalize('basis.resource');
 var RESOURCE = at.normalize('resource');
 var BASIS_REQUIRE = at.normalize('basis.require');
 
-function processScript(file, flowData){
-  var inputDir = flowData.inputDir;
-  var content = file.content;
-  var context = flowData.js.getFileContext(file);
+function getFileContext(file){
+  return {
+    __filename: file.filename || '',
+    __dirname: file.baseURI,
+    namespace: file.namespace || ''
+  };
+}
+
+function processScript(scriptFile, flowData){
+  var context = getFileContext(scriptFile);
+  var content = scriptFile.content;
 
   if (flowData.options.buildMode)
   {
@@ -50,10 +91,10 @@ function processScript(file, flowData){
   var deps = [];
   var resources = [];
 
-  file.deps = deps;
-  file.resources = resources;
+  scriptFile.deps = deps;
+  scriptFile.resources = resources;
 
-  file.ast = at.walk(at.parse(content), {
+  scriptFile.ast = at.walk(at.parse(content), {
     "call": function(expr, args){
       var newFilename;
       var newFile;
@@ -91,7 +132,7 @@ function processScript(file, flowData){
           {
             newFile = flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(file.baseURI, newFilename)
+              filename: path.resolve(scriptFile.baseURI, newFilename)
             });
             newFile.isResource = true;
 
@@ -116,11 +157,11 @@ function processScript(file, flowData){
             var namespace = newFilename;
             var parts = namespace.split(/\./);
             var root = parts[0];
-            newFilename = path.resolve(flowData.js.rootBaseURI[root] || flowData.inputDir, parts.join('/')) + '.js';
+            var baseURI = flowData.js.rootBaseURI[root];
 
             newFile = flowData.files.add({
               source: 'js:basis.require',
-              filename: newFilename
+              filename: (baseURI ? baseURI + '/' : '') + parts.join('/') + '.js'
             });
             newFile.namespace = namespace;
             newFile.package = root;
@@ -133,5 +174,3 @@ function processScript(file, flowData){
     }
   });
 }
-
-
