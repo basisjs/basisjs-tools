@@ -1,6 +1,6 @@
+
 var htmlparser = require('htmlparser2');
 var path = require('path');
-var fs = require('fs');
 
 module.exports = function(flowData){
   var inputFile = flowData.inputFile;

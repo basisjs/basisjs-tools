@@ -54,7 +54,7 @@ module.exports = function(flowData){
   fconsole.endl();
 };
 
-module.exports.handlerName = '[js] Extract (init, parse and expand)';
+module.exports.handlerName = '[js] Extract';
 
 
 //

@@ -1,20 +1,41 @@
 
-var htmlparser = require("htmlparser2");
+module.exports = function(flowData){
+  var queue = flowData.files.queue;
+  var fconsole = flowData.console;
+
+  for (var i = 0, file; file = queue[i]; i++)
+  {
+    if (file.type == 'html')
+    {
+      fconsole.start(file.relPath);
+
+      processFile(file, flowData);
+
+      fconsole.endl();
+    }
+  }
+};
+
+module.exports.handlerName = '[html] Extract';
+
+//
+//
+//
+
+var htmlparser = require('htmlparser2');
 var at = require('./ast_tools');
 
 var parserConfig = {
   lowerCaseTags: true
 };
 
-module.exports = function(flowData){
-  var inputFile = flowData.inputFile;
-
+function processFile(file, flowData){
   // prepare parser
   var handler = new htmlparser.DefaultHandler();
   var parser = new htmlparser.Parser(handler, parserConfig);
 
   // parse html
-  parser.parseComplete(inputFile.content);
+  parser.parseComplete(file.content);
 
   // debug output
   //console.log(require('util').inspect(handler.dom, false, null));
@@ -25,7 +46,8 @@ module.exports = function(flowData){
   // search for head & body
   var head;
   var body;
-  at.walk(handler.dom, function(node){
+
+  at.walk(ast, function(node){
     if (node.type == 'tag')
     {
       if (!head && node.name == 'head')
@@ -39,8 +61,6 @@ module.exports = function(flowData){
   ast.head = head || ast;
   ast.body = body || ast;
 
-  // save result in flowData
-  inputFile.ast = ast;
-};
-
-module.exports.handlerName = '[html] Parse';
+  // save result in file
+  file.ast = ast;
+}
