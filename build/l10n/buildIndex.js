@@ -3,30 +3,24 @@ module.exports = function(flowData){
 
   var fconsole = flowData.console;
   var cultureList = flowData.l10n.cultureList;
-  var list = flowData.l10n.defList;
+  var defList = flowData.l10n.defList;
 
   var baseMap = {};
   var l10nKeys = {};
-  var pathes = {};
 
   // collect all keys and dictionaries
-  for (var i = 0, entry; entry = list[i]; i++)
+  for (var i = 0, entry; entry = defList[i]; i++)
   {
     var name = entry.name;
     var path = entry.path;
     var tokens = entry.keys;
 
-    fconsole.log(name);
-    fconsole.incDeep();
+    fconsole.start(name);
 
     if (baseMap[name])
       fconsole.log('[!] ' + name + ' already declared in ' + entry.file.relpath);
     else
       baseMap[name] = path;
-
-    if (!pathes[path])
-      pathes[path] = {};
-    pathes[path][name] = true;
 
     for (var key in tokens)
     {
@@ -37,13 +31,12 @@ module.exports = function(flowData){
       baseMap[name][key] = tokens[key];
     }
 
-    fconsole.decDeep();
+    fconsole.end();
   }
   fconsole.log();
 
   // extend l10n with info
   flowData.l10n.keys = l10nKeys;
-  flowData.l10n.pathes = pathes;
   flowData.l10n.baseMap = baseMap;
 
   // build index

@@ -20,13 +20,11 @@ module.exports = function(flowData){
 
   // check out pathes and collect culture content files
 
-  fconsole.log('Collect culture content');
-  fconsole.incDeep();
+  fconsole.start('Collect culture content');
 
   for (var i = 0; culture = cultureList[i]; i++)
   {
-    fconsole.log(culture);
-    fconsole.incDeep();
+    fconsole.start(culture);
 
     for (var path in pathes)
     {
@@ -34,8 +32,7 @@ module.exports = function(flowData){
       if (fs.existsSync(cultureFile))
       {
         var cultureMap = cultureContentMap[culture];
-        fconsole.log('[+] ' + cultureFile);
-        fconsole.incDeep();
+        fconsole.start('[+] ' + cultureFile);
         try {
           var dictPack = JSON.parse(fs.readFileSync(cultureFile, 'utf-8'));
           for (var dictName in dictPack)
@@ -79,15 +76,12 @@ module.exports = function(flowData){
       }
     }
 
-    fconsole.decDeep();
-    fconsole.log();
+    fconsole.endl();
   }
-  fconsole.decDeep();
-  fconsole.log();
+  fconsole.endl();
 
   // make culture packs
-  fconsole.log('Make packages');
-  fconsole.incDeep();
+  fconsole.start('Make packages');
   for (var culture in cultureContentMap)
   {
     fconsole.log(culture);

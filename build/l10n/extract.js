@@ -1,10 +1,24 @@
+
 module.exports = function(flowData){
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
 
-  /*global.xcount = 0;
-  global.xsize= 0;*/
+  flowData.l10n = {
+    cultureList: [],  // TODO: fetch culture list from basis.l10n
+    defList: [],
+    getTokenList: [],
+    packages: [],
+    pathes: {}
+  };
+
+
+  //
+  // Scan javascript for l10n
+  //
+
+  fconsole.start('Scan javascript');
   for (var i = 0, file; file = queue[i]; i++)
+  {
     if (file.type == 'script')
     {
       // scan file for basis.l10n.createDictionary & basis.l10n.setCultureList
@@ -21,11 +35,35 @@ module.exports = function(flowData){
 
       fconsole.endl();
     }
+  }
+  fconsole.endl();
 
-  //console.log('getToken count:', xcount, xsize);
+  //
+  // Add dictionary files
+  //
+
+  fconsole.start('Fetch dictionary files');
+  for (var path in flowData.l10n.pathes)
+  {
+    fconsole.start(path);
+    for (var i = 0; culture = flowData.l10n.cultureList[i]; i++)
+    {
+      flowData.files.add({
+        filename: path + '/' + culture + '.json',
+        type: 'l10n',
+        culture: culture
+      });
+    }
+    fconsole.endl();
+  }
 };
 
-module.exports.handlerName = '[l10n] Scan javascript';
+module.exports.handlerName = '[l10n] Extract';
+
+
+//
+// Main part
+//
 
 var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
@@ -37,6 +75,7 @@ function scanFile(file, flowData){
   var fconsole = flowData.console;
   var defList = flowData.l10n.defList;
   var getTokenList = flowData.l10n.getTokenList;
+  var pathes = flowData.l10n.pathes;
 
   at.walk(file.ast, {
     call: function(expr, args){
@@ -57,6 +96,11 @@ function scanFile(file, flowData){
           file.hasL10n = true;
           defList.push(entry);
 
+          if (!pathes[entry.path])
+            pathes[entry.path] = {};
+
+          pathes[entry.path][entry.name] = true;
+
           break;
 
         //case L10N_TOKEN:
@@ -70,9 +114,6 @@ function scanFile(file, flowData){
               args: args,
               file: file
             });
-            /*console.log('~~~', at.translateCallExpr(expr, args));
-            xsize += args[0][1].length - 3;
-            xcount++;*/
           }
           break;
 

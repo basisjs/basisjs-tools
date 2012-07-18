@@ -22,8 +22,7 @@ var handlers = [
   require('./css/translate'),
 
   // process l10n
-  require('./l10n/init'),
-  require('./l10n/collect'),
+  require('./l10n/extract'),
   require('./l10n/buildIndex'),
   require('./l10n/makePackages'),
   require('./l10n/pack'),
