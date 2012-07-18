@@ -1,8 +1,11 @@
 
+var html_at = require('../html/ast_tools');
+
 module.exports = function(flowData){
 
   var fconsole = flowData.console;
   var queue = flowData.files.queue;
+  var inputDir = flowData.inputDir;
 
   //
   // Init js section
@@ -13,6 +16,75 @@ module.exports = function(flowData){
     rootBaseURI: {},
     getFileContext: getFileContext
   };
+
+
+  //
+  // Scan html files for scripts
+  //
+
+  fconsole.start('Scan html files for scripts');
+
+  for (var i = 0, file; file = queue[i]; i++)
+  {
+    if (file.type == 'html')
+    {
+      fconsole.start(file.relpath);
+
+      html_at.walk(file.ast, function(node){
+        var file;
+
+        if (node.type != 'script')
+          return;
+
+        var attrs = html_at.getAttrs(node);
+
+        // ignore <script> tags with type other than text/javascript
+        if (attrs.type && attrs.type != 'text/javascript')
+        {
+          fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
+          return;
+        }
+
+        // external script
+        if (attrs.src)
+        {
+          fconsole.log('External script found: <script src="' + attrs.src + '">');
+
+          file = flowData.files.add({
+            htmlInsertPoint: node,
+            source: 'html:script',
+            type: 'script',
+            filename: attrs.src
+          });
+
+          if (attrs.hasOwnProperty('basis-config'))
+          {
+            fconsole.log('[i] basis.js marker found (basis-config attribute)');
+            file.basisScript = true;
+            file.basisConfig = attrs['basis-config'];
+          }
+        }
+        else
+        {
+          fconsole.log('Inline script found');
+
+          file = flowData.files.add({
+            htmlInsertPoint: node,
+            source: 'html:script',
+            type: 'script',
+            inline: true,
+            baseURI: inputDir,
+            content: html_at.getText(node)
+          });
+        }
+      });
+
+      fconsole.endl();
+    }
+  }
+
+  fconsole.endl();
+
 
   //
   // Search for basis.js

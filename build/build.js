@@ -9,7 +9,6 @@ var fconsole = flow.console;
 var handlers = [
   // extract files
   require('./html/extract'),
-  require('./html/fetchFiles'),
   require('./js/extract'),
   require('./tmpl/extract'),
   require('./css/extract'),

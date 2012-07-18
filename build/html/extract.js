@@ -1,7 +1,7 @@
 
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   for (var i = 0, file; file = queue[i]; i++)
   {

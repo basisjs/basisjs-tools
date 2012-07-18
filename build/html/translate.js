@@ -2,11 +2,20 @@
 var at = require('./ast_tools');
 var path = require('path');
 
-module.exports = function(flowData){
-  var inputFile = flowData.inputFile;
+module.exports = function(flow){
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
-  inputFile.outputFilename = path.basename(flowData.inputFilename);
-  inputFile.outputContent = at.translate(inputFile.ast);
+  for (var i = 0, file; file = queue[i]; i++)
+  {
+    if (file.type == 'html')
+    {
+      fconsole.log(file.relpath);
+
+      file.outputFilename = path.basename(file.filename);
+      file.outputContent = at.translate(file.ast);
+    }
+  }
 }
 
 module.exports.handlerName = '[html] Translate';

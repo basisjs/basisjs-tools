@@ -5,6 +5,72 @@ module.exports = function(flowData){
 
   var fconsole = flowData.console;
   var queue = flowData.files.queue;
+  var inputDir = flowData.inputDir;
+
+  //
+  // Scan html files for styles
+  //
+
+  fconsole.start('Scan html files for styles');
+
+  for (var i = 0, file; file = queue[i]; i++)
+  {
+    if (file.type == 'html')
+    {
+      fconsole.start(file.relpath);
+
+      html_at.walk(flowData.inputFile.ast, function(node){
+        var file;
+
+        switch (node.type)
+        {
+          case 'tag':
+            var attrs = html_at.getAttrs(node);
+            if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
+            {
+              fconsole.log('External style found: <link rel="' + attrs.rel + '">');
+              file = flowData.files.add({
+                source: 'html:link',
+                type: 'style',
+                filename: attrs.href,
+                media: attrs.media || 'all',
+                htmlInsertPoint: node
+              });
+            }
+
+            break;
+
+          case 'style':
+            var attrs = html_at.getAttrs(node);
+
+            // ignore <style> with type other than text/css
+            if (attrs.type && attrs.type != 'text/css')
+            {
+              fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
+              return;
+            }
+
+            fconsole.log('Inline style found');
+
+            file = flowData.files.add({
+              source: 'html:style',
+              type: 'style',
+              baseURI: inputDir,
+              inline: true,
+              media: attrs.media || 'all',
+              htmlInsertPoint: node,
+              content: html_at.getText(node)
+            });
+
+            break;
+        }
+      });
+
+      fconsole.endl();
+    }
+  }
+  fconsole.endl();
+
 
   //
   // Search for styles files in html
