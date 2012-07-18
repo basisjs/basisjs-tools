@@ -15,8 +15,7 @@ var flow = [
   require('./html/parse'),
   require('./html/fetchFiles'),
   require('./js/extract'),
-  require('./tmpl/init'),
-  require('./tmpl/parse'),
+  require('./tmpl/extract'),
   require('./css/extract'),
   require('./res/extract'),
 

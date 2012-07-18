@@ -1,17 +1,19 @@
 
-var path = require('path')
+var path = require('path');
 
 module.exports = function(flowData){
+  global.document = require('jsdom-nocontextifiy').jsdom();
+  global.basis = require(flowData.js.basisScript).basis;
+  basis.require('basis.template');
+
   var queue = flowData.files.queue;
   var fconsole = flowData.console;
-  //process.exit();
 
   for (var i = 0, file; file = queue[i]; i++)
   {
     if (file.type == 'template')
     {
-      fconsole.log(file.relpath);
-      fconsole.incDeep();
+      fconsole.start(file.relpath);
 
       var decl = basis.template.makeDeclaration(file.content, file.baseURI, { classMap: false });
 
@@ -36,9 +38,9 @@ module.exports = function(flowData){
         }
       }
 
-      fconsole.decDeep();
-      fconsole.log();
+      fconsole.endl();
     }
   }
 }
-module.exports.handlerName = '[tmpl] Parse & expand';
+
+module.exports.handlerName = '[tmpl] Extract';
