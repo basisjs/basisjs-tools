@@ -9,7 +9,7 @@ module.exports = function(flowData){
     {
       fconsole.start(file.relPath);
 
-      processFile(file, flowData);
+      processFile(file);
 
       fconsole.endl();
     }
@@ -19,29 +19,17 @@ module.exports = function(flowData){
 module.exports.handlerName = '[html] Extract';
 
 //
-//
+// Main part, process files
 //
 
-var htmlparser = require('htmlparser2');
 var at = require('./ast_tools');
 
-var parserConfig = {
-  lowerCaseTags: true
-};
-
-function processFile(file, flowData){
-  // prepare parser
-  var handler = new htmlparser.DefaultHandler();
-  var parser = new htmlparser.Parser(handler, parserConfig);
-
-  // parse html
-  parser.parseComplete(file.content);
+function processFile(file){
+  // get ast
+  var ast = at.parse(file.content);
 
   // debug output
-  //console.log(require('util').inspect(handler.dom, false, null));
-
-  // get ast
-  var ast = handler.dom;
+  //console.log(require('util').inspect(ast, false, null));
 
   // search for head & body
   var head;

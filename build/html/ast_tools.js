@@ -1,6 +1,26 @@
+var htmlparser = require('htmlparser2');
 
+var parserConfig = {
+  lowerCaseTags: true
+};
 
 module.exports = {
+  parse: function(html){
+    // prepare parser
+    var handler = new htmlparser.DefaultHandler();
+    var parser = new htmlparser.Parser(handler, parserConfig);
+
+    // parse html
+    parser.parseComplete(html);
+
+    return handler.dom;
+  },
+  translate: function(ast){
+    return htmlparser.DomUtils.getInnerHTML({
+      children: ast
+    });
+  },
+
   getText: function(node){
     return (node.children && node.children[0] && node.children[0].data) || '';
   },
@@ -24,7 +44,6 @@ module.exports = {
 
     insertPoint.push(node);
   },
-
 
   walk: function(ast, handler){
     function walkNode(nodes){
