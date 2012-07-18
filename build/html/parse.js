@@ -1,7 +1,6 @@
-var path = require('path');
-var fs = require('fs');
+
 var htmlparser = require("htmlparser2");
-var util = require('util');
+var at = require('./ast_tools');
 
 var parserConfig = {
   lowerCaseTags: true
@@ -18,10 +17,30 @@ module.exports = function(flowData){
   parser.parseComplete(inputFile.content);
 
   // debug output
-  //console.log(util.inspect(handler.dom, false, null));
+  //console.log(require('util').inspect(handler.dom, false, null));
+
+  // get ast
+  var ast = handler.dom;
+
+  // search for head & body
+  var head;
+  var body;
+  at.walk(handler.dom, function(node){
+    if (node.type == 'tag')
+    {
+      if (!head && node.name == 'head')
+        head = node;
+
+      if (!body && node.name == 'body')
+        body = node;
+    }
+  });
+
+  ast.head = head || ast;
+  ast.body = body || ast;
 
   // save result in flowData
-  inputFile.ast = handler.dom;
+  inputFile.ast = ast;
 };
 
 module.exports.handlerName = '[html] Parse';

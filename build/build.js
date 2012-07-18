@@ -10,7 +10,6 @@ var flow = [
   require('./misc/files'),
 
   require('./html/init'),
-  require('./css/init'),
 
   // extract files
   require('./html/parse'),
@@ -18,7 +17,7 @@ var flow = [
   require('./js/extract'),
   require('./tmpl/init'),
   require('./tmpl/parse'),
-  require('./css/parse'),
+  require('./css/extract'),
   require('./resource/parse'),
 
   // process css

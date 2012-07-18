@@ -1,167 +1,105 @@
 
-var path = require('path');
+var at = require('./ast_tools');
 
 module.exports = function(flowData){
   var files = flowData.files;
   var fconsole = flowData.console;
   var inputDir = flowData.inputDir;
-  var processPoint = [];
-  var inlineIndex = 0;
-  var headNode;
 
-  var ast = flowData.inputFile.ast;
+  at.walk(flowData.inputFile.ast, function(node){
+    var file;
 
-  walkHtml(ast, flowData);
-
-  // insert generic insert point
-  flowData.css.genericFile.htmlInsertPoint = {
-    type: 'tag',
-    name: 'link',
-    attribs: {
-      rel: 'stylesheet',
-      type: 'text/css',
-      media: 'all'
-    }
-  };
-
-  var genericInsertNode = ast;
-  if (headNode)
-    genericInsertNode = headNode.children || (headNode.children = []);
-
-  genericInsertNode.push(flowData.css.genericFile.htmlInsertPoint);
-
-
-  //
-  // main part
-  //
-
-  function resolveFilename(filename){
-    return path.resolve(inputDir, filename)
-  }
-
-  function getText(node){
-    return (node.children && node.children[0] && node.children[0].data) || '';
-  }
-
-  function getAttrs(node){
-    return node.attribs || {};
-  }
-
-  function walkHtml(nodes){
-
-    for (var i = 0, node; node = nodes[i]; i++)
+    switch (node.type)
     {
-      var file = null;
+      case 'script':
+        var attrs = at.getAttrs(node);
 
-      switch (node.type)
-      {
-        case 'script':
-          var attrs = getAttrs(node);
+        // ignore <script> tags with type other than text/javascript
+        if (attrs.type && attrs.type != 'text/javascript')
+        {
+          fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
+          return;
+        }
 
-          // ignore <script> tags with type other than text/javascript
-          if (attrs.type && attrs.type != 'text/javascript')
-          {
-            fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
-            return;
-          }
-
-          // external script
-          if (attrs.src)
-          {
-            fconsole.log('External script found: <script src="' + attrs.src + '">');
-
-            file = files.add({
-              source: 'html:script',
-              type: 'script',
-              filename: attrs.src
-            });
-
-            if (attrs.hasOwnProperty('basis-config'))
-            {
-              fconsole.log('[i] basis.js marker found (basis-config attribute)');
-              file.basisScript = true;
-              file.basisConfig = attrs['basis-config'];
-            }
-          }
-          else
-          {
-            fconsole.log('Inline script found');
-
-            file = files.add({
-              source: 'html:script',
-              type: 'script',
-              inline: true,
-              baseURI: inputDir,
-              content: getText(node)
-            });
-          }
-
-          break;
-
-        case 'tag':
-          var attrs = getAttrs(node);
-          if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
-          {
-            var filename = resolveFilename(attrs.href);
-
-            fconsole.log('External style found: <link rel="' + attrs.rel + '">');
-            file = files.add({
-              source: 'html:link',
-              type: 'style',
-              filename: filename,
-              media: attrs.media || 'all'
-            });
-          }
-
-          break;
-
-        case 'style':
-          var attrs = getAttrs(node);
-
-          // ignore <style> with type other than text/css
-          if (attrs.type && attrs.type != 'text/css')
-          {
-            fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
-            return;
-          }
-
-          fconsole.log('Inline style found');
+        // external script
+        if (attrs.src)
+        {
+          fconsole.log('External script found: <script src="' + attrs.src + '">');
 
           file = files.add({
-            source: 'html:style',
-            type: 'style',
-            baseURI: inputDir,
-            inline: true,
-            media: attrs.media || 'all',
-            content: getText(node)
+            source: 'html:script',
+            type: 'script',
+            filename: attrs.src
           });
 
-          break;
-      }
+          if (attrs.hasOwnProperty('basis-config'))
+          {
+            fconsole.log('[i] basis.js marker found (basis-config attribute)');
+            file.basisScript = true;
+            file.basisConfig = attrs['basis-config'];
+          }
+        }
+        else
+        {
+          fconsole.log('Inline script found');
 
-      if (file)
-      {
-        file.htmlInsertPoint = node;
+          file = files.add({
+            source: 'html:script',
+            type: 'script',
+            inline: true,
+            baseURI: inputDir,
+            content: at.getText(node)
+          });
+        }
 
-        processPoint.push({
-          node: node,
-          file: file
+        break;
+
+      case 'tag':
+        var attrs = at.getAttrs(node);
+        if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
+        {
+          fconsole.log('External style found: <link rel="' + attrs.rel + '">');
+          file = files.add({
+            source: 'html:link',
+            type: 'style',
+            filename: attrs.href,
+            media: attrs.media || 'all'
+          });
+        }
+
+        break;
+
+      case 'style':
+        var attrs = at.getAttrs(node);
+
+        // ignore <style> with type other than text/css
+        if (attrs.type && attrs.type != 'text/css')
+        {
+          fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
+          return;
+        }
+
+        fconsole.log('Inline style found');
+
+        file = files.add({
+          source: 'html:style',
+          type: 'style',
+          baseURI: inputDir,
+          inline: true,
+          media: attrs.media || 'all',
+          content: at.getText(node)
         });
 
-        if (file.type == 'style')
-          flowData.css.outputFiles.push(file);
-
-        fconsole.log();
-      }
-
-      if (node.children)
-        walkHtml(node.children);
-
-      // save ref to head node
-      if (node.type == 'tag' && node.name == 'head' && !headNode)
-        headNode = node;
+        break;
     }
-  }
+
+    if (file)
+    {
+      file.htmlInsertPoint = node;
+      fconsole.log();
+    }
+  });
+
 }
 
 module.exports.handlerName = '[html] Walk through and collect file references';

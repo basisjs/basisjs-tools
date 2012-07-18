@@ -20,7 +20,7 @@ module.exports = function(flowData){
 
   fconsole.start('Search for basis.js');
 
-  for (var i = 0; file = queue[i]; i++)
+  for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && file.basisScript)
     {
       fconsole.log('[OK] basis.js found at path ' + file.relPath);
