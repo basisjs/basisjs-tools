@@ -7,13 +7,11 @@ module.exports = function(flowData){
   {
     if (file.type == 'script' && file.hasL10n)
     {
-      fconsole.log(file.filename ? flowData.files.relpath(file.filename) : '[inline script]');
-      fconsole.incDeep();
+      fconsole.start(file.filename ? file.relPath : '[inline script]');
 
       process(file, flowData);
 
-      fconsole.decDeep();
-      fconsole.log();
+      fconsole.endl();
     }
   }
 };

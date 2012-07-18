@@ -24,17 +24,10 @@ module.exports = function(flowData){
       {
         for (var j = 0, resourceFilename; resourceFilename = decl.resources[j]; j++)
         {
-          if (path.extname(resourceFilename) == '.css')
-          {
-            flowData.files.add({
-              source: 'tmpl:resource',
-              filename: path.resolve(file.baseURI, resourceFilename)
-            }).isResource = true;
-          }
-          else
-          {
-            fconsole.log('[!] ' + flowData.files.relpath(resourceFilename) + ' (unknown type ignored)');
-          }
+          flowData.files.add({
+            source: 'tmpl:resource',
+            filename: path.resolve(file.baseURI, resourceFilename)
+          }).isResource = true;
         }
       }
 

@@ -1,6 +1,5 @@
 
 var at = require('./ast_tools');
-var relpath_;
 
 //
 // export handler
@@ -9,8 +8,6 @@ var relpath_;
 module.exports = function(flowData){
   var packages = flowData.css.packages;
   var fconsole = flowData.console;
-
-  relpath_ = flowData.files.relpath;
 
   // process files in reverse order
   for (var i = packages.length - 1, file; file = packages[i]; i--)
@@ -22,6 +19,7 @@ module.exports = function(flowData){
     fconsole.endl();
   }
 }
+
 module.exports.handlerName = '[css] Linear files';
 
 //
@@ -29,7 +27,7 @@ module.exports.handlerName = '[css] Linear files';
 //
 
 function relpath(file){
-  return relpath_(file.filename);
+  return file.relPath;
 }
 
 function buildFile(file, flowData, context){
@@ -39,11 +37,11 @@ function buildFile(file, flowData, context){
   {
     if (context.indexOf(file) != -1)
     {
-      flowData.console.log('# [WARN] Recursion ' + context.map(relpath).join(' -> ') + ' -> ' + relpath(file));
+      flowData.console.log('# [WARN] Recursion ' + context.map(relpath).join(' -> ') + ' -> ' + file.relPath);
       return [
         {}, 'stylesheet',
         [{}, 's', ''],
-        at.packComment(' [WARN] Recursion: ' + context.map(relpath).join(' -> ') + ' -> ' + relpath(file) + ' '),
+        at.packComment(' [WARN] Recursion: ' + context.map(relpath).join(' -> ') + ' -> ' + file.relPath + ' '),
         [{}, 's', '\n\n']
       ];
     }
@@ -51,7 +49,7 @@ function buildFile(file, flowData, context){
 
   if (file.used)
   {
-    var msg = '[DUP] ' + (file.filename ? flowData.files.relpath(file.filename) : '[inline style]') + ' ignored as already used';
+    var msg = '[DUP] ' + (file.filename ? file.relPath : '[inline style]') + ' ignored as already used';
     flowData.console.log('# ' + msg);
     return [
       {}, 'stylesheet',

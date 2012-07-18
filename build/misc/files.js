@@ -4,7 +4,7 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
-//var moveToQueueEndFile = ['.css'];
+
 var typeByExt = {
   '.js': 'script',
   '.css': 'style',
@@ -106,7 +106,10 @@ module.exports = function(flowData){
     dirpath = path.resolve(flowData.inputDir, dirpath);
 
     if (!fs.existsSync(dirpath))
+    {
+      fconsole.log('Create folder ' + dirpath);
       fs.mkdirSync(dirpath);  
+    }
   }
 
   function addFile(data){
@@ -122,12 +125,6 @@ module.exports = function(flowData){
       if (fileMap[fileId]) // ignore duplicates
       {
         fconsole.log('[ ] File `' + fileId + '` already in queue');
-
-        /*if (moveToQueueEndFile.indexOf(ext) != -1)
-        {
-          queue.remove(fileMap[filename]);
-          queue.add(fileMap[filename]);
-        }*/
 
         return fileMap[fileId];
       }
@@ -173,11 +170,6 @@ module.exports = function(flowData){
     delete fileMap[filename];
   }  
 
-
-
-  mkdir(flowData.outputDir);
-  mkdir(flowData.outputResourceDir);
-
   flowData.inputFile = addFile({
     filename: flowData.inputFilename
   });
@@ -188,18 +180,6 @@ module.exports = function(flowData){
     add: addFile,
     get: getFile,
     remove: removeFile,
-    mkdir: mkdir,
-    relpath: function(filename){
-      return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
-    },
-    inspect: function(file){
-      var result = {};
-
-      for (var key in file)
-        if (file.hasOwnProperty(key) && key !== 'content')
-          result[key] = file[key];
-
-      return result;
-    }
+    mkdir: mkdir
   };
 };
