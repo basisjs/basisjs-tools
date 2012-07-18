@@ -39,8 +39,6 @@ module.exports = function(options, fconsole, flowData){
   var fileMap = {};
   var queue = [];
   var outputQueue = [];
-  var options = flowData.options;
-  var fconsole = flowData.console;
 
   var inputFilename = path.resolve(options.base, options.file);
   var inputDir = path.normalize(path.dirname(inputFilename) + '/');

@@ -3,7 +3,7 @@ var utils = require('./misc/utils');
 var Flow = require('./misc/flow');
 
 var startTime = new Date();
-var flowData = new Flow(require('./misc/options'));
+var flowData = new Flow(require('./options'));
 
 var flow = [
   require('./html/init'),
