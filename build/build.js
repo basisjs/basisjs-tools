@@ -7,10 +7,8 @@ var flow = new Flow(options);
 var fconsole = flow.console;
 
 var handlers = [
-  require('./html/init'),
-
   // extract files
-  require('./html/parse'),
+  require('./html/extract'),
   require('./html/fetchFiles'),
   require('./js/extract'),
   require('./tmpl/extract'),

@@ -1,4 +1,6 @@
 
+var html_at = require('../html/ast_tools');
+
 module.exports = function(flowData){
   var fconsole = flowData.console;
   var queue = flowData.files.queue;
@@ -9,7 +11,7 @@ module.exports = function(flowData){
       fconsole.log(file.relpath);
       if (file.outputFilename)
       {
-        flowData.html.replaceToken(file.htmlInsertPoint, {
+        html_at.replaceToken(file.htmlInsertPoint, {
           type: 'script',
           name: 'script',
           attribs: {
@@ -20,7 +22,7 @@ module.exports = function(flowData){
       }
       else
       {
-        flowData.html.replaceToken(file.htmlInsertPoint, 
+        html_at.replaceToken(file.htmlInsertPoint, 
           file.outputContent
             ? {
                 type: 'script',

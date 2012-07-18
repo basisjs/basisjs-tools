@@ -1,5 +1,6 @@
 
 var at = require('./ast_tools');
+var html_at = require('../html/ast_tools');
 
 module.exports = function(flowData){
   var fconsole = flowData.console;
@@ -17,7 +18,7 @@ module.exports = function(flowData){
       if (prev && prev.media == file.media)
       {
         prev.ast.push.apply(prev.ast, file.ast.slice(2));
-        flowData.html.removeToken(file.htmlInsertPoint)
+        html_at.removeToken(file.htmlInsertPoint)
       }
       else
       {

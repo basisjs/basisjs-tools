@@ -1,5 +1,6 @@
 
 var at = require('./ast_tools');
+var html_at = require('../html/ast_tools');
 
 module.exports = function(flowData){
   var fconsole = flowData.console;
@@ -13,7 +14,7 @@ module.exports = function(flowData){
       fconsole.log('[!] ' + file.relOutputFilename + ' is empty - reject');
 
       // 'cut' token from html
-      flowData.html.replaceToken(file.htmlInsertPoint, {
+      html_at.replaceToken(file.htmlInsertPoint, {
         type: 'text',
         data: ''
       });
@@ -25,7 +26,7 @@ module.exports = function(flowData){
       file.outputContent = outputContent;
 
       // replace token in html
-      flowData.html.replaceToken(file.htmlInsertPoint, {
+      html_at.replaceToken(file.htmlInsertPoint, {
         type: 'tag',
         name: 'link',
         attribs: {
