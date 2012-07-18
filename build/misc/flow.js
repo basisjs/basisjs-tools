@@ -1,9 +1,13 @@
 
 var Console = require('./console');
+var FileManager = require('./files');
 
-function Flow(){
-  this.console = new Console();
+function Flow(options){
   this.startTime = new Date;
+  this.options = options;
+
+  this.console = new Console();
+  this.files = FileManager(this.options, this.console, this);
 }
 
 Flow.prototype = {

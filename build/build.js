@@ -3,12 +3,9 @@ var utils = require('./misc/utils');
 var Flow = require('./misc/flow');
 
 var startTime = new Date();
-var flowData = new Flow();
+var flowData = new Flow(require('./misc/options'));
 
 var flow = [
-  require('./misc/options'),
-  require('./misc/files'),
-
   require('./html/init'),
 
   // extract files

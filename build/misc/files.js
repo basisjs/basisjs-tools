@@ -35,12 +35,36 @@ var typeNotFoundHandler = {
 // export
 //
 
-module.exports = function(flowData){
+module.exports = function(options, fconsole, flowData){
   var fileMap = {};
   var queue = [];
   var outputQueue = [];
   var options = flowData.options;
   var fconsole = flowData.console;
+
+  var inputFilename = path.resolve(options.base, options.file);
+  var inputDir = path.normalize(path.dirname(inputFilename) + '/');
+  var inputBasename = path.basename(inputFilename, path.extname(inputFilename));
+
+  var outputDir = path.normalize(options.output + '/');
+  var outputFilename = path.resolve(outputDir, path.basename(inputFilename));
+  var outputResourceDir = path.resolve(outputDir, 'res');
+
+  flowData.inputFilename = inputFilename;
+  flowData.inputDir = inputDir;
+  flowData.inputBasename = inputBasename;
+
+  flowData.outputFilename = outputFilename;
+  flowData.outputDir = outputDir;
+  flowData.outputResourceDir = outputResourceDir;
+
+  // check input file exists
+  if (!fs.existsSync(inputFilename))
+  {
+    console.warn('Input file ' + inputFilename + ' not found');
+    process.exit();
+  }
+
 
   //
   // file class
@@ -174,7 +198,7 @@ module.exports = function(flowData){
     filename: flowData.inputFilename
   });
 
-  flowData.files = {
+  return {
     queue: queue,
     map: fileMap,
     add: addFile,
