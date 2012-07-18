@@ -102,8 +102,8 @@ function createDictionaryKeyMap(keys){
       offset++;
 
       var path = stack.join('.');
-      map.push(path);
       pathIndex[path] = map.length;
+      map.push(path);      
     }
 
   }
