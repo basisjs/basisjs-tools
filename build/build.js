@@ -18,7 +18,7 @@ var flow = [
   require('./tmpl/init'),
   require('./tmpl/parse'),
   require('./css/extract'),
-  require('./resource/parse'),
+  require('./res/extract'),
 
   // process css
   require('./css/makePackages'),
@@ -39,8 +39,8 @@ var flow = [
   require('./tmpl/translate'),
 
   // css/html resources
-  require('./resource/translate'),
-  require('./resource/buildMap'),
+  require('./res/translate'),
+  require('./res/buildMap'),
 
   // process js
   require('./js/relink'),
