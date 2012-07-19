@@ -1,12 +1,12 @@
 
 var csso = require('csso');
 
-module.exports = function(flowData){
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var fconsole = flow.console;
 
-  if (flowData.options.cssPack)
+  if (flow.options.cssPack)
   {
-    flowData.css.packages.forEach(function(file){
+    flow.css.packages.forEach(function(file){
       fconsole.log('Pack ' + file.relOutputFilename);
       file.ast = csso.compress(file.ast);
     });

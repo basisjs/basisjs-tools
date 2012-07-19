@@ -35,7 +35,7 @@ function getFileContentOnFailure(filename){
 // export
 //
 
-module.exports = function(options, fconsole, flowData){
+module.exports = function(options, fconsole, flow){
   var fileMap = {};
   var queue = [];
   var outputQueue = [];
@@ -48,13 +48,13 @@ module.exports = function(options, fconsole, flowData){
   var outputFilename = path.resolve(outputDir, path.basename(inputFilename));
   var outputResourceDir = path.resolve(outputDir, 'res');
 
-  flowData.inputFilename = inputFilename;
-  flowData.inputDir = inputDir;
-  flowData.inputBasename = inputBasename;
+  flow.inputFilename = inputFilename;
+  flow.inputDir = inputDir;
+  flow.inputBasename = inputBasename;
 
-  flowData.outputFilename = outputFilename;
-  flowData.outputDir = outputDir;
-  flowData.outputResourceDir = outputResourceDir;
+  flow.outputFilename = outputFilename;
+  flow.outputDir = outputDir;
+  flow.outputResourceDir = outputResourceDir;
 
   //
   // file class
@@ -84,7 +84,7 @@ module.exports = function(options, fconsole, flowData){
       return this.filename ? path.extname(this.filename) : '';
     },
     get relpath(){
-      return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
+      return this.filename ? path.relative(flow.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
     },
 
     // input baseURI
@@ -93,7 +93,7 @@ module.exports = function(options, fconsole, flowData){
     },
     set baseURI(uri){
       if (!this.filename)
-        this.baseURI_ = path.normalize(path.resolve(flowData.inputDir, uri) + '/').replace(/\\/g, '/');
+        this.baseURI_ = path.normalize(path.resolve(flow.inputDir, uri) + '/').replace(/\\/g, '/');
     },
 
     // output filename
@@ -101,10 +101,10 @@ module.exports = function(options, fconsole, flowData){
       return this.outputFilename_;
     },
     set outputFilename(filename){
-      this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
+      this.outputFilename_ = path.resolve(flow.outputDir, path.normalize(filename));
     },
     get relOutputFilename(){
-      return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
+      return this.outputFilename_ ? path.relative(flow.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
     },
 
     // misc
@@ -129,11 +129,11 @@ module.exports = function(options, fconsole, flowData){
   };
 
   function normpath(filename){
-    return path.normalize(path.resolve(flowData.inputDir, filename)).replace(/\\/g, '/');
+    return path.normalize(path.resolve(flow.inputDir, filename)).replace(/\\/g, '/');
   }
 
   function getFileId(filename){
-    return path.relative(flowData.inputDir, normpath(filename)).replace(/\\/g, '/');
+    return path.relative(flow.inputDir, normpath(filename)).replace(/\\/g, '/');
   }
 
   function addFile(data){
@@ -206,7 +206,7 @@ module.exports = function(options, fconsole, flowData){
   }  
 
   function mkdir(dirpath){
-    dirpath = path.resolve(flowData.outputDir, dirpath);
+    dirpath = path.resolve(flow.outputDir, dirpath);
 
     if (!fs.existsSync(dirpath))
     {

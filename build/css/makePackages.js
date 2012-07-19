@@ -2,13 +2,13 @@
 var at = require('./ast_tools');
 var html_at = require('../html/ast_tools');
 
-module.exports = function(flowData){
+module.exports = function(flow){
   //
   // build generic style file (style from js & tmpl)
   //
 
-  var fconsole = flowData.console;
-  var queue = flowData.files.queue;
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
 
   //
@@ -23,7 +23,7 @@ module.exports = function(flowData){
       fconsole.start(file.relpath);
 
       fconsole.log('Create generic style');
-      var genericStyle = flowData.files.add({
+      var genericStyle = flow.files.add({
         type: 'style',
         baseURI: file.baseURI,
         media: 'all',
@@ -71,7 +71,7 @@ module.exports = function(flowData){
   //
   // output files
   //
-  flowData.css.packages = queue.filter(function(file){
+  flow.css.packages = queue.filter(function(file){
     if (file.type == 'style' && file.htmlNode)
     {
       setOutputFilename(file, this);

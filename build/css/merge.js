@@ -2,13 +2,13 @@
 var at = require('./ast_tools');
 var html_at = require('../html/ast_tools');
 
-module.exports = function(flowData){
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var fconsole = flow.console;
 
   // merge files
-  if (flowData.options.cssSingleFile)
+  if (flow.options.cssSingleFile)
   {
-    var packages = flowData.css.packages;
+    var packages = flow.css.packages;
     var newPackages = [];
     var idx = '';
     
@@ -38,7 +38,7 @@ module.exports = function(flowData){
       fconsole.log(file.relpath);
     }
 
-    flowData.css.packages = newPackages;
+    flow.css.packages = newPackages;
   }
   else
   {

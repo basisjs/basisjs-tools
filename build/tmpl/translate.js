@@ -1,8 +1,8 @@
 
-module.exports = function(flowData){
+module.exports = function(flow){
   var at = require('./ast_tools');
-  var fconsole = flowData.console;
-  var queue = flowData.files.queue;
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
   for (var i = 0, file; file = queue[i]; i++)
   {

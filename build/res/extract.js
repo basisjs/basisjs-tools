@@ -2,12 +2,12 @@
 var atCss = require('../css/ast_tools');
 var utils = require('../misc/utils');
 
-module.exports = function(flowData){
+module.exports = function(flow){
   var atTmpl = require('../tmpl/ast_tools');
 
-  var files = flowData.files;
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+  var files = flow.files;
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   var urlMap = [];
 

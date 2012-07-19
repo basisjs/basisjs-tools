@@ -1,17 +1,17 @@
 
 var html_at = require('../html/ast_tools');
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
-  var fconsole = flowData.console;
-  var queue = flowData.files.queue;
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
   //
   // Init js section
   //
 
   fconsole.log('Init js');
-  flowData.js = {
+  flow.js = {
     rootBaseURI: {},
     getFileContext: getFileContext
   };
@@ -47,7 +47,7 @@ module.exports = function(flowData){
         {
           fconsole.log('External script found: <script src="' + attrs.src + '">');
 
-          var scriptFile = flowData.files.add({
+          var scriptFile = flow.files.add({
             htmlNode: node,
             type: 'script',
             filename: file.resolve(attrs.src)
@@ -64,7 +64,7 @@ module.exports = function(flowData){
         {
           fconsole.log('Inline script found');
 
-          flowData.files.add({
+          flow.files.add({
             htmlNode: node,
             type: 'script',
             inline: true,
@@ -91,12 +91,12 @@ module.exports = function(flowData){
     if (file.type == 'script' && file.basisScript)
     {
       fconsole.log('[OK] basis.js found at path ' + file.relPath);
-      flowData.js.rootBaseURI.basis = file.baseURI;
-      flowData.js.basisScript = file.filename;
+      flow.js.rootBaseURI.basis = file.baseURI;
+      flow.js.basisScript = file.filename;
       break;
     }
 
-  if (!flowData.js.basisScript)
+  if (!flow.js.basisScript)
   {
     fconsole.log('[FAULT] basis.js not found (should be a <script> tag with src & basis-config attributes)');
     process.exit();
@@ -114,7 +114,7 @@ module.exports = function(flowData){
     {
       fconsole.start(file.filename ? file.relpath : '[inline script]');
 
-      processScript(file, flowData);
+      processScript(file, flow);
 
       fconsole.endl();
     }
@@ -142,11 +142,11 @@ function getFileContext(file){
   };
 }
 
-function processScript(scriptFile, flowData){
+function processScript(scriptFile, flow){
   var context = getFileContext(scriptFile);
   var content = scriptFile.content;
 
-  if (flowData.options.buildMode)
+  if (flow.options.buildMode)
   {
     content = content
       .replace(/;;;.*([\r\n]|$)/g, '')
@@ -171,7 +171,7 @@ function processScript(scriptFile, flowData){
           newFilename = at.getCallArgs(args, context)[0];
           if (newFilename)
           {
-            newFile = flowData.files.add({
+            newFile = flow.files.add({
               filename: newFilename
             });
             newFile.isResource = true;
@@ -195,7 +195,7 @@ function processScript(scriptFile, flowData){
           //console.log('resource call found:', translateCallExpr(expr, args));
           if (newFilename)
           {
-            newFile = flowData.files.add({
+            newFile = flow.files.add({
               filename: scriptFile.resolve(newFilename)
             });
             newFile.isResource = true;
@@ -221,9 +221,9 @@ function processScript(scriptFile, flowData){
             var namespace = newFilename;
             var parts = namespace.split(/\./);
             var root = parts[0];
-            var baseURI = flowData.js.rootBaseURI[root];
+            var baseURI = flow.js.rootBaseURI[root];
 
-            newFile = flowData.files.add({
+            newFile = flow.files.add({
               filename: (baseURI ? baseURI + '/' : '') + parts.join('/') + '.js'
             });
             newFile.namespace = namespace;

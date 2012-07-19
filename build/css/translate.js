@@ -2,10 +2,10 @@
 var at = require('./ast_tools');
 var html_at = require('../html/ast_tools');
 
-module.exports = function(flowData){
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var fconsole = flow.console;
 
-  flowData.css.packages.filter(function(file){
+  flow.css.packages.filter(function(file){
     var outputContent = at.translate(file.ast);
     var isEmpty = !outputContent.length;
 

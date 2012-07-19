@@ -1,6 +1,6 @@
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   // process javascript files
   for (var i = 0, file; file = queue[i]; i++)
@@ -9,7 +9,7 @@ module.exports = function(flowData){
     {
       fconsole.start(file.filename ? file.relPath : '[inline script]');
 
-      process(file, flowData);
+      process(file, flow);
 
       fconsole.endl();
     }
@@ -22,14 +22,14 @@ var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 var GET_TOKEN = at.normalize('basis.l10n.getToken');
 
-function process(file, flowData){
+function process(file, flow){
   file.ast = at.walk(file.ast, {
     call: function(expr, args){
       switch (at.translate(expr))
       {
         case CREATE_DICTIONARY:
-          var entry = flowData.l10n.defList.shift();
-          flowData.console.log(entry.name);
+          var entry = flow.l10n.defList.shift();
+          flow.console.log(entry.name);
 
           entry.args[1] = ['string', 'l10n'];
 
@@ -42,7 +42,7 @@ function process(file, flowData){
         case GET_TOKEN:
           if (args.length == 1 && args[0][0] == 'string')
           {
-            var entry = flowData.l10n.getTokenList.shift();
+            var entry = flow.l10n.getTokenList.shift();
 
             return [
               this[0],

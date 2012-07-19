@@ -1,10 +1,10 @@
 
 var html_at = require('../html/ast_tools');
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
-  var fconsole = flowData.console;
-  var queue = flowData.files.queue;
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
   //
   // Scan html files for styles
@@ -26,7 +26,7 @@ module.exports = function(flowData){
             if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
             {
               fconsole.log('External style found: <link rel="' + attrs.rel + '">');
-              flowData.files.add({
+              flow.files.add({
                 type: 'style',
                 filename: file.resolve(attrs.href),
                 media: attrs.media || 'all',
@@ -48,7 +48,7 @@ module.exports = function(flowData){
 
             fconsole.log('Inline style found');
 
-            flowData.files.add({
+            flow.files.add({
               type: 'style',
               baseURI: file.baseURI,
               inline: true,
@@ -84,12 +84,12 @@ module.exports = function(flowData){
   //
 
   fconsole.start('Process styles');
-  for (var i = 0, file; file = flowData.files.queue[i]; i++)
+  for (var i = 0, file; file = flow.files.queue[i]; i++)
   {
     if (file.type == 'style')
     {
       fconsole.start(file.relpath);
-      processFile(file, flowData);
+      processFile(file, flow);
       fconsole.endl();
     }
   }
@@ -100,7 +100,7 @@ module.exports = function(flowData){
   // Save result in flow
   //
 
-  flowData.css = {
+  flow.css = {
     outputFiles: outputFiles
   };
 
@@ -117,8 +117,8 @@ var csso = require('csso');
 var utils = require('../misc/utils');
 var at = require('./ast_tools');
 
-function processFile(file, flowData){
-  var fconsole = flowData.console;
+function processFile(file, flow){
+  var fconsole = flow.console;
 
   // import tokens
   file.imports = [];
@@ -149,7 +149,7 @@ function processFile(file, flowData){
           return;
 
         // resolve import file
-        var importFile = flowData.files.add(
+        var importFile = flow.files.add(
           uri.filename
             ? {
                 filename: file.resolve(uri.filename)

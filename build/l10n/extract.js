@@ -1,9 +1,9 @@
 
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
-  flowData.l10n = {
+  flow.l10n = {
     cultureList: [],  // TODO: fetch culture list from basis.l10n
     defList: [],
     getTokenList: [],
@@ -28,10 +28,10 @@ module.exports = function(flowData){
       if (file.namespace == 'basis.l10n')
       {
         fconsole.log('[i] basis.l10n module found, store reference for it');
-        flowData.l10n.module = file;
+        flow.l10n.module = file;
       }
 
-      scanFile(file, flowData);
+      scanFile(file, flow);
 
       fconsole.endl();
     }
@@ -43,12 +43,12 @@ module.exports = function(flowData){
   //
 
   fconsole.start('Fetch dictionary files');
-  for (var path in flowData.l10n.pathes)
+  for (var path in flow.l10n.pathes)
   {
     fconsole.start(path);
-    for (var i = 0; culture = flowData.l10n.cultureList[i]; i++)
+    for (var i = 0; culture = flow.l10n.cultureList[i]; i++)
     {
-      flowData.files.add({
+      flow.files.add({
         filename: path + '/' + culture + '.json',
         type: 'l10n',
         culture: culture
@@ -70,12 +70,12 @@ var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 var GET_TOKEN = at.normalize('basis.l10n.getToken');
 var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 
-function scanFile(file, flowData){
-  var context = flowData.js.getFileContext(file);
-  var fconsole = flowData.console;
-  var defList = flowData.l10n.defList;
-  var getTokenList = flowData.l10n.getTokenList;
-  var pathes = flowData.l10n.pathes;
+function scanFile(file, flow){
+  var context = flow.js.getFileContext(file);
+  var fconsole = flow.console;
+  var defList = flow.l10n.defList;
+  var getTokenList = flow.l10n.getTokenList;
+  var pathes = flow.l10n.pathes;
 
   at.walk(file.ast, {
     call: function(expr, args){
@@ -134,7 +134,7 @@ function scanFile(file, flowData){
             }
 
             fconsole.log('        [OK] Set culture list ' + JSON.stringify(list));
-            list.forEach(flowData.l10n.cultureList.add, flowData.l10n.cultureList);
+            list.forEach(flow.l10n.cultureList.add, flow.l10n.cultureList);
           }
           else
           {

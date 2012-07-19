@@ -2,15 +2,15 @@
 var fs = require('fs');
 var at = require('../js/ast_tools');
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
-  var fconsole = flowData.console;
-  var cultureList = flowData.l10n.cultureList;
+  var fconsole = flow.console;
+  var cultureList = flow.l10n.cultureList;
 
-  var packages = flowData.l10n.packages;
-  var baseMap = flowData.l10n.baseMap;
-  var keyMap = flowData.l10n.keys;
-  var pathes = flowData.l10n.pathes;
+  var packages = flow.l10n.packages;
+  var baseMap = flow.l10n.baseMap;
+  var keyMap = flow.l10n.keys;
+  var pathes = flow.l10n.pathes;
 
   // init packages
 
@@ -86,7 +86,7 @@ module.exports = function(flowData){
   {
     fconsole.log(culture);
 
-    packages.push(flowData.files.add({
+    packages.push(flow.files.add({
       jsRef: 'l10n/' + culture + '.json',
       type: 'json',
       isResource: true,

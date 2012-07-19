@@ -3,10 +3,10 @@ var path = require('path');
 var at = require('./ast_tools');
 var RESOURCE = at.normalize('this.__resources__');
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
   var packages = {};
-  var queue = flowData.files.queue;
+  var queue = flow.files.queue;
   
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && file.package)
@@ -18,13 +18,13 @@ module.exports = function(flowData){
       package.push.apply(package, buildDep(file, file.package));
     }
 
-  flowData.js.packages = packages;
+  flow.js.packages = packages;
 
   // create package files
   //["dot",["name","this"],"__resource__"]
 
   // build source map
-  var basisFile = flowData.files.get(flowData.js.basisScript);
+  var basisFile = flow.files.get(flow.js.basisScript);
   var htmlNode = basisFile.htmlNode;
 
   delete basisFile.htmlNode;
@@ -52,9 +52,9 @@ module.exports = function(flowData){
             'script': 100
           };
 
-          for (var jsRef in flowData.js.resourceMap)
+          for (var jsRef in flow.js.resourceMap)
           {
-            var file = flowData.js.resourceMap[jsRef];
+            var file = flow.js.resourceMap[jsRef];
             var content = file.jsResourceContent || file.outputContent || file.content;
 
             if (typeof content == 'function')
@@ -82,15 +82,15 @@ module.exports = function(flowData){
 
   for (var name in packages)
   {
-    flowData.console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
+    flow.console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
 
-    var isCoreFile = flowData.options.jsSingleFile || packageName == 'basis';
-    var packageFile = flowData.files.add({
+    var isCoreFile = flow.options.jsSingleFile || packageName == 'basis';
+    var packageFile = flow.files.add({
       type: 'script',
       outputFilename: name + '.js',
       outputContent: 
         (isCoreFile ? '// resources (' + resourceToc.length + '):\n//  ' + resourceToc.join('\n//  ') + '\n//\n' : '') +
-        wrapPackage(packages[name], flowData, isCoreFile ? at.translate(basisFile.ast) : '')
+        wrapPackage(packages[name], flow, isCoreFile ? at.translate(basisFile.ast) : '')
     });
 
     if (isCoreFile)
@@ -153,8 +153,8 @@ var packageWrapper = [
   "\n}).call(this);"
 ];
 
-function wrapPackage(package, flowData, contentPrepend){
-  return !flowData.options.buildMode
+function wrapPackage(package, flow, contentPrepend){
+  return !flow.options.buildMode
     // source mode
     ? [
         '// filelist (' + package.length + '): \n//   ' + package.map(function(file){

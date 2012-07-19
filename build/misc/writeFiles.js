@@ -1,16 +1,16 @@
 
 var fs = require('fs');
 
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   //
   // Create output folders (if required)
   //
 
-  flowData.files.mkdir(flowData.outputDir);
-  flowData.files.mkdir(flowData.outputResourceDir);
+  flow.files.mkdir(flow.outputDir);
+  flow.files.mkdir(flow.outputResourceDir);
 
 
   //

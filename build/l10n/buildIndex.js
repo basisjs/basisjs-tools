@@ -1,9 +1,9 @@
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
-  var fconsole = flowData.console;
-  var cultureList = flowData.l10n.cultureList;
-  var defList = flowData.l10n.defList;
+  var fconsole = flow.console;
+  var cultureList = flow.l10n.cultureList;
+  var defList = flow.l10n.defList;
 
   var baseMap = {};
   var l10nKeys = {};
@@ -36,12 +36,12 @@ module.exports = function(flowData){
   fconsole.log();
 
   // extend l10n with info
-  flowData.l10n.keys = l10nKeys;
-  flowData.l10n.baseMap = baseMap;
+  flow.l10n.keys = l10nKeys;
+  flow.l10n.baseMap = baseMap;
 
   // build index
   fconsole.log('# Build index');
-  flowData.l10n.index = createDictionaryKeyMap(Object.keys(l10nKeys));
+  flow.l10n.index = createDictionaryKeyMap(Object.keys(l10nKeys));
 }
 
 module.exports.handlerName = '[l10n] Build index';

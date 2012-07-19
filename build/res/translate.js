@@ -1,8 +1,8 @@
 
-module.exports = function(flowData){
+module.exports = function(flow){
   var uniqueMap = {};
 
-  for (var i = 0, file; file = flowData.files.queue[i]; i++)
+  for (var i = 0, file; file = flow.files.queue[i]; i++)
   {
     if (file.cssResource)
     {

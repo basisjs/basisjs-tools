@@ -5,16 +5,16 @@ var at = require('./ast_tools');
 // export handler
 //
 
-module.exports = function(flowData){
-  var packages = flowData.css.packages;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var packages = flow.css.packages;
+  var fconsole = flow.console;
 
   // process files in reverse order
   for (var i = packages.length - 1, file; file = packages[i]; i--)
   {
     fconsole.start(file.relOutputFilename);
 
-    buildFile(file, flowData);
+    buildFile(file, flow);
 
     fconsole.endl();
   }
@@ -30,14 +30,14 @@ function relpath(file){
   return file.relPath;
 }
 
-function buildFile(file, flowData, context){
+function buildFile(file, flow, context){
   if (!context)
     context = [];
   else
   {
     if (context.indexOf(file) != -1)
     {
-      flowData.console.log('# [WARN] Recursion ' + context.map(relpath).join(' -> ') + ' -> ' + file.relPath);
+      flow.console.log('# [WARN] Recursion ' + context.map(relpath).join(' -> ') + ' -> ' + file.relPath);
       return [
         {}, 'stylesheet',
         [{}, 's', ''],
@@ -50,7 +50,7 @@ function buildFile(file, flowData, context){
   if (file.used)
   {
     var msg = '[DUP] ' + (file.filename ? file.relPath : '[inline style]') + ' ignored as already used';
-    flowData.console.log('# ' + msg);
+    flow.console.log('# ' + msg);
     return [
       {}, 'stylesheet',
       [{}, 's', ''],
@@ -65,7 +65,7 @@ function buildFile(file, flowData, context){
 
   for (var i = file.imports.length - 1, importToken; importToken = file.imports[i]; i--)
   {
-    var injection = buildFile(importToken.file, flowData, context).slice(2);
+    var injection = buildFile(importToken.file, flow, context).slice(2);
 
     if (importToken.media.length)
     {

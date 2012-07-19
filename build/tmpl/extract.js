@@ -1,11 +1,11 @@
 
-module.exports = function(flowData){
+module.exports = function(flow){
   global.document = require('jsdom-nocontextifiy').jsdom();
-  global.basis = require(flowData.js.basisScript).basis;
+  global.basis = require(flow.js.basisScript).basis;
   basis.require('basis.template');
 
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   for (var i = 0, file; file = queue[i]; i++)
   {
@@ -22,7 +22,7 @@ module.exports = function(flowData){
       {
         for (var j = 0, resourceFilename; resourceFilename = decl.resources[j]; j++)
         {
-          flowData.files.add({
+          flow.files.add({
             filename: file.resolve(resourceFilename)
           }).isResource = true;
         }
