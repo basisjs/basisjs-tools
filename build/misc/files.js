@@ -22,13 +22,13 @@ var typeByExt = {
 };
 
 var typeNotFoundHandler = {
-  '.js': function(filename){
-    return '/* Javascript file ' + filename + ' not found */';
-  },
-  '.css': function(filename){
-    return '/* CSS file ' + filename + ' not found */'
-  }
+  '.js': '/* Javascript file {filename} not found */',
+  '.css': '/* CSS file {filename} not found */'
 };
+
+function getFileContentOnFailure(filename){
+  return (typeNotFoundHandler[path.extname(filename)] || '').replace(/\{filename\}/, filename);
+}
 
 
 //
@@ -71,11 +71,17 @@ module.exports = function(options, fconsole, flowData){
   function File(cfg){
     for (var key in cfg)
       this[key] = cfg[key];
+
+    if (!this.type)
+      this.type = typeByExt[this.ext] || 'unknown';
   };
+
   File.prototype = {
     resolve: function(filename){
       return path.normalize(path.resolve(this.baseURI, filename)).replace(/\\/g, '/')
     },
+
+    // input filename
     get basename(withExt){
       return this.filename ? path.basename(this.filename) : '';
     },
@@ -85,6 +91,11 @@ module.exports = function(options, fconsole, flowData){
     get ext(){
       return this.filename ? path.extname(this.filename) : '';
     },
+    get relpath(){
+      return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
+    },
+
+    // input baseURI
     get baseURI(){
       return (this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '').replace(/\\/g, '/');
     },
@@ -92,18 +103,19 @@ module.exports = function(options, fconsole, flowData){
       if (!this.filename)
         this.baseURI_ = path.normalize(path.resolve(flowData.inputDir, uri) + '/').replace(/\\/g, '/');
     },
+
+    // output filename
     get outputFilename(){
       return this.outputFilename_;
     },
     set outputFilename(filename){
       this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
     },
-    get relpath(){
-      return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
-    },
     get relOutputFilename(){
       return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
     },
+
+    // misc
     get digest(){
       if (!this.digest_)
       {
@@ -120,7 +132,7 @@ module.exports = function(options, fconsole, flowData){
       return this.digest_;
     },
     get encoding(){
-      return this.type == 'image' ? 'binary' : 'utf-8';
+      return this.type == 'image' /*|| textFiles.indexOf(this.ext) == -1*/ ? 'binary' : 'utf-8';
     }
   };
 
@@ -149,22 +161,31 @@ module.exports = function(options, fconsole, flowData){
         return fileMap[fileId];
       }
 
-      if (!data.type)
-        data.type = typeByExt[ext] || 'unknown';
-
       // create file
       file = new File(data);
 
       // read content
-      if (fs.existsSync(filename) && fs.statSync(filename).isFile())
+      if (fs.existsSync(filename))
       {
-        fconsole.log('[+] ' + file.relpath + ' (' + file.type + ')');
-        file.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
+        if (fs.statSync(filename).isFile())
+        {
+          fconsole.log('[+] ' + file.relpath + ' (' + file.type + ')');
+          file.content = fs.readFileSync(filename, file.encoding);
+        }
+        else
+        {
+          file.warn = '`' + file.relpath + '` is not a file';
+        }
       }
       else
       {
-        fconsole.log('[WARN] File `' + file.relpath + '` not found');
-        file.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
+        file.warn = 'File `' + file.relpath + '` not found';
+      }
+
+      if (file.warn)
+      {
+        fconsole.log('[WARN] ' + file.warn);
+        file.content = getFileContentOnFailure(filename);
       }
 
       fileMap[fileId] = file;
@@ -180,18 +201,20 @@ module.exports = function(options, fconsole, flowData){
   }
 
   function getFile(filename){
-    filename = getFileId(filename);
-    return fileMap[filename];
+    var fileId = getFileId(filename);
+
+    return fileMap[fileId];
   }
 
   function removeFile(filename){
-    filename = getFileId(filename);
-    queue.remove(fileMap[filename]);
-    delete fileMap[filename];
+    var fileId = getFileId(filename);
+
+    queue.remove(fileMap[fileId]);
+    delete fileMap[fileId];
   }  
 
   function mkdir(dirpath){
-    dirpath = path.resolve(flowData.inputDir, dirpath);
+    dirpath = path.resolve(flowData.outputDir, dirpath);
 
     if (!fs.existsSync(dirpath))
     {
