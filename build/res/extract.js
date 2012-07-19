@@ -66,4 +66,4 @@ module.exports = function(flow){
   }
 }
 
-module.exports.handlerName = '[res] Search for resources';
+module.exports.handlerName = '[res] Extract';

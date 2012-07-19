@@ -36,6 +36,7 @@ var handlers = [
   require('./tmpl/extract'),
   require('./css/extract'),
   require('./res/extract'),
+  require('./l10n/extract'),
 
   // process css
   require('./css/makePackages'),
@@ -45,7 +46,6 @@ var handlers = [
   require('./css/translate'),
 
   // process l10n
-  require('./l10n/extract'),
   require('./l10n/buildIndex'),
   require('./l10n/makePackages'),
   require('./l10n/pack'),

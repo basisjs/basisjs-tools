@@ -4,6 +4,9 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 var externalRx = /^(\s*[a-z0-9\-]:)\/\//i;
+var absRx = /^\s*\//;
+var queryAndHashRx = /[\?\#].*$/;
+var slashRx = /\\/g;
 
 var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
 
@@ -33,7 +36,7 @@ function getFileContentOnFailure(filename){
 }
 
 function unixpath(filename){
-  return path.normalize(filename).replace(/\\/g, '/');
+  return path.normalize(filename).replace(slashRx, '/');
 }
 
 
@@ -64,9 +67,9 @@ module.exports = function(options, fconsole){
         return filename;
 
       // remove everything after ? (query string) or # (hash)
-      filename = filename.replace(/[\?\#].*$/, '');
+      filename = filename.replace(queryAndHashRx, '');
 
-      var rel = filename.replace(/^\s*\//, '');
+      var rel = filename.replace(absRx, '');
       var result;
 
       if (rel == filename)
@@ -78,7 +81,7 @@ module.exports = function(options, fconsole){
     },
 
     // input filename
-    get basename(withExt){
+    get basename(){
       return this.filename ? path.basename(this.filename) : '';
     },
     get name(){
@@ -133,7 +136,7 @@ module.exports = function(options, fconsole){
   };
 
   function abspath(filename){
-    return unixpath(path.resolve(__baseURI, filename.replace(/[\?\#].*$/, '')));
+    return unixpath(path.resolve(__baseURI, filename.replace(queryAndHashRx, '')));
   }
 
   function addFile(data){
