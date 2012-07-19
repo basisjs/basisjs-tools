@@ -40,8 +40,7 @@ module.exports = function(flowData){
     //
     // pack definitions
     //
-    fconsole.log('Pack createDictionary');
-    fconsole.incDeep();
+    fconsole.start('Pack createDictionary');
     flowData.l10n.defList.forEach(function(entry){
       fconsole.log(entry.name);
 
@@ -52,15 +51,13 @@ module.exports = function(flowData){
         return [typeof token == 'number' ? 'num' : 'string', token];
       })];
     });
-    fconsole.decDeep();
-    fconsole.log();
+    fconsole.endl();
 
 
     //
     // pack getToken
     //
-    fconsole.log('Pack getToken');
-    fconsole.incDeep();
+    fconsole.start('Pack getToken');
     flowData.l10n.getTokenList.forEach(function(entry){
       var key = entry.args[0][1];
       var packed = packKey(key);
@@ -74,21 +71,18 @@ module.exports = function(flowData){
         fconsole.log('[!] l10n key ' + key + ' not found (ignored)');
 
     });
-    fconsole.decDeep();
-    fconsole.log();
+    fconsole.endl();
 
 
     //
     // pack packages
     //
-    fconsole.log('Pack packages');
-    fconsole.incDeep();
+    fconsole.start('Pack packages');
     flowData.l10n.packages.forEach(function(file){
       fconsole.log(file.jsRef);
       file.jsResourceContent = packDictionary(file.jsResourceContent, l10nIndex.map);
     });
-    fconsole.decDeep();
-    fconsole.log();
+    fconsole.endl();
 
 
     //
@@ -96,13 +90,11 @@ module.exports = function(flowData){
     //
     var tmplAt = require('../tmpl/ast_tools');
 
-    fconsole.log('Pack keys in templates');
-    fconsole.incDeep();
+    fconsole.start('Pack keys in templates');
     flowData.files.queue.forEach(function(file){
       if (file.type == 'template')
       {
-        fconsole.log(file.relpath);
-        fconsole.incDeep();
+        fconsole.start(file.relpath);
 
         tmplAt.walk(file.ast, {
           text: function(token){
@@ -115,12 +107,10 @@ module.exports = function(flowData){
           }
         });
 
-        fconsole.decDeep();
-        fconsole.log();
+        fconsole.endl();
       }
     });
-    fconsole.decDeep();
-    fconsole.log();
+    fconsole.endl();
 
 
     //
