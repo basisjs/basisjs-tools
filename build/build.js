@@ -1,10 +1,28 @@
 
+var fs = require('fs');
 var utils = require('./misc/utils');
 var Flow = require('./misc/flow');
 var options = require('./options');
 
 var flow = new Flow(options);
 var fconsole = flow.console;
+
+// check input file exists
+if (!fs.existsSync(flow.inputFilename))
+{
+  console.warn('Input file ' + flow.inputFilename + ' not found');
+  process.exit();
+}
+
+// add input file in queue
+flow.files.add({
+  filename: flow.inputFilename
+});
+
+
+//
+// Main part
+//
 
 var handlers = [
   // extract files

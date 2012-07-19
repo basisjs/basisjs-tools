@@ -56,14 +56,6 @@ module.exports = function(options, fconsole, flowData){
   flowData.outputDir = outputDir;
   flowData.outputResourceDir = outputResourceDir;
 
-  // check input file exists
-  if (!fs.existsSync(inputFilename))
-  {
-    console.warn('Input file ' + inputFilename + ' not found');
-    process.exit();
-  }
-
-
   //
   // file class
   //
@@ -222,10 +214,6 @@ module.exports = function(options, fconsole, flowData){
       fs.mkdirSync(dirpath);  
     }
   }
-
-  flowData.inputFile = addFile({
-    filename: flowData.inputFilename
-  });
 
   return {
     queue: queue,

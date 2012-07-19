@@ -18,7 +18,7 @@ module.exports = function(flowData){
     {
       fconsole.start(file.relpath);
 
-      html_at.walk(flowData.inputFile.ast, function(node){
+      html_at.walk(file.ast, function(node){
         switch (node.type)
         {
           case 'tag':
@@ -78,35 +78,6 @@ module.exports = function(flowData){
     return file.type == 'style' && file.htmlInsertPoint;
   });
 
-
-  //
-  // Create generic file
-  // it contains all css file that doesn't include by styles on page, but includes by templates and others
-  //
-
-  fconsole.log('Create generic style');
-  var genericFile = flowData.files.add({
-    source: 'generic',
-    type: 'style',
-    baseURI: flowData.inputDir,
-    media: 'all',
-    content: '',
-    htmlInsertPoint: {
-      type: 'tag',
-      name: 'link',
-      attribs: {
-        rel: 'stylesheet',
-        type: 'text/css',
-        media: 'all'
-      }
-    }
-  });
-
-  // add node to html
-  fconsole.log('Inject generic file into html');
-  html_at.injectToHead(flowData.inputFile.ast, genericFile.htmlInsertPoint);
-
-
   fconsole.log();
 
 
@@ -132,8 +103,7 @@ module.exports = function(flowData){
   //
 
   flowData.css = {
-    outputFiles: outputFiles,
-    genericFile: genericFile
+    outputFiles: outputFiles
   };
 
 };
