@@ -29,6 +29,7 @@ module.exports = function(flow){
               var resFile = files.add({
                 filename: file.resolve(uri.filename)
               });
+              file.link(resFile);
               resFile.cssResource = true;
               resFile.outputFilename = flow.outputResourceDir + resFile.digest + resFile.ext;
               resFile.fileRef = resFile.relOutputFilename;

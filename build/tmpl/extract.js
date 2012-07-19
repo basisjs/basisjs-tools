@@ -22,9 +22,12 @@ module.exports = function(flow){
       {
         for (var j = 0, resourceFilename; resourceFilename = decl.resources[j]; j++)
         {
-          flow.files.add({
+          var resFile = flow.files.add({
             filename: file.resolve(resourceFilename)
-          }).isResource = true;
+          });
+          
+          file.link(resFile);
+          resFile.isResource = true;
         }
       }
 

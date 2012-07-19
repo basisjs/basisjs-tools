@@ -117,7 +117,7 @@ module.exports = function(flow){
     // add index to resources
     //
     fconsole.log('# Add index into resource map');
-    flow.files.add({
+    var indexResource = flow.files.add({
       jsRef: '_l10nIndex_',
       type: 'text',
       isResource: true,
@@ -131,6 +131,8 @@ module.exports = function(flow){
     fconsole.log('# Inject index init into basis.l10n');
     if (flow.l10n.module)
     {
+      flow.l10n.module.link(indexResource);
+
       at.append(flow.l10n.module.ast, at.parse('(' + function(){
         var parts = basis.resource('_l10nIndex_').fetch().split(/([\<\>\#])/);
         var stack = [];

@@ -53,6 +53,8 @@ module.exports = function(flow){
             filename: file.resolve(attrs.src)
           });
 
+          file.link(scriptFile);
+
           if (attrs.hasOwnProperty('basis-config'))
           {
             fconsole.log('[i] basis.js marker found (basis-config attribute)');
@@ -64,13 +66,13 @@ module.exports = function(flow){
         {
           fconsole.log('Inline script found');
 
-          flow.files.add({
+          file.link(flow.files.add({
             htmlNode: node,
             type: 'script',
             inline: true,
             baseURI: file.baseURI,
             content: html_at.getText(node)
-          });
+          }));
         }
       });
 
@@ -176,6 +178,7 @@ function processScript(scriptFile, flow){
             });
             newFile.isResource = true;
 
+            scriptFile.link(newFile);
             resources.push(newFile);
 
             return [
@@ -200,6 +203,7 @@ function processScript(scriptFile, flow){
             });
             newFile.isResource = true;
 
+            scriptFile.link(newFile);
             resources.push(newFile);
             
             return [
@@ -237,6 +241,7 @@ function processScript(scriptFile, flow){
             newFile.namespace = namespace;
             newFile.package = root;
 
+            scriptFile.link(newFile);
             deps.push(newFile);
           }
 

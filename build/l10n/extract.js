@@ -45,13 +45,19 @@ module.exports = function(flow){
   fconsole.start('Fetch dictionary files');
   for (var path in flow.l10n.pathes)
   {
+    var entryList = flow.l10n.pathes[path];
+
     fconsole.start(reldir(flow, path));
     for (var i = 0; culture = flow.l10n.cultureList[i]; i++)
     {
-      flow.files.add({
+      var dictFile = flow.files.add({
         filename: path + '/' + culture + '.json',
         type: 'l10n',
         culture: culture
+      })
+
+      entryList.__files.forEach(function(file){
+        file.link(dictFile);
       });
     }
     fconsole.endl();
@@ -102,9 +108,10 @@ function scanFile(file, flow){
           defList.push(entry);
 
           if (!pathes[entry.path])
-            pathes[entry.path] = {};
+            pathes[entry.path] = { __files: [] };
 
-          pathes[entry.path][entry.name] = true;
+          pathes[entry.path].__files.add(file);
+          pathes[entry.path][entry.name] = file;
 
           break;
 

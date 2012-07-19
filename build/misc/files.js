@@ -54,6 +54,9 @@ module.exports = function(options, fconsole){
   //
 
   function File(cfg){
+    this.linkTo = [];
+    this.linkBack = [];
+
     for (var key in cfg)
       this[key] = cfg[key];
 
@@ -112,6 +115,24 @@ module.exports = function(options, fconsole){
     },
     get relOutputFilename(){
       return this.outputFilename || '[no output filename]';
+    },
+
+    // links
+    link: function(file){
+      this.linkTo.add(file);
+      file.linkBack.add(this);
+    },
+    unlink: function(file){
+      this.linkTo.remove(file);
+      file.linkBack.remove(this);
+    },
+    isLinked: function(file){
+      return this.linkTo.indexOf(file) != -1;
+    },
+    hasLinkType: function(type){
+      return this.linkBack.some(function(file){
+        return file.type == type;
+      });
     },
 
     // misc

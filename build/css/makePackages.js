@@ -42,6 +42,7 @@ module.exports = function(flow){
 
       fconsole.log('Inject generic file link into html');
       html_at.injectToHead(file.ast, genericStyle.htmlNode);
+      file.link(genericStyle);
 
       fconsole.log('Fill with imports');
       genericStyle.imports = queue

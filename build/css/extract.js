@@ -26,12 +26,12 @@ module.exports = function(flow){
             if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
             {
               fconsole.log('External style found: <link rel="' + attrs.rel + '">');
-              flow.files.add({
+              file.link(flow.files.add({
                 type: 'style',
                 filename: file.resolve(attrs.href),
                 media: attrs.media || 'all',
                 htmlNode: node
-              });
+              }));
             }
 
             break;
@@ -48,14 +48,14 @@ module.exports = function(flow){
 
             fconsole.log('Inline style found');
 
-            flow.files.add({
+            file.link(flow.files.add({
               type: 'style',
               baseURI: file.baseURI,
               inline: true,
               media: attrs.media || 'all',
               htmlNode: node,
               content: html_at.getText(node)
-            });
+            }));
 
             break;
         }
@@ -165,6 +165,9 @@ function processFile(file, flow){
         var media = parts;
         if (media[0] && media[0][1] != 's')
           media.unshift(at.packWhiteSpace(' '));
+
+        // add link
+        file.link(importFile);
 
         // add import
         file.imports.push({

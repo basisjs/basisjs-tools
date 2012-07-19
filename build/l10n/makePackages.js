@@ -86,12 +86,14 @@ module.exports = function(flow){
   {
     fconsole.log(culture);
 
-    packages.push(flow.files.add({
+    var file = flow.files.add({
       jsRef: 'l10n/' + culture + '.json',
       type: 'json',
       isResource: true,
       jsResourceContent: cultureContentMap[culture]
-    }));
+    });
+
+    packages.push(file);
 
     fconsole.log('  [OK] Add to resource map');
   }
