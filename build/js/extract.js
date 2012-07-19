@@ -218,11 +218,10 @@ function processScript(scriptFile, flow){
           break;
 
         case BASIS_REQUIRE:
-          newFilename = at.getCallArgs(args, context)[0];
+          var namespace = at.getCallArgs(args, context)[0];
           //console.log('basis.require call found:', translateCallExpr(expr, args));
-          if (newFilename)
+          if (namespace)
           {
-            var namespace = newFilename;
             var parts = namespace.split(/\./);
             var root = parts[0];
             var rootFile = flow.js.rootNSFile[root];

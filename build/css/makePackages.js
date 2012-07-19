@@ -48,6 +48,7 @@ module.exports = function(flow){
       genericStyle.imports = queue
         .filter(function(file){
           return file.type == 'style' && file.isResource;
+                                         // !file.hasLinkType('style') && !file.hasLinkType('html');                              
         })
         .map(function(file, idx){
           genericStyle.ast.push(

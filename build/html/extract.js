@@ -7,7 +7,7 @@ module.exports = function(flow){
   {
     if (file.type == 'html')
     {
-      fconsole.start(file.relPath);
+      fconsole.start(file.relpath);
 
       processFile(file);
 

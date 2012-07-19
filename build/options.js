@@ -3,8 +3,8 @@ var path = require('path');
 var options = require('commander');
 
 options
-  .option('-f, --file <filename>', 'File name of file to build (index.html by default)', 'index.html')
   .option('-b, --base <path>', 'Base input path for path resolving (current path by default)')
+  .option('-f, --file <filename>', 'File name of file to build (index.html by default)', 'index.html')
   .option('-o, --output <path>', 'Path for output', 'build.new')
 
   // general
@@ -13,15 +13,15 @@ options
 
   // javascript
   .option('--js-no-single-file', 'Avoid merge javascript source into one file.')
-  .option('-b, --js-build-mode', 'Evaluate modules code (close to basis.require works).')
-  .option('-d, --js-cut-dev', 'Remove marked debug message from javascript source (cut from source ;;; and /** @cut .. */)')
-  .option('-J, --js-pack', 'Pack javascript source.')
+  .option('--js-build-mode', 'Evaluate modules code (close to basis.require works).')
+  .option('--js-cut-dev', 'Remove marked debug message from javascript source (cut from source ;;; and /** @cut .. */)')
+  .option('--js-pack', 'Pack javascript source.')
 
   // css
   .option('--css-no-single-file', 'Avoid merge CSS source into one file.')
-  .option('-n, --css-optimize-names', 'Replace css class names for shorter one.')
-  .option('-C, --css-pack', 'Pack CSS source.')
-  .option('-i, --css-inline-image-size <n>', 'Max size for resource to be inlined (in bytes).', Number, 0)
+  .option('--css-optimize-names', 'Replace css class names for shorter one.')
+  .option('--css-pack', 'Pack CSS source.')
+  .option('--css-inline-image-size <n>', 'Max size for resource to be inlined (in bytes).', Number, 0)
 
   //experimental
   .option('-l, --l10n-pack', 'Build l10n index, pack dictionaries and replace token names for shorter one if possible.')

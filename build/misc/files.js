@@ -183,7 +183,7 @@ module.exports = function(options, fconsole){
 
       if (fileMap[filename]) // ignore duplicates
       {
-        fconsole.log('[ ] File `' + path.relative(__baseURI, filename) + '` already in queue');
+        fconsole.log('[ ] File `' + unixpath(path.relative(__baseURI, filename)) + '` already in queue');
         return fileMap[filename];
       }
 

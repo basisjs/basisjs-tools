@@ -42,8 +42,8 @@ function getCallArgs(args, context){
     {
       try
       {
-        var code = '0,' + translate(arg);
-        var result = vm.runInNewContext(code, context);
+        var code = translate(arg);
+        var result = vm.runInNewContext('0,' + code, context);
         if (typeof result == 'string' || typeof result == 'object')
           return result;
       }

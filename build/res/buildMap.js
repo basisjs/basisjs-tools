@@ -4,6 +4,8 @@ module.exports = function(flow){
 
   for (var i = 0, file; file = flow.files.queue[i]; i++)
   {
+    // file.hasLinkType('script') && (file.type != 'script' || !file.namespace) && (file.type != 'style')
+    // todo: merge l10n json
     if (file.isResource)
     {
       if (file.type != 'style')
