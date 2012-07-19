@@ -90,7 +90,7 @@ module.exports = function(options, fconsole, flowData){
     },
     set baseURI(uri){
       if (!this.filename)
-        this.baseURI_ = path.normalize(path.resolve(flowData.inputPath, uri) + '/').replace(/\\/g, '/');
+        this.baseURI_ = path.normalize(path.resolve(flowData.inputDir, uri) + '/').replace(/\\/g, '/');
     },
     get outputFilename(){
       return this.outputFilename_;
@@ -99,7 +99,7 @@ module.exports = function(options, fconsole, flowData){
       this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
     },
     get relpath(){
-      return this.filename ? relpath(this.filename) : '[no filename]';
+      return this.filename ? path.relative(flowData.inputDir, this.filename).replace(/\\/g, '/') : '[no filename]';
     },
     get relOutputFilename(){
       return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
@@ -129,21 +129,7 @@ module.exports = function(options, fconsole, flowData){
   }
 
   function getFileId(filename){
-    return relpath(path.resolve(flowData.inputDir, filename));
-  }
-
-  function relpath(filename){
-    return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
-  }
-
-  function mkdir(dirpath){
-    dirpath = path.resolve(flowData.inputDir, dirpath);
-
-    if (!fs.existsSync(dirpath))
-    {
-      fconsole.log('Create folder ' + dirpath);
-      fs.mkdirSync(dirpath);  
-    }
+    return path.relative(flowData.inputDir, normpath(filename)).replace(/\\/g, '/');
   }
 
   function addFile(data){
@@ -204,6 +190,16 @@ module.exports = function(options, fconsole, flowData){
     delete fileMap[filename];
   }  
 
+  function mkdir(dirpath){
+    dirpath = path.resolve(flowData.inputDir, dirpath);
+
+    if (!fs.existsSync(dirpath))
+    {
+      fconsole.log('Create folder ' + dirpath);
+      fs.mkdirSync(dirpath);  
+    }
+  }
+
   flowData.inputFile = addFile({
     filename: flowData.inputFilename
   });
@@ -211,6 +207,7 @@ module.exports = function(options, fconsole, flowData){
   return {
     queue: queue,
     map: fileMap,
+
     add: addFile,
     get: getFile,
     remove: removeFile,
