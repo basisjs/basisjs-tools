@@ -45,7 +45,7 @@ module.exports = function(flow){
   fconsole.start('Fetch dictionary files');
   for (var path in flow.l10n.pathes)
   {
-    fconsole.start(path);
+    fconsole.start(reldir(flow, path));
     for (var i = 0; culture = flow.l10n.cultureList[i]; i++)
     {
       flow.files.add({
@@ -65,10 +65,15 @@ module.exports.handlerName = '[l10n] Extract';
 // Main part
 //
 
+var path = require('path');
 var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 var GET_TOKEN = at.normalize('basis.l10n.getToken');
 var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
+
+function reldir(flow, dir){
+  return path.relative(flow.options.base, dir).replace(/\\/g, '/') + '/';
+}
 
 function scanFile(file, flow){
   var context = flow.js.getFileContext(file);
@@ -86,12 +91,12 @@ function scanFile(file, flow){
           var entry = {
             args: args,
             name: eargs[0],
-            path: eargs[1],
+            path: path.resolve(flow.options.base, eargs[1]),
             keys: eargs[2],
             file: file
           };
 
-          fconsole.log('[FOUND] createDictionary ' + entry.name + ' -> ' + entry.path);
+          fconsole.log('[FOUND] createDictionary ' + entry.name + ' -> ' + reldir(flow, entry.path));
 
           file.hasL10n = true;
           defList.push(entry);
