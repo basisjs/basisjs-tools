@@ -29,7 +29,7 @@ module.exports = function(flowData){
         media: 'all',
         content: '',
         ast: [{}, 'stylesheet'],
-        htmlInsertPoint: {
+        htmlNode: {
           type: 'tag',
           name: 'link',
           attribs: {
@@ -41,7 +41,7 @@ module.exports = function(flowData){
       });
 
       fconsole.log('Inject generic file link into html');
-      html_at.injectToHead(file.ast, genericStyle.htmlInsertPoint);
+      html_at.injectToHead(file.ast, genericStyle.htmlNode);
 
       fconsole.log('Fill with imports');
       genericStyle.imports = queue
@@ -72,7 +72,7 @@ module.exports = function(flowData){
   // output files
   //
   flowData.css.packages = queue.filter(function(file){
-    if (file.type == 'style' && file.htmlInsertPoint)
+    if (file.type == 'style' && file.htmlNode)
     {
       setOutputFilename(file, this);
 

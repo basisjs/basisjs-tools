@@ -6,12 +6,12 @@ module.exports = function(flowData){
   var queue = flowData.files.queue;
 
   for (var i = 0; file = queue[i]; i++)
-    if (file.type == 'script' && file.htmlInsertPoint)
+    if (file.type == 'script' && file.htmlNode)
     {
       fconsole.log(file.relpath);
       if (file.outputFilename)
       {
-        html_at.replaceToken(file.htmlInsertPoint, {
+        html_at.replaceToken(file.htmlNode, {
           type: 'script',
           name: 'script',
           attribs: {
@@ -22,7 +22,7 @@ module.exports = function(flowData){
       }
       else
       {
-        html_at.replaceToken(file.htmlInsertPoint, 
+        html_at.replaceToken(file.htmlNode, 
           file.outputContent
             ? {
                 type: 'script',

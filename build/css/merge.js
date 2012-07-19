@@ -18,7 +18,7 @@ module.exports = function(flowData){
       if (prev && prev.media == file.media)
       {
         prev.ast.push.apply(prev.ast, file.ast.slice(2));
-        html_at.removeToken(file.htmlInsertPoint)
+        html_at.removeToken(file.htmlNode);
       }
       else
       {

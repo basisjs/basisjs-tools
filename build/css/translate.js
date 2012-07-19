@@ -14,7 +14,7 @@ module.exports = function(flowData){
       fconsole.log('[!] ' + file.relOutputFilename + ' is empty - reject');
 
       // 'cut' token from html
-      html_at.replaceToken(file.htmlInsertPoint, {
+      html_at.replaceToken(file.htmlNode, {
         type: 'text',
         data: ''
       });
@@ -26,7 +26,7 @@ module.exports = function(flowData){
       file.outputContent = outputContent;
 
       // replace token in html
-      html_at.replaceToken(file.htmlInsertPoint, {
+      html_at.replaceToken(file.htmlNode, {
         type: 'tag',
         name: 'link',
         attribs: {

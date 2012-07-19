@@ -30,7 +30,7 @@ module.exports = function(flowData){
                 type: 'style',
                 filename: file.resolve(attrs.href),
                 media: attrs.media || 'all',
-                htmlInsertPoint: node
+                htmlNode: node
               });
             }
 
@@ -53,7 +53,7 @@ module.exports = function(flowData){
               baseURI: file.baseURI,
               inline: true,
               media: attrs.media || 'all',
-              htmlInsertPoint: node,
+              htmlNode: node,
               content: html_at.getText(node)
             });
 
@@ -73,7 +73,7 @@ module.exports = function(flowData){
 
   fconsole.log('Prepare output files');
   var outputFiles = queue.filter(function(file){
-    return file.type == 'style' && file.htmlInsertPoint;
+    return file.type == 'style' && file.htmlNode;
   });
 
   fconsole.log();

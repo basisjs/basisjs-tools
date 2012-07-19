@@ -25,9 +25,9 @@ module.exports = function(flowData){
 
   // build source map
   var basisFile = flowData.files.get(flowData.js.basisScript);
-  var htmlInsertPoint = basisFile.htmlInsertPoint;
+  var htmlNode = basisFile.htmlNode;
 
-  delete basisFile.htmlInsertPoint;
+  delete basisFile.htmlNode;
 
   // inject resources
   var inserted = false;
@@ -95,7 +95,7 @@ module.exports = function(flowData){
 
     if (isCoreFile)
     {
-      packageFile.htmlInsertPoint = htmlInsertPoint;
+      packageFile.htmlNode = htmlNode;
     }
   }
 }

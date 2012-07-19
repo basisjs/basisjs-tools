@@ -48,7 +48,7 @@ module.exports = function(flowData){
           fconsole.log('External script found: <script src="' + attrs.src + '">');
 
           var scriptFile = flowData.files.add({
-            htmlInsertPoint: node,
+            htmlNode: node,
             type: 'script',
             filename: file.resolve(attrs.src)
           });
@@ -65,7 +65,7 @@ module.exports = function(flowData){
           fconsole.log('Inline script found');
 
           flowData.files.add({
-            htmlInsertPoint: node,
+            htmlNode: node,
             type: 'script',
             inline: true,
             baseURI: file.baseURI,
