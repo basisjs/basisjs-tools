@@ -49,7 +49,6 @@ module.exports = function(flowData){
 
           var scriptFile = flowData.files.add({
             htmlInsertPoint: node,
-            source: 'html:script',
             type: 'script',
             filename: file.resolve(attrs.src)
           });
@@ -67,7 +66,6 @@ module.exports = function(flowData){
 
           flowData.files.add({
             htmlInsertPoint: node,
-            source: 'html:script',
             type: 'script',
             inline: true,
             baseURI: file.baseURI,
@@ -174,7 +172,6 @@ function processScript(scriptFile, flowData){
           if (newFilename)
           {
             newFile = flowData.files.add({
-              source: 'js:basis.resource',
               filename: newFilename
             });
             newFile.isResource = true;
@@ -199,7 +196,6 @@ function processScript(scriptFile, flowData){
           if (newFilename)
           {
             newFile = flowData.files.add({
-              source: 'js:basis.resource',
               filename: scriptFile.resolve(newFilename)
             });
             newFile.isResource = true;
@@ -228,7 +224,6 @@ function processScript(scriptFile, flowData){
             var baseURI = flowData.js.rootBaseURI[root];
 
             newFile = flowData.files.add({
-              source: 'js:basis.require',
               filename: (baseURI ? baseURI + '/' : '') + parts.join('/') + '.js'
             });
             newFile.namespace = namespace;

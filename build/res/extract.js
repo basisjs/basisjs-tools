@@ -27,7 +27,6 @@ module.exports = function(flowData){
             if (uri.filename)
             {
               var resFile = files.add({
-                source: 'style:url',
                 filename: file.resolve(uri.filename)
               });
               resFile.cssResource = true;

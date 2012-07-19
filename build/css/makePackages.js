@@ -24,7 +24,6 @@ module.exports = function(flowData){
 
       fconsole.log('Create generic style');
       var genericStyle = flowData.files.add({
-        source: 'generic',
         type: 'style',
         baseURI: file.baseURI,
         media: 'all',

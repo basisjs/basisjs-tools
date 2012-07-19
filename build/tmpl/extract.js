@@ -23,7 +23,6 @@ module.exports = function(flowData){
         for (var j = 0, resourceFilename; resourceFilename = decl.resources[j]; j++)
         {
           flowData.files.add({
-            source: 'tmpl:resource',
             filename: file.resolve(resourceFilename)
           }).isResource = true;
         }

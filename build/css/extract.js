@@ -27,7 +27,6 @@ module.exports = function(flowData){
             {
               fconsole.log('External style found: <link rel="' + attrs.rel + '">');
               flowData.files.add({
-                source: 'html:link',
                 type: 'style',
                 filename: file.resolve(attrs.href),
                 media: attrs.media || 'all',
@@ -50,7 +49,6 @@ module.exports = function(flowData){
             fconsole.log('Inline style found');
 
             flowData.files.add({
-              source: 'html:style',
               type: 'style',
               baseURI: file.baseURI,
               inline: true,
@@ -154,11 +152,9 @@ function processFile(file, flowData){
         var importFile = flowData.files.add(
           uri.filename
             ? {
-                source: 'css:import',
                 filename: file.resolve(uri.filename)
               }
             : {
-                source: 'css:import',
                 type: 'style',
                 baseURI: file.baseURI,
                 content: uri.content
