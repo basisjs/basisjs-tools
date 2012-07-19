@@ -5,7 +5,6 @@ module.exports = function(flowData){
 
   var fconsole = flowData.console;
   var queue = flowData.files.queue;
-  var inputDir = flowData.inputDir;
 
   //
   // Scan html files for styles
@@ -20,8 +19,6 @@ module.exports = function(flowData){
       fconsole.start(file.relpath);
 
       html_at.walk(flowData.inputFile.ast, function(node){
-        var file;
-
         switch (node.type)
         {
           case 'tag':
@@ -29,10 +26,10 @@ module.exports = function(flowData){
             if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
             {
               fconsole.log('External style found: <link rel="' + attrs.rel + '">');
-              file = flowData.files.add({
+              flowData.files.add({
                 source: 'html:link',
                 type: 'style',
-                filename: attrs.href,
+                filename: file.resolve(attrs.href),
                 media: attrs.media || 'all',
                 htmlInsertPoint: node
               });
@@ -52,10 +49,10 @@ module.exports = function(flowData){
 
             fconsole.log('Inline style found');
 
-            file = flowData.files.add({
+            flowData.files.add({
               source: 'html:style',
               type: 'style',
-              baseURI: inputDir,
+              baseURI: file.baseURI,
               inline: true,
               media: attrs.media || 'all',
               htmlInsertPoint: node,
@@ -148,14 +145,12 @@ module.exports.handlerName = '[css] Extract';
 // Main part: file process
 //
 
-var path = require('path');
 var csso = require('csso');
 var utils = require('../misc/utils');
 var at = require('./ast_tools');
 
 function processFile(file, flowData){
   var fconsole = flowData.console;
-  var baseURI = path.dirname(file.filename);
 
   // import tokens
   file.imports = [];
@@ -190,12 +185,12 @@ function processFile(file, flowData){
           uri.filename
             ? {
                 source: 'css:import',
-                filename: path.resolve(baseURI, uri.filename)
+                filename: file.resolve(uri.filename)
               }
             : {
                 source: 'css:import',
                 type: 'style',
-                baseURI: baseURI,
+                baseURI: file.baseURI,
                 content: uri.content
               }
         );

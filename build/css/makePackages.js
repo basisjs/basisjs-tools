@@ -1,5 +1,4 @@
 
-var path = require('path');
 var at = require('./ast_tools');
 
 module.exports = function(flowData){
@@ -48,7 +47,7 @@ module.exports = function(flowData){
 module.exports.handlerName = '[css] Make packages';
 
 function setOutputFilename(file, targetMap){
-  var baseOutputFilename = file.outputFilename || (file.filename ? path.basename(file.filename, '.css') : '') || 'style';
+  var baseOutputFilename = file.outputFilename || file.name || 'style';
   var idx = 0;
   var outputFilename = baseOutputFilename;
 

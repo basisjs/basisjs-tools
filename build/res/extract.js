@@ -1,7 +1,6 @@
 
 var atCss = require('../css/ast_tools');
 var utils = require('../misc/utils');
-var path = require('path');
 
 module.exports = function(flowData){
   var atTmpl = require('../tmpl/ast_tools');
@@ -27,14 +26,12 @@ module.exports = function(flowData){
 
             if (uri.filename)
             {
-              var filename = path.resolve(file.baseURI, uri.filename);
-
               var resFile = files.add({
                 source: 'style:url',
-                filename: filename
+                filename: file.resolve(uri.filename)
               });
               resFile.cssResource = true;
-              resFile.outputFilename = 'res/' + resFile.digest + path.extname(filename);
+              resFile.outputFilename = 'res/' + resFile.digest + resFile.ext;
               resFile.fileRef = resFile.relOutputFilename;
 
               atCss.packUri(resFile.fileRef, token);

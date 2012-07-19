@@ -5,7 +5,6 @@ module.exports = function(flowData){
 
   var fconsole = flowData.console;
   var queue = flowData.files.queue;
-  var inputDir = flowData.inputDir;
 
   //
   // Init js section
@@ -31,8 +30,6 @@ module.exports = function(flowData){
       fconsole.start(file.relpath);
 
       html_at.walk(file.ast, function(node){
-        var file;
-
         if (node.type != 'script')
           return;
 
@@ -50,30 +47,30 @@ module.exports = function(flowData){
         {
           fconsole.log('External script found: <script src="' + attrs.src + '">');
 
-          file = flowData.files.add({
+          var scriptFile = flowData.files.add({
             htmlInsertPoint: node,
             source: 'html:script',
             type: 'script',
-            filename: attrs.src
+            filename: file.resolve(attrs.src)
           });
 
           if (attrs.hasOwnProperty('basis-config'))
           {
             fconsole.log('[i] basis.js marker found (basis-config attribute)');
-            file.basisScript = true;
-            file.basisConfig = attrs['basis-config'];
+            scriptFile.basisScript = true;
+            scriptFile.basisConfig = attrs['basis-config'];
           }
         }
         else
         {
           fconsole.log('Inline script found');
 
-          file = flowData.files.add({
+          flowData.files.add({
             htmlInsertPoint: node,
             source: 'html:script',
             type: 'script',
             inline: true,
-            baseURI: inputDir,
+            baseURI: file.baseURI,
             content: html_at.getText(node)
           });
         }
@@ -133,7 +130,6 @@ module.exports.handlerName = '[js] Extract';
 // main part
 //
 
-var path = require('path');
 var at = require('./ast_tools');
 
 var BASIS_RESOURCE = at.normalize('basis.resource');
@@ -204,7 +200,7 @@ function processScript(scriptFile, flowData){
           {
             newFile = flowData.files.add({
               source: 'js:basis.resource',
-              filename: path.resolve(scriptFile.baseURI, newFilename)
+              filename: scriptFile.resolve(newFilename)
             });
             newFile.isResource = true;
 

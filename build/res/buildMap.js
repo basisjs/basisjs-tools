@@ -1,6 +1,4 @@
 
-var path = require('path');
-
 module.exports = function(flowData){
   var jsResourceMap = {};
 
@@ -11,7 +9,7 @@ module.exports = function(flowData){
       if (file.type != 'style')
       {
         if (!file.jsRef)
-          file.jsRef = i.toString(36) + path.extname(file.filename);
+          file.jsRef = i.toString(36) + file.ext;
 
         jsResourceMap[file.jsRef] = file;
       }

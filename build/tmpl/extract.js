@@ -1,6 +1,4 @@
 
-var path = require('path');
-
 module.exports = function(flowData){
   global.document = require('jsdom-nocontextifiy').jsdom();
   global.basis = require(flowData.js.basisScript).basis;
@@ -26,7 +24,7 @@ module.exports = function(flowData){
         {
           flowData.files.add({
             source: 'tmpl:resource',
-            filename: path.resolve(file.baseURI, resourceFilename)
+            filename: file.resolve(resourceFilename)
           }).isResource = true;
         }
       }

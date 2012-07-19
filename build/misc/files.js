@@ -73,6 +73,18 @@ module.exports = function(options, fconsole, flowData){
       this[key] = cfg[key];
   };
   File.prototype = {
+    resolve: function(filename){
+      return path.normalize(path.resolve(this.baseURI, filename)).replace(/\\/g, '/')
+    },
+    get basename(withExt){
+      return this.filename ? path.basename(this.filename) : '';
+    },
+    get name(){
+      return this.filename ? path.basename(this.filename, path.extname(this.filename)) : '';
+    },
+    get ext(){
+      return this.filename ? path.extname(this.filename) : '';
+    },
     get baseURI(){
       return (this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '').replace(/\\/g, '/');
     },

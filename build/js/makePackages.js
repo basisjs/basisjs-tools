@@ -1,4 +1,5 @@
 
+var path = require('path');
 var at = require('./ast_tools');
 var RESOURCE = at.normalize('this.__resources__');
 
@@ -124,8 +125,6 @@ function buildDep(file, package){
 // wrap package
 //
 
-var path = require('path');
-
 function extractBuildContent(file){
   return '// ' + file.relpath + '\n' +
     '[' +
@@ -140,7 +139,7 @@ function extractSourceContent(file){
     '{\n' +
     '  ns: "' + file.namespace + '",\n' + 
     '  path: "' + path.dirname(file.relpath) + '/",\n' + 
-    '  fn: "' + path.basename(file.relpath) + '",\n' +
+    '  fn: "' + file.basename + '",\n' +
     '  body: function(){\n' +
          file.outputContent + '\n' +
     '  }\n' + 
