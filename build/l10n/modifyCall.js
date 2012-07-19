@@ -7,7 +7,7 @@ module.exports = function(flow){
   {
     if (file.type == 'script' && file.hasL10n)
     {
-      fconsole.start(file.filename ? file.relPath : '[inline script]');
+      fconsole.start(file.filename ? file.relpath : '[inline script]');
 
       process(file, flow);
 

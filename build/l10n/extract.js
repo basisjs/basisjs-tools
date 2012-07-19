@@ -107,7 +107,7 @@ function scanFile(file, flow){
         case GET_TOKEN:
           if (args.length == 1 && args[0][0] == 'string')
           {
-            fconsole.log('[FOUND] getToken ' + args[0][0]);
+            fconsole.log('[FOUND] getToken ' + args[0][1]);
 
             file.hasL10n = true;
             getTokenList.push({
