@@ -32,6 +32,10 @@ function getFileContentOnFailure(filename){
   return (typeNotFoundHandler[path.extname(filename)] || '').replace(/\{filename\}/, filename);
 }
 
+function unixpath(filename){
+  return path.normalize(filename).replace(/\\/g, '/');
+}
+
 
 //
 // export
@@ -59,6 +63,9 @@ module.exports = function(options, fconsole){
       if (externalRx.test(filename))
         return filename;
 
+      // remove everything after ? (query string) or # (hash)
+      filename = filename.replace(/[\?\#].*$/, '');
+
       var rel = filename.replace(/^\s*\//, '');
       var result;
 
@@ -67,7 +74,7 @@ module.exports = function(options, fconsole){
       else
         result = path.resolve(__baseURI, rel);
 
-      return path.normalize(result).replace(/\\/g, '/');
+      return unixpath(result);
     },
 
     // input filename
@@ -81,16 +88,16 @@ module.exports = function(options, fconsole){
       return this.filename ? path.extname(this.filename) : '';
     },
     get relpath(){
-      return this.filename ? norm(path.relative(__baseURI, this.filename)) : '[no filename]';
+      return this.filename ? unixpath(path.relative(__baseURI, this.filename)) : '[no filename]';
     },
 
     // input baseURI
     get baseURI(){
-      return norm(this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '');
+      return unixpath(this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '');
     },
     set baseURI(uri){
       if (!this.filename)
-        this.baseURI_ = norm(path.resolve(__baseURI, uri) + '/');
+        this.baseURI_ = unixpath(path.resolve(__baseURI, uri) + '/');
     },
 
     // output filename
@@ -98,7 +105,7 @@ module.exports = function(options, fconsole){
       return this.outputFilename_;
     },
     set outputFilename(filename){
-      this.outputFilename_ = norm(filename);
+      this.outputFilename_ = unixpath(filename);
     },
     get relOutputFilename(){
       return this.outputFilename || '[no output filename]';
@@ -125,23 +132,20 @@ module.exports = function(options, fconsole){
     }
   };
 
-  function normpath(filename){
-    return path.normalize(path.resolve(__baseURI, filename)).replace(/\\/g, '/');
-  }
-
-  function getFileId(filename){
-    return normpath(filename);
-  }
-
-  function norm(filename){
-    return path.normalize(filename).replace(/\\/g, '/');
+  function abspath(filename){
+    return unixpath(path.resolve(__baseURI, filename.replace(/[\?\#].*$/, '')));
   }
 
   function addFile(data){
     var file;
 
-    if (data.filename)
+    if (!data.filename)
     {
+      file = new File(data);
+    }
+    else
+    {
+      // ignore references for external resources
       if (externalRx.test(data.filename))
       {
         // external resource
@@ -149,19 +153,18 @@ module.exports = function(options, fconsole){
         return;
       }
 
-      data.filename = normpath(data.filename);
-      var filename = data.filename;
-      var fileId = getFileId(filename);
-      var ext = path.extname(filename);
+      var filename = abspath(data.filename);
+                     // remove everything after ? (query string) or # (hash)
+                     // and normalize
 
-      if (fileMap[fileId]) // ignore duplicates
+      if (fileMap[filename]) // ignore duplicates
       {
-        fconsole.log('[ ] File `' + fileId + '` already in queue');
-
-        return fileMap[fileId];
+        fconsole.log('[ ] File `' + path.relative(__baseURI, filename) + '` already in queue');
+        return fileMap[filename];
       }
 
       // create file
+      data.filename = filename;
       file = new File(data);
 
       // read content
@@ -188,11 +191,7 @@ module.exports = function(options, fconsole){
         file.content = getFileContentOnFailure(filename);
       }
 
-      fileMap[fileId] = file;
-    }
-    else
-    {
-      file = new File(data);
+      fileMap[filename] = file;
     }
 
     queue.add(file);
@@ -201,17 +200,17 @@ module.exports = function(options, fconsole){
   }
 
   function getFile(filename){
-    var fileId = getFileId(filename);
+    var fileId = abspath(filename);
 
     return fileMap[fileId];
   }
 
   function removeFile(filename){
-    var fileId = getFileId(filename);
+    var fileId = abspath(filename);
 
     queue.remove(fileMap[fileId]);
     delete fileMap[fileId];
-  }  
+  }
 
   function mkdir(dirpath){
     if (!fs.existsSync(dirpath))
