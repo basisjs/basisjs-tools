@@ -53,8 +53,8 @@ for (var i = 0; i < optionOverride.length; i++)
 
 // pathes
 
-options.base = path.resolve('.', options.base);
-options.output = path.resolve(options.base, options.output);
+options.base = path.normalize(path.resolve('.', options.base) + '/');
+options.output = path.normalize(path.resolve(options.base, options.output) + '/');
 
 
 // TODO: remove

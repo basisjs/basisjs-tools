@@ -30,7 +30,7 @@ module.exports = function(flow){
                 filename: file.resolve(uri.filename)
               });
               resFile.cssResource = true;
-              resFile.outputFilename = 'res/' + resFile.digest + resFile.ext;
+              resFile.outputFilename = flow.outputResourceDir + resFile.digest + resFile.ext;
               resFile.fileRef = resFile.relOutputFilename;
 
               atCss.packUri(resFile.fileRef, token);

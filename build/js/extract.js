@@ -12,7 +12,7 @@ module.exports = function(flow){
 
   fconsole.log('Init js');
   flow.js = {
-    rootBaseURI: {},
+    rootNSFile: {},
     getFileContext: getFileContext
   };
 
@@ -91,7 +91,7 @@ module.exports = function(flow){
     if (file.type == 'script' && file.basisScript)
     {
       fconsole.log('[OK] basis.js found at path ' + file.relPath);
-      flow.js.rootBaseURI.basis = file.baseURI;
+      flow.js.rootNSFile.basis = file;
       flow.js.basisScript = file.filename;
       break;
     }
@@ -221,10 +221,18 @@ function processScript(scriptFile, flow){
             var namespace = newFilename;
             var parts = namespace.split(/\./);
             var root = parts[0];
-            var baseURI = flow.js.rootBaseURI[root];
+            var rootFile = flow.js.rootNSFile[root];
+
+            if (!rootFile)
+            {
+              rootFile = flow.files.add({
+                filename: root + '.js'  // TODO: resolve relative to html file
+              });
+              flow.js.rootNSFile[root] = rootFile;
+            }
 
             newFile = flow.files.add({
-              filename: (baseURI ? baseURI + '/' : '') + parts.join('/') + '.js'
+              filename: rootFile.resolve(parts.join('/') + '.js')
             });
             newFile.namespace = namespace;
             newFile.package = root;

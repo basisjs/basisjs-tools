@@ -1,5 +1,6 @@
 
 var fs = require('fs');
+var path = require('path');
 
 module.exports = function(flow){
   var queue = flow.files.queue;
@@ -9,8 +10,8 @@ module.exports = function(flow){
   // Create output folders (if required)
   //
 
-  flow.files.mkdir(flow.outputDir);
-  flow.files.mkdir(flow.outputResourceDir);
+  flow.files.mkdir(flow.options.output);
+  flow.files.mkdir(path.resolve(flow.options.output, flow.outputResourceDir));
 
 
   //
@@ -22,7 +23,7 @@ module.exports = function(flow){
     if (file.outputFilename && 'outputContent' in file)
     {
       fconsole.log(file.relpath + ' -> ' + file.relOutputFilename);
-      fs.writeFile(file.outputFilename, file.outputContent, file.encoding);
+      fs.writeFile(path.resolve(flow.options.output, file.outputFilename), file.outputContent, file.encoding);
     }
   }
 

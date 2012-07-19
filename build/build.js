@@ -1,5 +1,6 @@
 
 var fs = require('fs');
+var path = require('path');
 var utils = require('./misc/utils');
 var Flow = require('./misc/flow');
 var options = require('./options');
@@ -7,16 +8,20 @@ var options = require('./options');
 var flow = new Flow(options);
 var fconsole = flow.console;
 
+flow.outputResourceDir = 'res/';
+
+var inputFilename = path.resolve(options.base, options.file);
+
 // check input file exists
-if (!fs.existsSync(flow.inputFilename))
+if (!fs.existsSync(inputFilename))
 {
-  console.warn('Input file ' + flow.inputFilename + ' not found');
+  console.warn('Input file ' + inputFilename + ' not found');
   process.exit();
 }
 
 // add input file in queue
 flow.files.add({
-  filename: flow.inputFilename
+  filename: inputFilename
 });
 
 
