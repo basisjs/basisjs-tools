@@ -39,10 +39,17 @@ function unixpath(filename){
   return path.normalize(filename).replace(slashRx, '/');
 }
 
+function abspath(baseURI, filename){
+  return unixpath(path.resolve(baseURI, filename.replace(queryAndHashRx, '')));
+}
 
-  //
-  // file class
-  //
+function isExternal(uri){
+  return externalRx.test(uri);
+}
+
+/**
+ * @class File
+ */
 
 function File(manager, cfg){
   this.manager = manager;
@@ -58,7 +65,7 @@ function File(manager, cfg){
 
 File.prototype = {
   resolve: function(filename){
-    if (externalRx.test(filename))
+    if (isExternal(filename))
       return filename;
 
     // remove everything after ? (query string) or # (hash)
@@ -77,16 +84,24 @@ File.prototype = {
 
   // input filename
   get basename(){
-    return this.filename ? path.basename(this.filename) : '';
+    return this.filename
+      ? path.basename(this.filename)
+      : '';
   },
   get name(){
-    return this.filename ? path.basename(this.filename, path.extname(this.filename)) : '';
+    return this.filename
+      ? path.basename(this.filename, path.extname(this.filename))
+      : '';
   },
   get ext(){
-    return this.filename ? path.extname(this.filename) : '';
+    return this.filename
+      ? path.extname(this.filename)
+      : '';
   },
   get relpath(){
-    return this.filename ? unixpath(path.relative(this.manager.baseURI, this.filename)) : '[no filename]';
+    return this.filename
+      ? unixpath(path.relative(this.manager.baseURI, this.filename))
+      : '[inline ' + this.type + ']';
   },
 
   // input baseURI
@@ -114,12 +129,19 @@ File.prototype = {
     this.linkTo.add(file);
     file.linkBack.add(this);
   },
+  linkFrom: function(file){
+    file.link(this);
+  },
   unlink: function(file){
     this.linkTo.remove(file);
     file.linkBack.remove(this);
   },
-  isLinked: function(file){
+
+  hasLinkTo: function(file){
     return this.linkTo.indexOf(file) != -1;
+  },
+  hasLinkFrom: function(file){
+    return file.hasLinkTo(this);
   },
   hasLinkType: function(type){
     return this.linkBack.some(function(file){
@@ -148,20 +170,15 @@ File.prototype = {
   }
 };
 
-function abspath(baseURI, filename){
-  return unixpath(path.resolve(baseURI, filename.replace(queryAndHashRx, '')));
-}
-
-
-//
-// export
-//
+/**
+ * @class FileManager
+ */
 
 var FileManager = function(baseURI, console){
   this.baseURI = baseURI;
   this.console = console;
 
-  this.fileMap = {};
+  this.map = {};
   this.queue = [];
 }
 
@@ -176,7 +193,7 @@ FileManager.prototype = {
     else
     {
       // ignore references for external resources
-      if (externalRx.test(data.filename))
+      if (isExternal(data.filename))
       {
         // external resource
         this.console.log('[i] External resource `' + data.filename + '` ignored');
@@ -187,10 +204,10 @@ FileManager.prototype = {
                      // remove everything after ? (query string) or # (hash)
                      // and normalize
 
-      if (this.fileMap[filename]) // ignore duplicates
+      if (this.map[filename]) // ignore duplicates
       {
         this.console.log('[ ] File `' + unixpath(path.relative(this.baseURI, filename)) + '` already in this.queue');
-        return this.fileMap[filename];
+        return this.map[filename];
       }
 
       // create file
@@ -221,7 +238,7 @@ FileManager.prototype = {
         file.content = getFileContentOnFailure(filename);
       }
 
-      this.fileMap[filename] = file;
+      this.map[filename] = file;
     }
 
     this.queue.add(file);
@@ -231,15 +248,45 @@ FileManager.prototype = {
 
   get: function(filename){
     var fileId = abspath(this.baseURI, filename);
+    console.log(fileId);
 
-    return this.fileMap[fileId];
+    return this.map[fileId];
   },
 
-  remove: function(filename){
-    var fileId = abspath(this.baseURI, filename);
+  remove: function(filenameOrFile){
+    var fileId;
+    var file;
+    
+    if (filenameOrFile instanceof File)
+    {
+      file = filenameOrFile;
+      fileId = file.filename;
+    }
+    else
+    {
+      fileId = abspath(this.baseURI, filenameOrFile);
+      file = this.map[fileId];
 
-    this.queue.remove(this.fileMap[fileId]);
-    delete this.fileMap[fileId];
+      if (!file)
+      {
+        fconsole.log('[WARN] File `' + filenameOrFile + '` not found in map');
+        return;
+      }
+    }
+
+    // remove links
+    for (var i = file.linkTo.length, linkTo; linkTo = file.linkTo[i]; i--)
+      file.unlink(linkTo);
+
+    for (var i = file.linkBack.length, linkBack; linkBack = file.linkBack[i]; i--)
+      linkBack.unlink(file);
+
+    // remove from queue
+    this.queue.remove(file);
+
+    // remove from map
+    if (fileId)
+      delete this.map[fileId];
   },
 
   mkdir: function(dirpath){
@@ -250,5 +297,9 @@ FileManager.prototype = {
     }
   }
 };
+
+//
+// export
+//
 
 module.exports = FileManager;

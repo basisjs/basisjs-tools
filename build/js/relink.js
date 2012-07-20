@@ -9,7 +9,7 @@ module.exports = function(flow){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && (file.deps.length || file.resources.length))
     {
-      fconsole.start(file.filename ? file.relpath : '[inline script]');
+      fconsole.start(file.relpath);
 
       relinkScript(file, flow);
 

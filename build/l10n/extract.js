@@ -22,7 +22,7 @@ module.exports = function(flow){
     if (file.type == 'script')
     {
       // scan file for basis.l10n.createDictionary & basis.l10n.setCultureList
-      fconsole.start(file.filename ? file.relpath : '[inline script]');
+      fconsole.start(file.relpath);
 
       // store reference for basis.l10n module
       if (file.namespace == 'basis.l10n')

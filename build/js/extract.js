@@ -114,7 +114,7 @@ module.exports = function(flow){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
-      fconsole.start(file.filename ? file.relpath : '[inline script]');
+      fconsole.start(file.relpath);
 
       processScript(file, flow);
 
@@ -229,16 +229,25 @@ function processScript(scriptFile, flow){
             if (!rootFile)
             {
               rootFile = flow.files.add({
-                filename: root + '.js'  // TODO: resolve relative to html file
+                filename: root + '.js',  // TODO: resolve relative to html file
+                namespace: namespace,
+                package: root
               });
               flow.js.rootNSFile[root] = rootFile;
             }
 
-            newFile = flow.files.add({
-              filename: rootFile.resolve(parts.join('/') + '.js')
-            });
-            newFile.namespace = namespace;
-            newFile.package = root;
+            if (root == namespace)
+            {
+              newFile = rootFile;
+            }
+            else
+            {
+              newFile = flow.files.add({
+                filename: rootFile.resolve(parts.join('/') + '.js')
+              });
+              newFile.namespace = namespace;
+              newFile.package = root;
+            }
 
             scriptFile.link(newFile);
             deps.push(newFile);

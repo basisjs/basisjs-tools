@@ -11,7 +11,7 @@ module.exports = function(flow){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
-      fconsole.log(file.filename ? file.relpath : '[inline script]');
+      fconsole.log(file.relpath);
 
       file.outputContent = at.translate(file.ast);
 
