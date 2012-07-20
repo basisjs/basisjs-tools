@@ -35,9 +35,8 @@ function processFile(file){
   var head;
   var body;
 
-  at.walk(ast, function(node){
-    if (node.type == 'tag')
-    {
+  at.walk(ast, {
+    tag: function(node){
       if (!head && node.name == 'head')
         head = node;
 

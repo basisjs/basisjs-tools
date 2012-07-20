@@ -18,46 +18,48 @@ module.exports = function(flow){
     {
       fconsole.start(file.relpath);
 
-      html_at.walk(file.ast, function(node){
-        switch (node.type)
-        {
-          case 'tag':
-            var attrs = html_at.getAttrs(node);
-            if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
-            {
-              fconsole.log('External style found: <link rel="' + attrs.rel + '">');
+      html_at.walk(file.ast, {
+        tag: function(node){
+          switch (node.name)
+          {
+            case 'link':
+              var attrs = html_at.getAttrs(node);
+              if (/\bstylesheet\b/i.test(attrs.rel))
+              {
+                fconsole.log('External style found: <link rel="' + attrs.rel + '">');
+                file.link(flow.files.add({
+                  type: 'style',
+                  filename: file.resolve(attrs.href),
+                  media: attrs.media || 'all',
+                  htmlNode: node
+                }));
+              }
+
+              break;
+
+            case 'style':
+              var attrs = html_at.getAttrs(node);
+
+              // ignore <style> with type other than text/css
+              if (attrs.type && attrs.type != 'text/css')
+              {
+                fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
+                return;
+              }
+
+              fconsole.log('Inline style found');
+
               file.link(flow.files.add({
                 type: 'style',
-                filename: file.resolve(attrs.href),
+                baseURI: file.baseURI,
+                inline: true,
                 media: attrs.media || 'all',
-                htmlNode: node
+                htmlNode: node,
+                content: html_at.getText(node)
               }));
-            }
 
-            break;
-
-          case 'style':
-            var attrs = html_at.getAttrs(node);
-
-            // ignore <style> with type other than text/css
-            if (attrs.type && attrs.type != 'text/css')
-            {
-              fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
-              return;
-            }
-
-            fconsole.log('Inline style found');
-
-            file.link(flow.files.add({
-              type: 'style',
-              baseURI: file.baseURI,
-              inline: true,
-              media: attrs.media || 'all',
-              htmlNode: node,
-              content: html_at.getText(node)
-            }));
-
-            break;
+              break;
+          }
         }
       });
 

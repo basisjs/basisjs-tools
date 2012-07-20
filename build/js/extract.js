@@ -29,50 +29,52 @@ module.exports = function(flow){
     {
       fconsole.start(file.relpath);
 
-      html_at.walk(file.ast, function(node){
-        if (node.type != 'script')
-          return;
+      html_at.walk(file.ast, {
+        tag: function(node){
+          if (node.name != 'script')
+            return;
 
-        var attrs = html_at.getAttrs(node);
+          var attrs = html_at.getAttrs(node);
 
-        // ignore <script> tags with type other than text/javascript
-        if (attrs.type && attrs.type != 'text/javascript')
-        {
-          fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
-          return;
-        }
-
-        // external script
-        if (attrs.src)
-        {
-          fconsole.log('External script found: <script src="' + attrs.src + '">');
-
-          var scriptFile = flow.files.add({
-            htmlNode: node,
-            type: 'script',
-            filename: file.resolve(attrs.src)
-          });
-
-          file.link(scriptFile);
-
-          if (attrs.hasOwnProperty('basis-config'))
+          // ignore <script> tags with type other than text/javascript
+          if (attrs.type && attrs.type != 'text/javascript')
           {
-            fconsole.log('[i] basis.js marker found (basis-config attribute)');
-            scriptFile.basisScript = true;
-            scriptFile.basisConfig = attrs['basis-config'];
+            fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
+            return;
           }
-        }
-        else
-        {
-          fconsole.log('Inline script found');
 
-          file.link(flow.files.add({
-            htmlNode: node,
-            type: 'script',
-            inline: true,
-            baseURI: file.baseURI,
-            content: html_at.getText(node)
-          }));
+          // external script
+          if (attrs.src)
+          {
+            fconsole.log('External script found: <script src="' + attrs.src + '">');
+
+            var scriptFile = flow.files.add({
+              htmlNode: node,
+              type: 'script',
+              filename: file.resolve(attrs.src)
+            });
+
+            file.link(scriptFile);
+
+            if (attrs.hasOwnProperty('basis-config'))
+            {
+              fconsole.log('[i] basis.js marker found (basis-config attribute)');
+              scriptFile.basisScript = true;
+              scriptFile.basisConfig = attrs['basis-config'];
+            }
+          }
+          else
+          {
+            fconsole.log('Inline script found');
+
+            file.link(flow.files.add({
+              htmlNode: node,
+              type: 'script',
+              inline: true,
+              baseURI: file.baseURI,
+              content: html_at.getText(node)
+            }));
+          }
         }
       });
 
