@@ -40,132 +40,133 @@ function unixpath(filename){
 }
 
 
-//
-// export
-//
-
-module.exports = function(options, fconsole){
-  var fileMap = {};
-  var queue = [];
-  var __baseURI = options.base;
-
   //
   // file class
   //
 
-  function File(cfg){
-    this.linkTo = [];
-    this.linkBack = [];
+function File(base, cfg){
+  this.base_ = base;
+  this.linkTo = [];
+  this.linkBack = [];
 
-    for (var key in cfg)
-      this[key] = cfg[key];
+  for (var key in cfg)
+    this[key] = cfg[key];
 
-    if (!this.type)
-      this.type = typeByExt[this.ext] || 'unknown';
-  };
+  if (!this.type)
+    this.type = typeByExt[this.ext] || 'unknown';
+};
 
-  File.prototype = {
-    resolve: function(filename){
-      if (externalRx.test(filename))
-        return filename;
+File.prototype = {
+  resolve: function(filename){
+    if (externalRx.test(filename))
+      return filename;
 
-      // remove everything after ? (query string) or # (hash)
-      filename = filename.replace(queryAndHashRx, '');
+    // remove everything after ? (query string) or # (hash)
+    filename = filename.replace(queryAndHashRx, '');
 
-      var rel = filename.replace(absRx, '');
-      var result;
+    var rel = filename.replace(absRx, '');
+    var result;
 
-      if (rel == filename)
-        result = path.resolve(this.baseURI, filename);
-      else
-        result = path.resolve(__baseURI, rel);
+    if (rel == filename)
+      result = path.resolve(this.baseURI, filename);
+    else
+      result = path.resolve(this.base_, rel);
 
-      return unixpath(result);
-    },
+    return unixpath(result);
+  },
 
-    // input filename
-    get basename(){
-      return this.filename ? path.basename(this.filename) : '';
-    },
-    get name(){
-      return this.filename ? path.basename(this.filename, path.extname(this.filename)) : '';
-    },
-    get ext(){
-      return this.filename ? path.extname(this.filename) : '';
-    },
-    get relpath(){
-      return this.filename ? unixpath(path.relative(__baseURI, this.filename)) : '[no filename]';
-    },
+  // input filename
+  get basename(){
+    return this.filename ? path.basename(this.filename) : '';
+  },
+  get name(){
+    return this.filename ? path.basename(this.filename, path.extname(this.filename)) : '';
+  },
+  get ext(){
+    return this.filename ? path.extname(this.filename) : '';
+  },
+  get relpath(){
+    return this.filename ? unixpath(path.relative(this.base_, this.filename)) : '[no filename]';
+  },
 
-    // input baseURI
-    get baseURI(){
-      return unixpath(this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '');
-    },
-    set baseURI(uri){
-      if (!this.filename)
-        this.baseURI_ = unixpath(path.resolve(__baseURI, uri) + '/');
-    },
+  // input baseURI
+  get baseURI(){
+    return unixpath(this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '');
+  },
+  set baseURI(uri){
+    if (!this.filename)
+      this.baseURI_ = unixpath(path.resolve(this.base_, uri) + '/');
+  },
 
-    // output filename
-    get outputFilename(){
-      return this.outputFilename_;
-    },
-    set outputFilename(filename){
-      this.outputFilename_ = unixpath(filename);
-    },
-    get relOutputFilename(){
-      return this.outputFilename || '[no output filename]';
-    },
+  // output filename
+  get outputFilename(){
+    return this.outputFilename_;
+  },
+  set outputFilename(filename){
+    this.outputFilename_ = unixpath(filename);
+  },
+  get relOutputFilename(){
+    return this.outputFilename || '[no output filename]';
+  },
 
-    // links
-    link: function(file){
-      this.linkTo.add(file);
-      file.linkBack.add(this);
-    },
-    unlink: function(file){
-      this.linkTo.remove(file);
-      file.linkBack.remove(this);
-    },
-    isLinked: function(file){
-      return this.linkTo.indexOf(file) != -1;
-    },
-    hasLinkType: function(type){
-      return this.linkBack.some(function(file){
-        return file.type == type;
-      });
-    },
+  // links
+  link: function(file){
+    this.linkTo.add(file);
+    file.linkBack.add(this);
+  },
+  unlink: function(file){
+    this.linkTo.remove(file);
+    file.linkBack.remove(this);
+  },
+  isLinked: function(file){
+    return this.linkTo.indexOf(file) != -1;
+  },
+  hasLinkType: function(type){
+    return this.linkBack.some(function(file){
+      return file.type == type;
+    });
+  },
 
-    // misc
-    get digest(){
-      if (!this.digest_)
-      {
-        var hash = crypto.createHash('md5');
-        hash.update(this.outputContent || this.content);
-        this.digest_ = hash.digest('base64')
-          // remove trailing == which always appear on md5 digest, save 2 bytes
-          .replace(/=+$/, '')
-          // make digest web safe
-          .replace(/\//g, '_')
-          .replace(/\+/g, '-');
-      }
-
-      return this.digest_;
-    },
-    get encoding(){
-      return this.type == 'image' /*|| textFiles.indexOf(this.ext) == -1*/ ? 'binary' : 'utf-8';
+  // misc
+  get digest(){
+    if (!this.digest_)
+    {
+      var hash = crypto.createHash('md5');
+      hash.update(this.outputContent || this.content);
+      this.digest_ = hash.digest('base64')
+        // remove trailing == which always appear on md5 digest, save 2 bytes
+        .replace(/=+$/, '')
+        // make digest web safe
+        .replace(/\//g, '_')
+        .replace(/\+/g, '-');
     }
-  };
 
-  function abspath(filename){
-    return unixpath(path.resolve(__baseURI, filename.replace(queryAndHashRx, '')));
+    return this.digest_;
+  },
+  get encoding(){
+    return this.type == 'image' /*|| textFiles.indexOf(this.ext) == -1*/ ? 'binary' : 'utf-8';
   }
+};
+
+function abspath(baseURI, filename){
+  return unixpath(path.resolve(baseURI, filename.replace(queryAndHashRx, '')));
+}
+
+
+//
+// export
+//
+
+module.exports = function(__baseURI, fconsole){
+  var fileMap = {};
+  var queue = [];
 
   function addFile(data){
     var file;
 
     if (!data.filename)
     {
-      file = new File(data);
+      file = new File(__baseURI, data);
     }
     else
     {
@@ -177,7 +178,7 @@ module.exports = function(options, fconsole){
         return;
       }
 
-      var filename = abspath(data.filename);
+      var filename = abspath(__baseURI, data.filename);
                      // remove everything after ? (query string) or # (hash)
                      // and normalize
 
@@ -189,7 +190,7 @@ module.exports = function(options, fconsole){
 
       // create file
       data.filename = filename;
-      file = new File(data);
+      file = new File(__baseURI, data);
 
       // read content
       if (fs.existsSync(filename))
@@ -224,13 +225,13 @@ module.exports = function(options, fconsole){
   }
 
   function getFile(filename){
-    var fileId = abspath(filename);
+    var fileId = abspath(__baseURI, filename);
 
     return fileMap[fileId];
   }
 
   function removeFile(filename){
-    var fileId = abspath(filename);
+    var fileId = abspath(__baseURI, filename);
 
     queue.remove(fileMap[fileId]);
     delete fileMap[fileId];
