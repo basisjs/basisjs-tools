@@ -44,8 +44,8 @@ function unixpath(filename){
   // file class
   //
 
-function File(base, cfg){
-  this.base_ = base;
+function File(manager, cfg){
+  this.manager = manager;
   this.linkTo = [];
   this.linkBack = [];
 
@@ -70,7 +70,7 @@ File.prototype = {
     if (rel == filename)
       result = path.resolve(this.baseURI, filename);
     else
-      result = path.resolve(this.base_, rel);
+      result = path.resolve(this.manager.baseURI, rel);
 
     return unixpath(result);
   },
@@ -86,7 +86,7 @@ File.prototype = {
     return this.filename ? path.extname(this.filename) : '';
   },
   get relpath(){
-    return this.filename ? unixpath(path.relative(this.base_, this.filename)) : '[no filename]';
+    return this.filename ? unixpath(path.relative(this.manager.baseURI, this.filename)) : '[no filename]';
   },
 
   // input baseURI
@@ -95,7 +95,7 @@ File.prototype = {
   },
   set baseURI(uri){
     if (!this.filename)
-      this.baseURI_ = unixpath(path.resolve(this.base_, uri) + '/');
+      this.baseURI_ = unixpath(path.resolve(this.manager.baseURI, uri) + '/');
   },
 
   // output filename
@@ -157,16 +157,21 @@ function abspath(baseURI, filename){
 // export
 //
 
-module.exports = function(__baseURI, fconsole){
-  var fileMap = {};
-  var queue = [];
+var FileManager = function(baseURI, console){
+  this.baseURI = baseURI;
+  this.console = console;
 
-  function addFile(data){
+  this.fileMap = {};
+  this.queue = [];
+}
+
+FileManager.prototype = {
+  add: function(data){
     var file;
 
     if (!data.filename)
     {
-      file = new File(__baseURI, data);
+      file = new File(this, data);
     }
     else
     {
@@ -174,30 +179,30 @@ module.exports = function(__baseURI, fconsole){
       if (externalRx.test(data.filename))
       {
         // external resource
-        fconsole.log('[i] External resource `' + data.filename + '` ignored');
+        this.console.log('[i] External resource `' + data.filename + '` ignored');
         return;
       }
 
-      var filename = abspath(__baseURI, data.filename);
+      var filename = abspath(this.baseURI, data.filename);
                      // remove everything after ? (query string) or # (hash)
                      // and normalize
 
-      if (fileMap[filename]) // ignore duplicates
+      if (this.fileMap[filename]) // ignore duplicates
       {
-        fconsole.log('[ ] File `' + unixpath(path.relative(__baseURI, filename)) + '` already in queue');
-        return fileMap[filename];
+        this.console.log('[ ] File `' + unixpath(path.relative(this.baseURI, filename)) + '` already in this.queue');
+        return this.fileMap[filename];
       }
 
       // create file
       data.filename = filename;
-      file = new File(__baseURI, data);
+      file = new File(this, data);
 
       // read content
       if (fs.existsSync(filename))
       {
         if (fs.statSync(filename).isFile())
         {
-          fconsole.log('[+] ' + file.relpath + ' (' + file.type + ')');
+          this.console.log('[+] ' + file.relpath + ' (' + file.type + ')');
           file.content = fs.readFileSync(filename, file.encoding);
         }
         else
@@ -212,46 +217,38 @@ module.exports = function(__baseURI, fconsole){
 
       if (file.warn)
       {
-        fconsole.log('[WARN] ' + file.warn);
+        this.console.log('[WARN] ' + file.warn);
         file.content = getFileContentOnFailure(filename);
       }
 
-      fileMap[filename] = file;
+      this.fileMap[filename] = file;
     }
 
-    queue.add(file);
+    this.queue.add(file);
 
     return file;
-  }
+  },
 
-  function getFile(filename){
-    var fileId = abspath(__baseURI, filename);
+  get: function(filename){
+    var fileId = abspath(this.baseURI, filename);
 
-    return fileMap[fileId];
-  }
+    return this.fileMap[fileId];
+  },
 
-  function removeFile(filename){
-    var fileId = abspath(__baseURI, filename);
+  remove: function(filename){
+    var fileId = abspath(this.baseURI, filename);
 
-    queue.remove(fileMap[fileId]);
-    delete fileMap[fileId];
-  }
+    this.queue.remove(this.fileMap[fileId]);
+    delete this.fileMap[fileId];
+  },
 
-  function mkdir(dirpath){
+  mkdir: function(dirpath){
     if (!fs.existsSync(dirpath))
     {
-      fconsole.log('Create folder ' + dirpath);
+      this.console.log('Create folder ' + dirpath);
       fs.mkdirSync(dirpath);  
     }
   }
-
-  return {
-    queue: queue,
-    map: fileMap,
-
-    add: addFile,
-    get: getFile,
-    remove: removeFile,
-    mkdir: mkdir
-  };
 };
+
+module.exports = FileManager;
