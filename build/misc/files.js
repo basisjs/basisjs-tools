@@ -183,6 +183,23 @@ var FileManager = function(baseURI, console){
 }
 
 FileManager.prototype = {
+ /**
+  * Get reference for File by filename.
+  * @param {string} filename Path to file.
+  * @returns {File} Returns file if exists.
+  */
+  get: function(filename){
+    return this.map[abspath(this.baseURI, filename)];
+  },
+
+ /**
+  * Create new file or return existing. It can returns undefined if filename is external reference.
+  * @params {object} data Config object to create new file.
+  * @return {File|undefined}
+  *
+  * TODO: extend file with, if it already exists
+  * TODO: reate file with uri, if it's external?
+  */
   add: function(data){
     var file;
 
@@ -246,30 +263,27 @@ FileManager.prototype = {
     return file;
   },
 
-  get: function(filename){
-    var fileId = abspath(this.baseURI, filename);
-    console.log(fileId);
-
-    return this.map[fileId];
-  },
-
-  remove: function(filenameOrFile){
-    var fileId;
+ /**
+  * Remove a file from manager and break all links between files.
+  * @param {File|string} fileRef File name or File instance to be removed.
+  */
+  remove: function(fileRef){
+    var filename;
     var file;
     
-    if (filenameOrFile instanceof File)
+    if (fileRef instanceof File)
     {
-      file = filenameOrFile;
-      fileId = file.filename;
+      file = fileRef;
+      filename = file.filename;
     }
     else
     {
-      fileId = abspath(this.baseURI, filenameOrFile);
-      file = this.map[fileId];
+      filename = abspath(this.baseURI, fileRef);
+      file = this.map[filename];
 
       if (!file)
       {
-        fconsole.log('[WARN] File `' + filenameOrFile + '` not found in map');
+        fconsole.log('[WARN] File `' + fileRef + '` not found in map');
         return;
       }
     }
@@ -285,8 +299,8 @@ FileManager.prototype = {
     this.queue.remove(file);
 
     // remove from map
-    if (fileId)
-      delete this.map[fileId];
+    if (filename)
+      delete this.map[filename];
   },
 
   mkdir: function(dirpath){
