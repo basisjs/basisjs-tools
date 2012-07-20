@@ -5,6 +5,7 @@ var at = require('../js/ast_tools');
 module.exports = function(flow){
 
   var fconsole = flow.console;
+  var queue = flow.files.queue;
   var cultureList = flow.l10n.cultureList;
 
   var packages = flow.l10n.packages;
@@ -21,62 +22,56 @@ module.exports = function(flow){
   // check out pathes and collect culture content files
 
   fconsole.start('Collect culture content');
-
-  for (var i = 0; culture = cultureList[i]; i++)
+  for (var i = 0, file; file = queue[i]; i++)
   {
-    fconsole.start(culture);
-
-    for (var path in pathes)
+    if (file.type == 'l10n')
     {
-      var cultureFile = path + '/' + culture + '.json';
-      if (fs.existsSync(cultureFile))
-      {
-        var cultureMap = cultureContentMap[culture];
-        fconsole.start('[+] ' + cultureFile);
-        try {
-          var dictPack = JSON.parse(fs.readFileSync(cultureFile, 'utf-8'));
-          for (var dictName in dictPack)
+      var culture = file.culture;
+      var cultureMap = cultureContentMap[culture];
+
+      fconsole.start('(' + culture + ') ' + file.relpath);
+      try {
+        var dictPack = JSON.parse(file.content);
+
+        for (var dictName in dictPack)
+        {
+          if (!baseMap[dictName])
           {
-            if (!baseMap[dictName])
-            {
-              fconsole.log('[!] Unknown dictionary (ignored):', dictName);
-            }
+            fconsole.log('[!] Unknown dictionary (ignored):', dictName);
+          }
+          else
+          {
+            if (cultureMap[dictName])
+              fconsole.log('[!] Dictionary ' + dictName + ' was declared before (maybe duplicate?)');
             else
+              cultureMap[dictName] = {};
+
+            var inputDict = dictPack[dictName];
+            var outputDict = cultureMap[dictName];
+            
+            for (var inputKey in inputDict)
             {
-              if (cultureMap[dictName])
-                fconsole.log('[!] Dictionary ' + dictName + ' was declared before (maybe duplicate?)');
-              else
-                cultureMap[dictName] = {};
+              var fullpath = dictName + '.' + inputKey;
 
-              var inputDict = dictPack[dictName];
-              var outputDict = cultureMap[dictName];
-              
-              for (var inputKey in inputDict)
+              if (!keyMap[fullpath])
               {
-                var fullpath = dictName + '.' + inputKey;
-
-                if (!keyMap[fullpath])
-                {
-                  fconsole.log('[!] Unknown key (ignored):', fullpath);
-                }
+                fconsole.log('[!] Unknown key (ignored):', fullpath);
+              }
+              else
+              {
+                if (outputDict.hasOwnProperty(inputKey))
+                  fconsole.log('[!] Duplicate key ' + inputKey + ' for ' + dictName + ' ignored');
                 else
-                {
-                  if (outputDict.hasOwnProperty(inputKey))
-                    fconsole.log('[!] Duplicate key ' + inputKey + ' for ' + dictName + ' ignored');
-                  else
-                    outputDict[inputKey] = inputDict[inputKey];
-                }
+                  outputDict[inputKey] = inputDict[inputKey];
               }
             }
           }
-        } catch(e) {
-          fconsole.log('[!] Can\'t parse ' + cultureFile, e);
         }
-        fconsole.decDeep();
+      } catch(e) {
+        fconsole.log('[!] Can\'t parse ' + file.relpath, e);
       }
+      fconsole.endl();
     }
-
-    fconsole.endl();
   }
   fconsole.endl();
 
