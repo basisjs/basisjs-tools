@@ -19,7 +19,7 @@ module.exports = function(flow){
         file.jsResourceContent = new Function('exports, module, basis, global, __filename, __dirname, resource', file.outputContent);
       } catch(e) {
         file.jsResourceContent = Function();
-        fconsole.warn('[ERROR] Compilation error: ' + file.relpath);
+        fconsole.log('[ERROR] Compilation error: ' + file.relpath);
       }
     }
 };

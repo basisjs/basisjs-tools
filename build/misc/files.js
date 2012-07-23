@@ -223,7 +223,7 @@ FileManager.prototype = {
 
       if (this.map[filename]) // ignore duplicates
       {
-        this.console.log('[ ] File `' + unixpath(path.relative(this.baseURI, filename)) + '` already in this.queue');
+        this.console.log('[ ] File `' + unixpath(path.relative(this.baseURI, filename)) + '` already in queue');
         return this.map[filename];
       }
 

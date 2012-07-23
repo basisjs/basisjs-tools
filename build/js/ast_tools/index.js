@@ -5,6 +5,7 @@ var processor = require("uglify-js").uglify;
 //var namesEqual = require('./name-compare');
 
 var walker = processor.ast_walker();
+//var walker = require('./walker').ast_walker();
 
 function parse(code){
   return parser.parse(code);
