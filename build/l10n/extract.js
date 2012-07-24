@@ -89,7 +89,7 @@ function scanFile(file, flow){
   var pathes = flow.l10n.pathes;
 
   at.walk(file.ast, {
-    call: function(expr, args){
+    "call": function(expr, args){
       switch (at.translate(expr))
       {
         case CREATE_DICTIONARY:

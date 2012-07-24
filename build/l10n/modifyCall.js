@@ -24,7 +24,7 @@ var GET_TOKEN = at.normalize('basis.l10n.getToken');
 
 function process(file, flow){
   file.ast = at.walk(file.ast, {
-    call: function(expr, args){
+    "call": function(expr, args){
       switch (at.translate(expr))
       {
         case CREATE_DICTIONARY:
@@ -34,7 +34,7 @@ function process(file, flow){
           entry.args[1] = ['string', 'l10n'];
 
           return [
-            this[0],
+            'call',
             expr,
             entry.args
           ];
@@ -45,7 +45,7 @@ function process(file, flow){
             var entry = flow.l10n.getTokenList.shift();
 
             return [
-              this[0],
+              'call',
               expr,
               entry.args
             ];

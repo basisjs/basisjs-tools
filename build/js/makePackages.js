@@ -40,8 +40,8 @@ module.exports = function(flow){
   };
 
   basisFile.ast = at.walk(basisFile.ast, {
-    'dot': function(expr){
-      if (!inserted && at.translate(this) == RESOURCE)
+    "dot": function(expr){
+      if (!inserted && at.translate(['dot'].concat(Array.prototype.slice.call(arguments))) == RESOURCE)
       {
         inserted = true;
         return at.parse('0,' + (function(){

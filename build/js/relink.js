@@ -43,9 +43,9 @@ function relinkScript(file, flow){
 
             if (file && file.jsRef)
             {
-              var old = at.translate(this);
+              var old = at.translate(['call', expr, args]);
               arg0[1] = file.jsRef;
-              flow.console.log(old + ' -> ' + at.translate(this));
+              flow.console.log(old + ' -> ' + at.translate(['call', expr, args]));
             }
           }
 
