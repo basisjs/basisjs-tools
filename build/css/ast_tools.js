@@ -40,14 +40,14 @@ module.exports = {
   translate: function(ast){
     return csso.translate(csso.cleanInfo(ast));
   },
-  walk: function(ast, handlers){
+  walk: function(ast, handlers, context){
     function walk(token, offset){
       for (var i = 2, childToken; childToken = token[i]; i++)
       {
         var handler = handlers[childToken[1]];
 
         if (typeof handler == 'function')
-          handler(childToken, token, i);
+          handler.call(context, childToken, token, i);
 
         walk(childToken);
       }

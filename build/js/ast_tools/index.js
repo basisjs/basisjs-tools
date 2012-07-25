@@ -58,10 +58,10 @@ function getCallArgs(args, context){
 
 module.exports = {
   parse: parse,
-  map: function(tokens, fn){
+  /*map: function(tokens, fn){
     return processor.MAP(tokens, fn || walker.walk);
   },
-  walker: walker,
+  walker: walker,*/
   getAstTop: getAstTop,
   normalize: normalize,
   getCallArgs: getCallArgs,
@@ -75,9 +75,9 @@ module.exports = {
     ast[1].push.apply(ast[1], appendAst[1]);
   },
 
-  walk: function(ast, handlers){
+  walk: function(ast, handlers, context){
     return walker.with_walkers(handlers, function(){
-      return walker.walk(ast);
+      return walker.walk.call(context || walker, ast);
     });
   }
 };

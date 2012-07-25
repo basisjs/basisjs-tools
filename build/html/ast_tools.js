@@ -45,7 +45,7 @@ module.exports = {
     insertPoint.push(node);
   },
 
-  walk: function(ast, handlers){
+  walk: function(ast, handlers, context){
     function walkNode(nodes){
       for (var i = 0, node; node = nodes[i]; i++)
       {
@@ -55,7 +55,7 @@ module.exports = {
           type = 'tag';
 
         if (handlers.hasOwnProperty(type))
-          handlers[type].call(this, node);
+          handlers[type].call(context, node);
 
         if (node.children)
           walkNode(node.children);
