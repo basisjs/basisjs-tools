@@ -1,15 +1,18 @@
 {
-  "author": "Roman Dvornov <rdvornov@gmail.com>",
-  "name": "basistools",
-  "description": "A set of tools for basis framework",
+  "name": "basis-devtools",
   "version": "0.0.1",
-  "homepage": "https://github.com/lahmatiy/basistools",
+  "homepage": "https://github.com/lahmatiy/basis-devtools",
+  "description": "A set of tools for basis framework",
+  "author": "Roman Dvornov <rdvornov@gmail.com>",
+  "contributors": [ 
+    {
+      "name": "Ratsev Vladimir",
+      "email": "wuzykk@gmail.com"
+    } 
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/lahmatiy/basistools.git"
-  },
-  "scripts": {
-    "test": "make test"
+    "url": "https://github.com/lahmatiy/basis-devtools.git"
   },
   "dependencies": {
     "commander": "~0.6.1",
@@ -22,8 +25,7 @@
   "devDependencies": {
     "jasmine-node": "~1.0.26"
   },
-  "optionalDependencies": {},
   "engines": {
-    "node": "*"
+    "node": ">=8.0.0"
   }
 }
