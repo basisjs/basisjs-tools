@@ -92,7 +92,7 @@ module.exports = {
   removeClassDefRef: function(classDef){
     if (!classDef.refCount)
     {
-      console.log('No reference for classDef already - is it a bug?');
+      console.log('> No reference for classDef already - is it a bug?');
       return;
     }
 
@@ -109,7 +109,7 @@ module.exports = {
         walker.walk(classDef);
       });
 
-      console.log('INNER:', inner.length);
+      console.log('> INNER:', inner.length);
       inner.forEach(function(classDef){
         this.removeClassDefRef(classDef);
       }, this);

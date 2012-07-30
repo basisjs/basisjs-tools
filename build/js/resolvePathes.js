@@ -55,9 +55,16 @@ module.exports = function(flow){
     var token = cfg[0];
     var ref = cfg[1];
 
+    /*if (refs.hasOwnProperty(key + '.prototype'))
+    {
+      var gVarName = '_global' + globalVarIdx++;
+      cfg.push(gVarName);
+      at.resolvePath(key + '.prototype', gVarName, refs);
+    }*/
+
     if (refs.hasOwnProperty(key))
     {
-      console.log('[exists]', key);
+      console.log(key);
 
       var gVarName = '_global' + globalVarIdx++;
       cfg.push(gVarName);
@@ -71,13 +78,13 @@ module.exports = function(flow){
     else
     {
       miss++;
-      console.log(key + ' - is not used, cut from export' + (cfg.classDef ? '(ref count: ' + cfg.classDef.refCount + ')' : ''));
+      console.log('[CUT] ' + key + (cfg.classDef ? ' (ref count: ' + cfg.classDef.refCount + ')' : ''));
 
       if (cfg.classDef)
       {
         if (at.removeClassDefRef(cfg.classDef))
         {
-          console.log('[!] Remove class def');
+          console.log('> [!] Remove class def');
         }
       }
 

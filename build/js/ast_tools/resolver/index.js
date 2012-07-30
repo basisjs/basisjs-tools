@@ -1,4 +1,6 @@
 
+var processor = require("uglify-js").uglify;
+
 function resolveCodePath(map, path, refName){
   var parts = path.split('.');
   var pathes = [];
@@ -40,21 +42,21 @@ function process(ast, walker, rootNames, refMap, classMap){
   var scopes = [];
 
   SPECIALS.forEach(function(name){
-    putScope(name, 'special');
+    putScope(rootScope, name, 'special');
   });
 
   function newScope(){
     var F = Function();
     F.prototype = scope;
     scopes.push(scope);
-    scope = new F();
+    return new F();
   }
 
   function restoreScope(){
     scope = scopes.pop();
   }
 
-  function putScope(name, type, token){
+  function putScope(scope, name, type, token){
     var cur = scope[type];
 
     if (cur)
@@ -127,16 +129,14 @@ function process(ast, walker, rootNames, refMap, classMap){
 
   var fn_walker = function(name, args, body){
     if (name)
-      putScope(name, 'defun');
+      putScope(scope, name, 'defun');
 
-    newScope();
+    body.scope = newScope();
 
     for (var i = 0; i < args.length; i++)
-      putScope(args[i], 'arg');
+      putScope(body.scope, args[i], 'arg');
 
-    walkEach(this.context, body);
-
-    restoreScope();
+    fnqueue.push(body);
 
     return this.token;
   }
@@ -152,7 +152,7 @@ function process(ast, walker, rootNames, refMap, classMap){
         defs[i][1] = val;
       }
 
-      putScope(defs[i][0], 'var', resolveNameRef(val) && val);
+      putScope(scope, defs[i][0], 'var', resolveNameRef(val) && val);
 
       
       if (val)
@@ -216,129 +216,137 @@ global.classDefRef = {};
     }
   }
 
-  var ast = walker.with_walkers({
-    'var': var_walker,
-    'const': var_walker,
-    'defun': fn_walker,
-    'function': fn_walker,
+  var fnqueue = [[ast]];
+  var ast_fragment;
 
-    name: function(name){
-      var ret = scope[name] && scope[name][1];
+  while (ast_fragment = fnqueue.pop())
+  {
+    if (ast_fragment.scope)
+    {
+      scopes.push(scope);
+      scope = ast_fragment.scope;
+    }
 
-      if (ret && resolveNameRef(ret)[0] != name)
-      {
-        // TODO: check for name conflict, it base name not in scope
-        this.token.splice.apply(this.token, [0, this.token.length].concat(ret));
-        return;
-      }
+    walker.with_walkers({
+      'var': var_walker,
+      'const': var_walker,
+      'defun': fn_walker,
+      'function': fn_walker,
 
-      //name = this.token[1];
-      if (isRoot(name))
-      {
-        var pos = walkerStack.length - 1;
-        var path = [name];
-        var token;
-        while (token = walkerStack[--pos])
+      name: function(name){
+        var ret = scope[name] && scope[name][1];
+
+        if (ret && resolveNameRef(ret)[0] != name)
         {
-          if (token[0] != 'dot')
-            break;
-
-          path.push(token[2]);
-          putCodePath(path.join('.'), token);
+          // TODO: check for name conflict, it base name not in scope
+          this.token.splice.apply(this.token, [0, this.token.length].concat(ret));
+          return;
         }
-      }
-      else
-      {
-        var classDef = getClassDef([name]);
-        if (classDef)
-        { 
-          classDef.refCount++;
-          this.token.classDef = classDef;
-          //classDef.refCount.push(walkerStack.map(function(f){return f[0]}).join('->'));
-        }
-      }
 
-      //return this;
-    },
-
-    /*'unary-prefix': function(op, expr){
-      var name = resolveName(expr);
-      if (name && name.length == 1)
-        putScope(name[0], 'unary');
-      return this.token;
-    },
-    'unary-postfix': function(op, expr){
-      var name = resolveName(expr);
-      if (name && name.length == 1)
-        putScope(name[0], 'unary');
-      return this.token;
-    },*/
-
-    'call': function(expr, args){
-       var name = resolveName(expr);
-       if (name && name.join('.') == 'this.extend' && scope === rootScope)
-       {
-         warn.push('this.extend call is prohibited for export. Use module.exports instead.');
-         extendExports(args[0]);
-       }
-    },
-
-    assign: function(op, lvalue, rvalue){
-      rvalue = this.context.walk(rvalue);
-      this.token[3] = rvalue;
-
-      if (op === true)
-      {
-        if (lvalue[0] == 'name')
+        //name = this.token[1];
+        if (isRoot(name))
         {
-          putScope(lvalue[1], 'var', resolveNameRef(rvalue) && rvalue);
-          scope[lvalue[1]].classDef = isClassConstructor(rvalue);
+          var pos = walkerStack.length - 1;
+          var path = [name];
+          var token;
+          while (token = walkerStack[--pos])
+          {
+            if (token[0] != 'dot')
+              break;
+
+            path.push(token[2]);
+            putCodePath(path.join('.'), token);
+          }
         }
         else
         {
-          var pn = resolveNameRef(lvalue);
-
-          if (pn && isSpecial(pn[0]))
-          {
-            //console.log('!!!!!!FOUND', this);
-            switch (pn[0]){
-              case 'exports':
-                if (pn.length == 2)
-                  code_exports[pn[1]] = [this.token, rvalue];
-                break;
-              case 'module':
-                if (pn[1] == 'exports')
-                {
-                  if (pn.length == 2)
-                  {
-                    if (Object.keys(code_exports).length)
-                    {
-                      warn.push('module.exports reset some export keys. Probably dead code found.');
-                      for (var key in code_exports)
-                      {
-                        var token = code_exports[key][0];
-                        token.splice(0, token.length, 'block');
-                      }
-                    }
-
-                    code_exports = {};
-                    extendExports(rvalue);
-                  }
-                  else
-                  {
-                    if (pn.length == 3)
-                      code_exports[pn[2]] = [this.token, rvalue];
-                  }
-                }
-                break;
-            }
+          var classDef = getClassDef([name]);
+          if (classDef)
+          { 
+            classDef.refCount++;
+            this.token.classDef = classDef;
+            if (name=='RuleSet'){
+              console.log(walkerStack.map(function(f){return f[0]}).join('->'))
+              if (walkerStack[0][0] != 'toplevel')
+                console.log(processor.gen_code(walkerStack[0]));
+            };
           }
         }
-      }
 
-      return this.token;
-    }
-  }, function(){ return walker.walk(ast) });
+        //return this;
+      },
+
+      'call': function(expr, args){
+         var name = resolveName(expr);
+         if (name && name.join('.') == 'this.extend' && scope === rootScope)
+         {
+           warn.push('this.extend call is prohibited for export. Use module.exports instead.');
+           extendExports(args[0]);
+         }
+      },
+
+      assign: function(op, lvalue, rvalue){
+        rvalue = this.context.walk(rvalue);
+        this.token[3] = rvalue;
+
+        if (op === true)
+        {
+          if (lvalue[0] == 'name')
+          {
+            putScope(scope, lvalue[1], 'var', resolveNameRef(rvalue) && rvalue);
+            scope[lvalue[1]].classDef = isClassConstructor(rvalue);
+          }
+          else
+          {
+            var pn = resolveNameRef(lvalue);
+
+            if (pn && isSpecial(pn[0]))
+            {
+              //console.log('!!!!!!FOUND', this);
+              switch (pn[0]){
+                case 'exports':
+                  if (pn.length == 2)
+                    code_exports[pn[1]] = [this.token, rvalue];
+                  break;
+                case 'module':
+                  if (pn[1] == 'exports')
+                  {
+                    if (pn.length == 2)
+                    {
+                      if (Object.keys(code_exports).length)
+                      {
+                        warn.push('module.exports reset some export keys. Probably dead code found.');
+                        for (var key in code_exports)
+                        {
+                          var token = code_exports[key][0];
+                          token.splice(0, token.length, 'block');
+                        }
+                      }
+
+                      code_exports = {};
+                      extendExports(rvalue);
+                    }
+                    else
+                    {
+                      if (pn.length == 3)
+                        code_exports[pn[2]] = [this.token, rvalue];
+                    }
+                  }
+                  break;
+              }
+            }
+            else
+              return;
+          }
+        }
+
+        return this.token;
+      }
+    }, function(){ return walkEach(walker, ast_fragment) });
+
+    if (ast_fragment.scope)
+      scope = scopes.pop();
+  }
 
   for (var key in code_exports)
     if (code_exports.hasOwnProperty(key))
