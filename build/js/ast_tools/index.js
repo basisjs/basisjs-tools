@@ -7,6 +7,8 @@ var processor = require("uglify-js").uglify;
 //var walker = processor.ast_walker();
 var walker = require('./walker').ast_walker();
 
+var resolver = require('./resolver');
+
 function parse(code){
   return parser.parse(code);
 }
@@ -79,5 +81,42 @@ module.exports = {
     return walker.with_walkers(handlers, function(){
       return walker.walk.call(context || walker, ast);
     });
+  },
+
+  processPath: function(ast, rootNames, refs, classMap){
+    return resolver.process(ast, walker, rootNames, refs, classMap);
+  },
+  resolvePath: function(path, refName, refs){
+    return resolver.resolve(refs, path, refName);
+  },
+  removeClassDefRef: function(classDef){
+    if (!classDef.refCount)
+    {
+      console.log('No reference for classDef already - is it a bug?');
+      return;
+    }
+
+    if (--classDef.refCount == 0)
+    {
+      //console.log('[!!!!] Last ref, cur classDef', this.translate(classDef));
+      var inner = [];
+      walker.with_walkers({
+        '*': function(){
+          if (this.token.classDef)
+            inner.push(this.token.classDef);
+        }
+      }, function(){
+        walker.walk(classDef);
+      });
+
+      console.log('INNER:', inner.length);
+      inner.forEach(function(classDef){
+        this.removeClassDefRef(classDef);
+      }, this);
+
+      classDef.splice(0, classDef, 'name', 'undefined');
+
+      return true;
+    }
   }
 };

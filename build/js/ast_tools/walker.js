@@ -61,7 +61,6 @@ var MAP = (function(){
 })();*/
 
 
-
 var callCount = { MAP: 0, EACH: 0, walk: 0, 'walk(null)': 0 };
 global.callCount = callCount;
 function count(name, fn){
@@ -385,6 +384,7 @@ function ast_walker(){
       callCount['user-' + key] = 0;
     }
 
+  var idx = 0;
   var walk = count('walk', function(ast){
     if (!ast)
     {
@@ -398,12 +398,17 @@ function ast_walker(){
     stack.push(ast);
     var type = ast[0];
 
-    var fn = user[ast[0]];
+    var fn = user[ast[0]] || user['*'];
     if (fn)
     {
       callCount['user-' + type]++;
 
-      var ret = fn.apply(this, ast.slice(1));
+      //idx++; if (idx == -1) debugger; console.log('walk user ' + type + ' ' + idx);
+      var ret = fn.apply({
+        context: this,
+        token: ast
+      }, ast.slice(1));
+
       if (ret != null)
       {
         stack.pop();

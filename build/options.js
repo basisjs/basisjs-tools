@@ -15,6 +15,7 @@ options
   .option('--js-no-single-file', 'Avoid merge javascript source into one file.')
   .option('--js-build-mode', 'Evaluate modules code (close to basis.require works).')
   .option('--js-cut-dev', 'Remove marked debug message from javascript source (cut from source ;;; and /** @cut .. */)')
+  .option('-r, --js-resolve-path', '(experimental) Resolve local pathes to globals and replace for global references')
   .option('--js-pack', 'Pack javascript source.')
 
   // css

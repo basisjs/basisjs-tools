@@ -61,8 +61,10 @@ var handlers = [
   // process js
   require('./js/relink'),
   require('./js/merge'),
-  require('./js/translate'),
   require('./js/makePackages'),
+  require('./js/resolvePathes'),
+  require('./js/translate'),
+  require('./js/buildPackages'),
   require('./js/realignHtml'),
 
   // process html
