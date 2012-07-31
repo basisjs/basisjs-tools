@@ -2,7 +2,6 @@
 var vm = require('vm');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
-//var namesEqual = require('./name-compare');
 
 //var walker = processor.ast_walker();
 var walker = require('./walker').ast_walker();

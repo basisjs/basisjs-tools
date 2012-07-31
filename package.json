@@ -22,9 +22,6 @@
     "jsdom-nocontextifiy": "~0.2.10",
     "mime": "~1.2.6"
   },
-  "devDependencies": {
-    "jasmine-node": "~1.0.26"
-  },
   "engines": {
     "node": ">=8.0.0"
   }
