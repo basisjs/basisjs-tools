@@ -18,9 +18,11 @@ module.exports = function(flow){
   var rootNames = ['basis'];
   var refs = {};
   var exportMap = {};
-  var classMap = {};
 
-  flow.js.exportMap = exportMap;
+  var basisFile = flow.files.get(flow.js.basisScript);
+
+  if (basisFile)
+    processFile(fconsole, basisFile, rootNames, refs, exportMap);
 
   //
   // Collect info
@@ -30,12 +32,12 @@ module.exports = function(flow){
     {
       var files = packages[name];
       for (var i = 0, file; file = files[i]; i++)
-        processFile(fconsole, file, rootNames, refs, exportMap, classMap);
+        processFile(fconsole, file, rootNames, refs, exportMap);
     }
 
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && !file.rvisited)
-      processFile(fconsole, file, rootNames, refs, exportMap, classMap);
+      processFile(fconsole, file, rootNames, refs, exportMap);
 
   //
   // Resolve pathes
@@ -52,10 +54,10 @@ module.exports = function(flow){
   for (var i = 0, key, globalVarIdx = 0; key = keysOrder[i]; i++)
   {
     var cfg = exportMap[key];
-    var token = cfg[0];
-    var ref = cfg[1];
+    var token = cfg.token;
+    var ref = cfg.ref;
 
-    /*if (refs.hasOwnProperty(key + '.prototype'))
+    /*if (cfg.classDef && refs.hasOwnProperty(key + '.prototype'))
     {
       var gVarName = '_global' + globalVarIdx++;
       cfg.push(gVarName);
@@ -67,13 +69,9 @@ module.exports = function(flow){
       console.log(key);
 
       var gVarName = '_global' + globalVarIdx++;
-      cfg.push(gVarName);
       at.resolvePath(key, gVarName, refs);
 
-      if (token[0] == 'object')
-        ref[1] = ['assign', true, ['name', gVarName], ref[1]];
-      else
-        ref.splice(0, ref.length, 'assign', true, ['name', gVarName], ref.slice());
+      cfg.addRef(gVarName);
     }
     else
     {
@@ -89,18 +87,8 @@ module.exports = function(flow){
       }
 
       // remove from export
-      if (token[0] == 'object')
-      {
-        if (token[1].remove(ref))
-        {
-          if (!token[1].length)
-            emptyExport.push(cfg);
-        }
-      }
-      else
-      {
-        token.splice(0, token.length, 'block');
-      }
+      if (cfg.remove() && cfg.isEmpty())
+        emptyExport.push(cfg);
     }
   }
 
@@ -110,48 +98,36 @@ module.exports = function(flow){
     //cfg[0].splice(0, cfg[0].length, 'block');
   });
 
+  var globalVars = Object.keys(exportMap).map(function(key){
+    return exportMap[key].refName || null;
+  }).filter(Boolean);
+
+  if (globalVars.length)
+    flow.js.globalVars = globalVars;
+
   console.log('key count:', keysOrder.length, 'not used:', miss);
 };
 
 module.exports.handlerName = '[js] Resolve pathes';
 
-function putExportMap(name, exportCfg, exportMap, classMap, fconsole){
-  if (exportMap.hasOwnProperty(name))
-    fconsole.log('[WARN] Export map already contains ' + name);
-
-  exportMap[name] = exportCfg;
-  fconsole.log('[+] Add export symbol ' + name + (exportCfg.classDef ? ' (Class)' : ''));
-  if (exportCfg.classDef)
-    classMap[name] = exportCfg.classDef;
-}
-
-function processFile(fconsole, file, rootNames, refs, exportMap, classMap){
+function processFile(fconsole, file, rootNames, refs, exportMap){
   fconsole.start(file.relpath);
 
   var namespace = file.namespace;
 
   if (namespace)
-    rootNames.add(namespace.replace(/\..+$/, ''));
+    rootNames.add(namespace.split('.')[0]);
 
-  var res = at.processPath(file.ast, rootNames, refs, classMap);
+  var res = at.processPath(file.ast, rootNames, refs, exportMap, namespace);
 
   file.ast = res.ast;
   file.rvisited = true;
+  file.throwCodes = res.throwCodes;
 
-  if (res.warn)
-    res.warn.forEach(function(message){
-      fconsole.log('[WARN] ' + message);
+  if (res.messages)
+    res.messages.forEach(function(message){
+      fconsole.log((message.type ? '[' + message.type + '] ' : '') + message.text);
     });
-
-  if (namespace)
-  {
-    for (var exportName in res.exports)
-      if (res.exports.hasOwnProperty(exportName))
-      {
-        res.exports[exportName].namespace = namespace;
-        putExportMap(namespace + '.' + exportName, res.exports[exportName], exportMap, classMap, fconsole);
-      }
-  }
 
   fconsole.endl();
 }

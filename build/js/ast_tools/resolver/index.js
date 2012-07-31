@@ -1,6 +1,8 @@
 
 var processor = require("uglify-js").uglify;
 
+var throwIdx = 0;
+
 function resolveCodePath(map, path, refName){
   var parts = path.split('.');
   var pathes = [];
@@ -27,12 +29,106 @@ function resolveCodePath(map, path, refName){
   delete map[path];
 }
 
+function arrayRemove(ar, item){
+  var index = ar.indexOf(item);
+  if (index != -1)
+  {
+    ar.splice(index, 1);
+    return true;
+  }
+}
 
-function process(ast, walker, rootNames, refMap, classMap){
+function constRef(sym, value){
+  if (value[0] == 'num' || value[0] == 'string')
+  {
+    sym.refName.push(value);
+    return true;
+  }
+}
+
+///////////////////
+
+function Symbol(ref){
+  this.ref = ref;
+}
+Symbol.prototype = {
+  isEmpty: function(){
+    return false;
+  },
+  remove: function(){},
+  addRef: function(refName){
+    this.refName = [refName];
+    constRef(this, this.ref);
+  }
+}
+
+var F = Function();
+F.prototype = Symbol.prototype;
+
+///////////////////////
+
+function ObjectSymbol(token, ref){
+  this.ref = ref;
+}
+ObjectSymbol.prototype = new F();
+ObjectSymbol.prototype.addRef = function(refName){
+  this.refName = [refName];
+  constRef(this, this.ref[1]);
+}
+
+///////////////////////
+
+function ObjectExportSymbol(token, ref){
+  this.token = token;
+  this.ref = ref;
+}
+ObjectExportSymbol.prototype = new F();
+ObjectExportSymbol.prototype.isEmpty = function(){
+  return !this.token[1].length;
+}
+ObjectExportSymbol.prototype.remove = function(){
+  return !!arrayRemove(this.token[1], this.ref);
+}
+ObjectExportSymbol.prototype.addRef = function(refName){
+  this.refName = [refName];
+  if (constRef(this, this.constRef || this.ref[1]))
+    this.remove();
+  else
+    this.ref[1] = ['assign', true, ['name', refName], this.ref[1]];
+}
+
+///////////////////////
+
+function AssignExportSymbol(token, ref){
+  this.token = token;
+  this.ref = ref;
+}
+AssignExportSymbol.prototype = new F();
+AssignExportSymbol.prototype.remove = function(){
+  var ret = this.token.splice(1);
+  this.token[0] = 'block';
+  return !!ret.length;
+}
+AssignExportSymbol.prototype.addRef = function(refName){
+  this.refName = [refName];
+  if (constRef(this, this.ref))
+    this.remove();
+  else
+    this.ref.splice(0, this.ref.length, 'assign', true, ['name', refName], this.ref.slice());
+}
+
+////////////////////////
+
+
+
+////////////////////////
+
+function process(ast, walker, rootNames, refMap, exportMap, namespace){
   var SPECIALS = ['basis', 'global', '__filename', '__dirname', 'resource', 'module', 'exports'];
 
   var walkerStack = walker.stack;
-  var warn = [];
+  var messages = [];
+  var throwCodes = [];
 
   var code_exports = {};
   var code_refs = refMap || {};
@@ -45,6 +141,18 @@ function process(ast, walker, rootNames, refMap, classMap){
     putScope(rootScope, name, 'special');
   });
 
+  function warn(message){
+    messages.push({
+      type: 'WARN',
+      text: message
+    });
+  }
+  function msg(message){
+    messages.push({
+      text: message
+    });
+  }
+
   function newScope(){
     var F = Function();
     F.prototype = scope;
@@ -56,7 +164,7 @@ function process(ast, walker, rootNames, refMap, classMap){
     scope = scopes.pop();
   }
 
-  function putScope(scope, name, type, token){
+  function putScope(scope, name, type, nameReplace, token){
     var cur = scope[type];
 
     if (cur)
@@ -65,15 +173,15 @@ function process(ast, walker, rootNames, refMap, classMap){
         return;
     }
 
-    if (token)
+    if (nameReplace)
     {
-      var rname = resolveName(token);
+      var rname = resolveName(nameReplace);
                                // TODO: use only export pathes
       if (!isRoot(rname[0]) || rname.indexOf('prototype') != -1)
-        token = undefined;
+        nameReplace = undefined;
     }
 
-    scope[name] = [type, token];
+    scope[name] = [type, nameReplace, token];
 
     //if (token && rname.length == 1 && scope[rname[0]] && scope[rname[0]].isClass)
     //  scope[name].isClass = true;
@@ -157,8 +265,7 @@ function process(ast, walker, rootNames, refMap, classMap){
         defs[i][1] = val;
       }
 
-      putScope(scope, defs[i][0], 'var', resolveNameRef(val) && val);
-
+      putScope(scope, defs[i][0], 'var', resolveNameRef(val) && val, val);
       
       if (val)
         scope[defs[i][0]].classDef = isClassConstructor(val);
@@ -174,12 +281,16 @@ function process(ast, walker, rootNames, refMap, classMap){
     code_refs[path].push(token);
   }
 
-  function extendExports(token){
+  function extendExports(token, namespace){
     if (token[0] == 'object')
     {
-      var props = token[1];
-      for (var i = 0; i < props.length; i++)
-        code_exports[props[i][0]] = [token, props[i]];
+      for (var i = 0, props = token[1]; i < props.length; i++)
+      {
+        var sym = new ObjectExportSymbol(token, props[i]);
+        if (namespace)
+          sym.namespace = namespace;
+        code_exports[props[i][0]] = sym;
+      }
     }
   }
 
@@ -191,31 +302,96 @@ function process(ast, walker, rootNames, refMap, classMap){
     }
 
     //console.log('Check:', pn.join('.'), classMap.hasOwnProperty(pn.join('.')));
-    return global && classMap.hasOwnProperty(pn.join('.'));
+    return global && exportMap.hasOwnProperty(pn.join('.'));
   }
 
-global.classDefRef = {};
-  function isClassConstructor(expr){
-    if (expr[0] == 'name')
-      return scope[expr[1]] && scope[expr[1]].classDef;
+  function isClassConstructor(token){
+    if (token.isClassDef)
+      return token;
 
-    if (expr[0] == 'call')
+    if (token[0] == 'name')
+      return scope[token[1]] && scope[token[1]].classDef;
+
+    if (token[0] == 'call')
     {
-      //console.log(name, expr);
-      var re = resolveName(expr[1]);
+      //console.log(name, token);
+      var re = resolveName(token[1]);
       if (re)
       {
-        if (re[re.length - 1] == 'subclass' && getClassDef(re.slice(0, re.length - 1), true))
+        var isClass = re[re.length - 1] == 'subclass' && getClassDef(re.slice(0, re.length - 1), true);
+
+        if (isClass)
         {
-          expr.refCount = 0;
-          return expr;
+          // class.subclass(..) -> basis.Class(class, ...)
+          token[2].unshift(token[1][1]);
+          token[1] = ['dot', ['name', 'basis'], 'Class'];
+        }
+        else
+        {
+          var path = isSpecial(re[0]) && re.join('.');
+          isClass = path && (path == 'basis.Class' || path == 'basis.Class.create');
         }
 
-        var path = isSpecial(re[0]) && re.join('.');
-        if (path && (path == 'basis.Class' || path == 'basis.Class.create'))
+        if (isClass)
         {
-          expr.refCount = 0;
-          return expr;
+
+          token.refCount = 0;
+          token.isClassDef = true;
+
+          for (var i = 0, args = token[2], arg; arg = args[i]; i++)
+          {
+            if (arg[0] == 'object')
+            {
+              for (var j = 0, props = arg[1], prop; prop = props[j]; j++)
+                if (prop[0] == 'className')
+                {
+                  props.splice(j, 1);
+                  break;
+                }
+            }
+          }
+
+          return token;
+        }
+      }
+    }
+  }
+
+  function resolveValue(cursor){
+    while (cursor && cursor[0] == 'name')
+      cursor = scope[cursor[1]] && scope[cursor[1]][2];
+    return cursor;
+  }
+
+  function isNamespace(token){
+    if (token.isNamespace)
+      return token.isNamespace;
+
+    if (namespace != 'basis' && scope === rootScope && token[0] == 'name' && token[1] == 'this')
+      return namespace;
+
+    if (token[0] == 'name')
+    {
+      var rv = resolveValue(token);
+      if (rv)
+        return isNamespace(rv);
+    }
+
+    if (token[0] == 'call')
+    {
+      var rn = resolveName(token[1]);
+      if (rn)
+      {
+        var path = rn.join('.');
+        if ((path == 'basis.namespace' && isSpecial(rn[0])) || (namespace == 'basis' && path == 'getNamespace'))
+        {
+          var rv = resolveValue(token[2][0]);
+          if (rv[0] == 'string')
+          {
+            token.isNamespace = rv[1];
+            console.log('FOUND:' , token.isNamespace);
+            return token.isNamespace;
+          }
         }
       }
     }
@@ -237,6 +413,11 @@ global.classDefRef = {};
       'const': var_walker,
       'defun': fn_walker,
       'function': fn_walker,
+
+      'throw': function(token){
+        throwCodes.push([++throwIdx, token.slice()]);
+        token[1] = ['num', throwIdx];
+      },
 
       name: function(token){
         var name = token[1];
@@ -271,11 +452,11 @@ global.classDefRef = {};
           { 
             classDef.refCount++;
             token.classDef = classDef;
-            if (name=='RuleSet'){
+            /*if (name=='RuleSet'){
               console.log(walkerStack.map(function(f){return f[0]}).join('->'))
               if (walkerStack[0][0] != 'toplevel')
                 console.log(processor.gen_code(walkerStack[0]));
-            };
+            };*/
           }
         }
 
@@ -286,11 +467,26 @@ global.classDefRef = {};
          var expr = token[1];
          var args = token[2];
 
+         if (expr[0] == 'dot' && expr[2] == 'extend')
+         {
+           var ns = isNamespace(expr[1]);
+           if (ns)
+           {
+             if (namespace != 'basis')
+               warn('this.extend call is prohibited for export. Use module.exports instead.');
+             extendExports(args[0], ns);
+           }
+         }
+         else/*
          var name = resolveName(expr);
          if (name && name.join('.') == 'this.extend' && scope === rootScope)
          {
-           warn.push('this.extend call is prohibited for export. Use module.exports instead.');
+           warn('this.extend call is prohibited for export. Use module.exports instead.');
            extendExports(args[0]);
+         }
+         else*/
+         {
+           token.isClassDef = !!isClassConstructor(token);
          }
       },
 
@@ -319,7 +515,7 @@ global.classDefRef = {};
               switch (pn[0]){
                 case 'exports':
                   if (pn.length == 2)
-                    code_exports[pn[1]] = [token, rvalue];
+                    code_exports[pn[1]] = new AssignExportSymbol(token, rvalue);
                   break;
                 case 'module':
                   if (pn[1] == 'exports')
@@ -328,7 +524,8 @@ global.classDefRef = {};
                     {
                       if (Object.keys(code_exports).length)
                       {
-                        warn.push('module.exports reset some export keys. Probably dead code found.');
+                        warn('module.exports reset some export keys. Probably dead code found.');
+
                         for (var key in code_exports)
                         {
                           var token = code_exports[key][0];
@@ -337,12 +534,12 @@ global.classDefRef = {};
                       }
 
                       code_exports = {};
-                      extendExports(rvalue);
+                      extendExports(rvalue, namespace);
                     }
                     else
                     {
                       if (pn.length == 3)
-                        code_exports[pn[2]] = [token, rvalue];
+                        code_exports[pn[2]] = new AssignExportSymbol(token, rvalue);
                     }
                   }
                   break;
@@ -361,26 +558,69 @@ global.classDefRef = {};
       scope = scopes.pop();
   }
 
-  for (var key in code_exports)
-    if (code_exports.hasOwnProperty(key))
+  if (namespace)
+  {
+    for (var key in code_exports)
     {
-      var classDef = scope[key] && scope[key].classDef;
-
-      if (!classDef)
+      if (code_exports.hasOwnProperty(key))
       {
-        var token = code_exports[key][0];
-        var ref = code_exports[key][1];
-        classDef = isClassConstructor(token[0] == 'object' ? ref[1] : ref);
-      }
+        var token = code_exports[key].token;
+        var ref = code_exports[key].ref;
+        var classDef = scope[key] && scope[key].classDef;
 
-      code_exports[key].classDef = classDef;
+        if (!classDef)
+          classDef = isClassConstructor(token[0] == 'object' ? ref[1] : ref);
+
+        code_exports[key].classDef = classDef;
+
+        //
+        //
+        //
+
+        var exportEntry = code_exports[key];
+        var name = (exportEntry.namespace || namespace) + '.' + key;
+
+        if (exportMap.hasOwnProperty(name))
+          warn('Export map already contains ' + name);
+
+        var rv = resolveValue(token[0] == 'object' ? ref[1] : ref);
+
+        switch (rv && rv[0])
+        {
+          case 'object':
+
+            break;
+
+          case 'num':
+          case 'string':
+            //exportMap[name] = new Symbol(cursor);
+            //msg('[+] Add export symbol ' + name + ' (' + cursor[0] + ')');
+            exportEntry.constRef = rv;
+            break;
+        }
+
+        exportMap[name] = exportEntry;
+        msg('[+] Add export symbol ' + name + (classDef ? ' (Class)' : ''));
+
+        /*if (/^[A-Z\_]+$/.test(key) && rv)
+          console.log(key, rv[0]);*/
+        /*switch(exportEntry[0]){
+          case 'number':
+          case 'string':
+            exportEntry.constant = exportEntry[]
+        }*/
+      }
     }
+  }
+  else
+    code_exports = {};
 
   return {
     ast: ast,
     refs: code_refs,
     exports: code_exports,
-    warn: warn.length ? warn : false
+    messages: messages.length ? messages : false,
+    throwCodes: throwCodes
   }
 }
 

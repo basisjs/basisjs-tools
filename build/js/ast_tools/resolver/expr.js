@@ -4,7 +4,7 @@ var utils = require('util');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
 
-//var ast = parser.parse('RuleSet.prototype[method]');console.log(utils.inspect(ast,0,null,1));process.exit();
+var ast = parser.parse('function x(){return getNamespace(namespace, BaseClass.create).extend({})}');console.log(utils.inspect(ast,0,null,1));process.exit();
 
 
 //var code = fs.readFileSync('test.js', 'utf-8');

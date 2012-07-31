@@ -80,8 +80,8 @@ module.exports = {
     return walker.walk(ast, walkers, context);
   },
 
-  processPath: function(ast, rootNames, refs, classMap){
-    return resolver.process(ast, walker, rootNames, refs, classMap);
+  processPath: function(ast, rootNames, refs, exportMap, namespace){
+    return resolver.process(ast, walker, rootNames, refs, exportMap, namespace);
   },
   resolvePath: function(path, refName, refs){
     return resolver.resolve(refs, path, refName);

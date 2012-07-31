@@ -70,26 +70,26 @@ module.exports = function(flow){
     }
   });
 
-  if (flow.js.exportMap)
-  {
-    var gvars = Object.keys(flow.js.exportMap).map(function(key){
-      return flow.js.exportMap[key][2] ? [flow.js.exportMap[key][2]] : null;
-    }).filter(Boolean);
-
-    if (gvars.length)
-      basisFile.ast[1].unshift(['var', gvars]);
-  }
+  if (flow.js.globalVars)
+    basisFile.ast[1].unshift(['var', flow.js.globalVars]);
 
   for (var name in packages)
   {
-    flow.console.log('Package ' + name + ':\n  ' + packages[name].map(function(f){ return f.relpath }).join('\n  '));
+    var packageFiles = packages[name];
+    flow.console.log('Package ' + name + ':\n  ' + packageFiles.map(function(f){ return f.relpath }).join('\n  '));
 
     var isCoreFile = flow.options.jsSingleFile || packageName == 'basis';
+    var throwCodes = packageFiles.reduce(function(res, file){
+      res.push.apply(res, file.throwCodes);
+      return res;
+    }, isCoreFile && basisFile.throwCodes ? basisFile.throwCodes.slice() : []);
+
     var packageFile = flow.files.add({
       type: 'script',
       outputFilename: name + '.js',
       outputContent: 
         (isCoreFile ? '// resources (' + resourceToc.length + '):\n//  ' + resourceToc.join('\n//  ') + '\n//\n' : '') +
+        (throwCodes.length ? '// throw codes:\n//  ' + throwCodes.map(function(item){ return item[0] + ' -> ' + at.translate(item[1]) }).join('\n//  ') + '\n//\n' : '') +
         wrapPackage(packages[name], flow, isCoreFile ? at.translate(basisFile.ast) : '')
     });
 

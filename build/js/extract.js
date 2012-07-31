@@ -61,6 +61,7 @@ module.exports = function(flow){
               fconsole.log('[i] basis.js marker found (basis-config attribute)');
               scriptFile.basisScript = true;
               scriptFile.basisConfig = attrs['basis-config'];
+              scriptFile.namespace = 'basis';
             }
           }
           else

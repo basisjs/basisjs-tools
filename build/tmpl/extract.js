@@ -1,8 +1,12 @@
 
 module.exports = function(flow){
-  global.document = require('jsdom-nocontextifiy').jsdom();
   global.basis = require(flow.js.basisScript).basis;
-  basis.require('basis.template');
+  try {
+    basis.require('basis.template');
+  } catch(e) {
+    global.document = require('jsdom-nocontextifiy').jsdom();
+    basis.require('basis.template');
+  }
 
   var queue = flow.files.queue;
   var fconsole = flow.console;
