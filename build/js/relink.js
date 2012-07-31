@@ -30,7 +30,10 @@ var BASIS_REQUIRE = at.normalize('basis.require');
 
 function relinkScript(file, flow){
   file.ast = at.walk(file.ast, {
-    "call": function(expr, args){
+    "call": function(token){
+      var expr = token[1];
+      var args = token[2];
+
       switch (at.translate(expr))
       {
         case BASIS_RESOURCE:

@@ -77,10 +77,8 @@ module.exports = {
     ast[1].push.apply(ast[1], appendAst[1]);
   },
 
-  walk: function(ast, handlers, context){
-    return walker.with_walkers(handlers, function(){
-      return walker.walk.call(context || walker, ast);
-    });
+  walk: function(ast, walkers, context){
+    return walker.walk(ast, walkers, context);
   },
 
   processPath: function(ast, rootNames, refs, classMap){
@@ -100,13 +98,9 @@ module.exports = {
     {
       //console.log('[!!!!] Last ref, cur classDef', this.translate(classDef));
       var inner = [];
-      walker.with_walkers({
-        '*': function(){
-          if (this.token.classDef)
-            inner.push(this.token.classDef);
-        }
-      }, function(){
-        walker.walk(classDef);
+      walker.walk(classDef, function(token){
+        if (token.classDef)
+          inner.push(token.classDef);
       });
 
       console.log('> INNER:', inner.length);

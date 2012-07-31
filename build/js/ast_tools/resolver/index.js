@@ -31,7 +31,7 @@ function resolveCodePath(map, path, refName){
 function process(ast, walker, rootNames, refMap, classMap){
   var SPECIALS = ['basis', 'global', '__filename', '__dirname', 'resource', 'module', 'exports'];
 
-  var walkerStack = walker.stack();
+  var walkerStack = walker.stack;
   var warn = [];
 
   var code_exports = {};
@@ -127,7 +127,11 @@ function process(ast, walker, rootNames, refMap, classMap){
       return res;
   }
 
-  var fn_walker = function(name, args, body){
+  var fn_walker = function(token){
+    var name = token[1];
+    var args = token[2];
+    var body = token[3];
+
     if (name)
       putScope(scope, name, 'defun');
 
@@ -136,19 +140,20 @@ function process(ast, walker, rootNames, refMap, classMap){
     for (var i = 0; i < args.length; i++)
       putScope(body.scope, args[i], 'arg');
 
-    fnqueue.push(body);
+    fnqueue.push(['block', body]);
 
-    return this.token;
+    return token;
   }
 
-  var var_walker = function(defs){
+  var var_walker = function(token){
+    var defs = token[1];
     for (var i = 0; i < defs.length; i++)
     {
       var val = defs[i][1];
 
       if (val)
       {
-        val = this.context.walk(val);
+        val = this.walk(val);
         defs[i][1] = val;
       }
 
@@ -159,7 +164,7 @@ function process(ast, walker, rootNames, refMap, classMap){
         scope[defs[i][0]].classDef = isClassConstructor(val);
     }
 
-    return this.token;
+    return token;
   }
 
   function putCodePath(path, token){
@@ -216,7 +221,7 @@ global.classDefRef = {};
     }
   }
 
-  var fnqueue = [[ast]];
+  var fnqueue = [ast];
   var ast_fragment;
 
   while (ast_fragment = fnqueue.pop())
@@ -227,19 +232,20 @@ global.classDefRef = {};
       scope = ast_fragment.scope;
     }
 
-    walker.with_walkers({
+    walker.walk(ast_fragment, {
       'var': var_walker,
       'const': var_walker,
       'defun': fn_walker,
       'function': fn_walker,
 
-      name: function(name){
+      name: function(token){
+        var name = token[1];
         var ret = scope[name] && scope[name][1];
 
         if (ret && resolveNameRef(ret)[0] != name)
         {
           // TODO: check for name conflict, it base name not in scope
-          this.token.splice.apply(this.token, [0, this.token.length].concat(ret));
+          token.splice.apply(token, [0, token.length].concat(ret));
           return;
         }
 
@@ -248,14 +254,14 @@ global.classDefRef = {};
         {
           var pos = walkerStack.length - 1;
           var path = [name];
-          var token;
-          while (token = walkerStack[--pos])
+          var cursor;
+          while (cursor = walkerStack[--pos])
           {
-            if (token[0] != 'dot')
+            if (cursor[0] != 'dot')
               break;
 
-            path.push(token[2]);
-            putCodePath(path.join('.'), token);
+            path.push(cursor[2]);
+            putCodePath(path.join('.'), cursor);
           }
         }
         else
@@ -264,7 +270,7 @@ global.classDefRef = {};
           if (classDef)
           { 
             classDef.refCount++;
-            this.token.classDef = classDef;
+            token.classDef = classDef;
             if (name=='RuleSet'){
               console.log(walkerStack.map(function(f){return f[0]}).join('->'))
               if (walkerStack[0][0] != 'toplevel')
@@ -276,7 +282,10 @@ global.classDefRef = {};
         //return this;
       },
 
-      'call': function(expr, args){
+      'call': function(token){
+         var expr = token[1];
+         var args = token[2];
+
          var name = resolveName(expr);
          if (name && name.join('.') == 'this.extend' && scope === rootScope)
          {
@@ -285,9 +294,13 @@ global.classDefRef = {};
          }
       },
 
-      assign: function(op, lvalue, rvalue){
-        rvalue = this.context.walk(rvalue);
-        this.token[3] = rvalue;
+      assign: function(token){
+        var op = token[1];
+        var lvalue = token[2];
+        var rvalue = token[3];
+
+        rvalue = this.walk(rvalue);
+        token[3] = rvalue;
 
         if (op === true)
         {
@@ -306,7 +319,7 @@ global.classDefRef = {};
               switch (pn[0]){
                 case 'exports':
                   if (pn.length == 2)
-                    code_exports[pn[1]] = [this.token, rvalue];
+                    code_exports[pn[1]] = [token, rvalue];
                   break;
                 case 'module':
                   if (pn[1] == 'exports')
@@ -329,7 +342,7 @@ global.classDefRef = {};
                     else
                     {
                       if (pn.length == 3)
-                        code_exports[pn[2]] = [this.token, rvalue];
+                        code_exports[pn[2]] = [token, rvalue];
                     }
                   }
                   break;
@@ -340,9 +353,9 @@ global.classDefRef = {};
           }
         }
 
-        return this.token;
+        return token;
       }
-    }, function(){ return walkEach(walker, ast_fragment) });
+    });
 
     if (ast_fragment.scope)
       scope = scopes.pop();

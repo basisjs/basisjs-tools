@@ -28,7 +28,9 @@ module.exports = function(flow){
   };
 
   basisFile.ast = at.walk(basisFile.ast, {
-    "dot": function(expr){
+    "dot": function(token){
+      var expr = token[1];
+
       if (!inserted && at.translate(['dot'].concat(Array.prototype.slice.call(arguments))) == RESOURCE)
       {
         inserted = true;

@@ -165,7 +165,9 @@ function processScript(scriptFile, flow){
   scriptFile.resources = resources;
 
   scriptFile.ast = at.walk(at.parse(content), {
-    "call": function(expr, args){
+    "call": function(token){
+      var expr = token[1];
+      var args = token[2];
       var newFilename;
       var newFile;
 
