@@ -75,6 +75,7 @@ var path = require('path');
 var at = require('../js/ast_tools');
 var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
 var GET_TOKEN = at.normalize('basis.l10n.getToken');
+//var L10N_TOKEN = at.normalize('l10nToken');
 var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 
 function reldir(flow, dir){
@@ -130,6 +131,31 @@ function scanFile(file, flow){
               file: file
             });
           }
+          /*else
+          {
+            fconsole.log('[FOUND] getToken ' + JSON.stringify(args));
+            if (args.length > 1)
+            {
+              token[2] = [args.reduce(function(res, item){
+                if (!res.length)
+                  res = item;
+                else
+                {
+                  if (item[0] == 'string')
+                    item[1] = '.' + item[1];
+                  else
+                    if (res[0] == 'string')
+                      res[1] = res[1] + '.';
+                    else
+                      res = ['binary', '+', res, ['string', '.']];
+                  res = ['binary', '+', res, item];
+                }
+                return res;
+              }, [])];
+              fconsole.log('replace for ' + JSON.stringify(token[2]));
+            }
+            //return token;
+          }*/
           break;
 
         case SET_CULTURE_LIST:

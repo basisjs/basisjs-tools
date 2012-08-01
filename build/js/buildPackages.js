@@ -7,6 +7,7 @@ module.exports = function(flow){
 
   var packages = flow.js.packages;
   var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   // create package files
   //["dot",["name","this"],"__resource__"]
@@ -27,6 +28,7 @@ module.exports = function(flow){
     'f': 'function'
   };
 
+  fconsole.start('Build resource map');
   basisFile.ast = at.walk(basisFile.ast, {
     "dot": function(token){
       var expr = token[1];
@@ -41,10 +43,18 @@ module.exports = function(flow){
             'template': 2,
             'script': 100
           };
+          var stat = {};
 
           for (var jsRef in flow.js.resourceMap)
           {
             var file = flow.js.resourceMap[jsRef];
+
+            if (!file.jsRefCount && file.type == 'template')
+            {
+              fconsole.log('[i] Drop resource:', file.relpath);
+              continue;
+            }
+
             var content = file.jsResourceContent || file.outputContent || file.content;
 
             if (typeof content == 'function')
@@ -52,8 +62,19 @@ module.exports = function(flow){
             else
               content = JSON.stringify(content);
 
+            if (!stat[file.type])
+              stat[file.type] = { count: 0, size: 0 };
+
+            stat[file.type].count++;
+            stat[file.type].size += content.length;
+
             res.push([file, file.jsRef, content]);
           }
+
+          fconsole.start('Stat:');
+          for (var type in stat)
+            fconsole.log('[' + type + '] ' + stat[type].size + ' bytes in ' + stat[type].count + ' resource(s)');
+          fconsole.end();
 
           return '{\n' +
             res.sort(function(a, b){
@@ -69,6 +90,7 @@ module.exports = function(flow){
       }
     }
   });
+  fconsole.endl();
 
   if (flow.js.globalVars)
     basisFile.ast[1].unshift(['var', flow.js.globalVars]);
@@ -76,7 +98,7 @@ module.exports = function(flow){
   for (var name in packages)
   {
     var packageFiles = packages[name];
-    flow.console.log('Package ' + name + ':\n  ' + packageFiles.map(function(f){ return f.relpath }).join('\n  '));
+    fconsole.log('Package ' + name + ':\n  ' + packageFiles.map(function(f){ return f.relpath }).join('\n  '));
 
     var isCoreFile = flow.options.jsSingleFile || packageName == 'basis';
     var throwCodes = packageFiles.reduce(function(res, file){

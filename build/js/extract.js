@@ -179,20 +179,25 @@ function processScript(scriptFile, flow){
           if (newFilename)
           {
             newFile = flow.files.add({
-              filename: newFilename
+              filename: newFilename,
+              jsRefCount: 0
             });
             newFile.isResource = true;
 
             scriptFile.link(newFile);
             resources.push(newFile);
 
-            return [
+            var replaceToken = [
               'call',
               ['dot', ['name', 'basis'], 'resource'],
               [
                 ['string', newFile.relpath]
               ]
             ];
+            replaceToken.resourceRef = newFile;
+            newFile.jsRefCount++;
+
+            return replaceToken;
           }
 
           break;
@@ -204,20 +209,25 @@ function processScript(scriptFile, flow){
           if (newFilename)
           {
             newFile = flow.files.add({
-              filename: scriptFile.resolve(newFilename)
+              filename: scriptFile.resolve(newFilename),
+              jsRefCount: 0
             });
             newFile.isResource = true;
 
             scriptFile.link(newFile);
             resources.push(newFile);
-            
-            return [
+
+            var replaceToken = [
               'call',
               ['dot', ['name', 'basis'], 'resource'],
               [
                 ['string', newFile.relpath]
               ]
             ];
+            replaceToken.resourceRef = newFile;
+            newFile.jsRefCount++;
+
+            return replaceToken;
           }
 
           break;

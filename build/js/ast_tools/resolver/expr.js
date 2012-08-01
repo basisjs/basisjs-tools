@@ -4,12 +4,12 @@ var utils = require('util');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
 
-var ast = parser.parse('function x(){return getNamespace(namespace, BaseClass.create).extend({})}');console.log(utils.inspect(ast,0,null,1));process.exit();
+var ast = parser.parse('a+b+c');console.log(utils.inspect(ast,0,null,1));process.exit();
 
 
-//var code = fs.readFileSync('test.js', 'utf-8');
+var code = fs.readFileSync('test3.js', 'utf-8');
 //var code = fs.readFileSync('../../../../../basisjs/src/basis/ui.js', 'utf-8');
-var code = fs.readFileSync('../../../../../basisjs/src/basis/cssom.js', 'utf-8');
+//var code = fs.readFileSync('../../../../../basisjs/src/basis/cssom.js', 'utf-8');
 var ast = parser.parse(code);
 
 
@@ -17,7 +17,7 @@ var ast = parser.parse(code);
 var handler = require('./index');
 
 var walker = require('../walker').ast_walker();
-var res = handler.process(ast, walker, ['basis', 'should'])
+var res = handler.process(ast, walker, ['basis'], {}, {}, 'basis.ui.form');
 
 
   function iterate(obj, fn, thisObject){

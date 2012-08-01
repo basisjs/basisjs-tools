@@ -98,6 +98,8 @@ module.exports = {
       //console.log('[!!!!] Last ref, cur classDef', this.translate(classDef));
       var inner = [];
       walker.walk(classDef, function(token){
+        if (token.resourceRef)
+          token.resourceRef.jsRefCount--;
         if (token.classDef)
           inner.push(token.classDef);
       });
