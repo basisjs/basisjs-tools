@@ -28,6 +28,7 @@ function restoreObject(obj, props, old){
 function ast_walker(){
   var user = {};
   var stack = [];
+  var scope;
 
   function walkEach(array){
     for (var i = 0, len = array.length; i < len; i++)
@@ -43,19 +44,37 @@ function ast_walker(){
 
     stack.push(token);
 
+    var storedScope = scope;
+    var scopeSwitch = false;
+    if (token.scope)
+    {
+      scopeSwitch = true;
+      scope = token.scope;
+    }
+
     var userFn = user[token[0]] || user['*'];
     if (userFn)
     {
       //idx++; if (idx == -1) debugger; console.log('walk user ' + type + ' ' + idx);
+      walkerContext.scope = scope;
+
       var ret = userFn.call(walkerContext, token);
+
+      walkerContext.scope = storedScope;
+
       if (ret != null)
       {
         if (idx)
           ast[idx] = ret;
 
+        scope = storedScope;
         stack.pop();
+
         return ret;
       }
+
+      if (token.scope)
+        scope = token.scope;
     }
 
     switch (token[0])
@@ -222,6 +241,7 @@ function ast_walker(){
       */
     }
 
+    scope = storedScope;
     stack.pop();
 
     return ast;
@@ -260,7 +280,8 @@ function ast_walker(){
   var overrideProps = {
     walker: walker,
     walk: walk,
-    stack: stack
+    stack: stack,
+    scope: null
   };
 
   var contextStack = [];

@@ -1,7 +1,6 @@
 
 var path = require('path');
 var at = require('./ast_tools');
-var RESOURCE = at.normalize('this.__resources__');
 
 module.exports = function(flow){
 
@@ -33,7 +32,7 @@ module.exports = function(flow){
     "dot": function(token){
       var expr = token[1];
 
-      if (!inserted && at.translate(['dot'].concat(Array.prototype.slice.call(arguments))) == RESOURCE)
+      if (!inserted && at.resolveName(token, true) == 'this.__resources__')
       {
         inserted = true;
         return at.parse('0,' + (function(){

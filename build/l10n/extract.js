@@ -73,10 +73,6 @@ module.exports.handlerName = '[l10n] Extract';
 
 var path = require('path');
 var at = require('../js/ast_tools');
-var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
-var GET_TOKEN = at.normalize('basis.l10n.getToken');
-//var L10N_TOKEN = at.normalize('l10nToken');
-var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 
 function reldir(flow, dir){
   return path.relative(flow.options.base, dir).replace(/\\/g, '/') + '/';
@@ -94,9 +90,9 @@ function scanFile(file, flow){
       var expr = token[1];
       var args = token[2];
 
-      switch (at.translate(expr))
+      switch (at.resolveName(expr, true))
       {
-        case CREATE_DICTIONARY:
+        case 'basis.l10n.createDictionary':
           var eargs = at.getCallArgs(args, context);
           var entry = {
             args: args,
@@ -120,7 +116,7 @@ function scanFile(file, flow){
           break;
 
         //case L10N_TOKEN:
-        case GET_TOKEN:
+        case 'basis.l10n.getToken':
           if (args.length == 1 && args[0][0] == 'string')
           {
             fconsole.log('[FOUND] getToken ' + args[0][1]);
@@ -158,7 +154,7 @@ function scanFile(file, flow){
           }*/
           break;
 
-        case SET_CULTURE_LIST:
+        case 'basis.l10n.setCultureList':
           var list = at.getCallArgs(args, context)[0];
 
           fconsole.log('[FOUND] ' + at.translateCallExpr(expr, args) + ' in ' + file.relpath);

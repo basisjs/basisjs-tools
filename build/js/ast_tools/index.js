@@ -5,6 +5,10 @@ var processor = require("uglify-js").uglify;
 
 //var walker = processor.ast_walker();
 var walker = require('./walker').ast_walker();
+var scoper = require('./scope');
+var Scope = scoper.Scope;
+
+var names = require('./names');
 
 var resolver = require('./resolver');
 
@@ -58,7 +62,21 @@ function getCallArgs(args, context){
 }
 
 module.exports = {
-  parse: parse,
+
+  isReserved: names.isReserved,
+  resolveName: names.resolveName,
+  resolveNameRef: names.resolveNameRef,
+
+  //////
+
+  parse: function(text, scope){
+    var ast = parse(text);
+
+    if (scope)
+      scoper.process(ast, scope);
+
+    return ast;
+  },
   /*map: function(tokens, fn){
     return processor.MAP(tokens, fn || walker.walk);
   },
@@ -79,6 +97,8 @@ module.exports = {
   walk: function(ast, walkers, context){
     return walker.walk(ast, walkers, context);
   },
+
+  Scope: Scope,
 
   processPath: function(ast, rootNames, refs, exportMap, namespace){
     return resolver.process(ast, walker, rootNames, refs, exportMap, namespace);

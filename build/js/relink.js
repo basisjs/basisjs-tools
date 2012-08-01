@@ -34,9 +34,9 @@ function relinkScript(file, flow){
       var expr = token[1];
       var args = token[2];
 
-      switch (at.translate(expr))
+      switch (at.resolveName(expr, true))
       {
-        case BASIS_RESOURCE:
+        case 'basis.resource':
           var arg0 = args[0];
 
           if (arg0[0] == 'string')
@@ -54,7 +54,7 @@ function relinkScript(file, flow){
 
           break;
 
-        case BASIS_REQUIRE:
+        case 'basis.require':
           return ['block'];
       }
     }
