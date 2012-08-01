@@ -2,7 +2,6 @@
   Analyse ast, create scopes
 */
 
-
 //
 // Scope class
 //
@@ -32,8 +31,24 @@ Scope.prototype = {
 
     return result;
   },
+  scopeByName: function(name){
+    if (name in this.names)
+    {
+      var cursor = this;
+      while (cursor)
+      {
+        if (cursor.names.hasOwnProperty(name))
+          return cursor;
+
+        cursor = cursor.parent;
+      }
+    }
+  },
   has: function(name){
-    return this.names.hasOwnProperty(name) || (this.parent && this.parent.has(name));
+    return !!this.scopeByName(name);
+  },
+  hasOwn: function(name){
+    return this.names.hasOwnProperty(name);
   },
   get: function(name){
     if (this.has(name))
@@ -48,16 +63,46 @@ Scope.prototype = {
         return;
     }
 
-    this.names[name] = [type, token];
+    var ref = [type, token];
+    ref.token = token || null;
 
-    return this.names[name];
+    this.names[name] = ref;
+
+    return ref;
+  },
+/*
+  var ui = basis.ui;
+  var Node = ui.Node;
+  Node.subclass
+
+  resolve: function(name){
+    var ref = this.get(name);
+    var cursor = ref && ref.token;
+    var result = [name];
+    while (cursor)
+    {
+      if (cursor[0] == 'name')
+      {
+        if (cursor.xscope)
+        {
+          cursor.xscope.resolve(cursor[1]);
+          return;
+        }
+      }
+      else
+        if (cursor[1] == 'dot')
+          result.unshift();
+        else
+          break;
+    }
+  },*/
+
+  isLocal: function(name){
+    return this.names.hasOwnProperty(name);
   },
   isSpecial: function(name){
     name = this.get(name);
     return name && name.type == 'special';
-  },
-  isRoot: function(name){
-    return [].indexOf(name) != -1 && (!this.has(name) || this.isSpecial(name));
   },
   isGlobal: function(name){
     return this.has(name) && this.get(name) === this.root.get(name);
@@ -92,18 +137,16 @@ function process(ast, scope){
 
   var var_walker = function(token){
     var defs = token[1];
+
     for (var i = 0, def; def = defs[i]; i++)
     {
       var name = def[0];
       var val = def[1];
 
       if (val)
-      {
-        val = this.walk(val);
-        defs[i][1] = val;
-      }
+        val = this.walk(def, 1);
 
-      this.scope.put(name, 'var');
+      this.scope.put(name, 'var', val);
     }
 
     return token;
@@ -120,8 +163,8 @@ function process(ast, scope){
     'var': var_walker,
     'const': var_walker,
     'defun': fn_walker,
-    'function': fn_walker/*,
-
+    'function': fn_walker,
+    /*
     name: function(token){
       var name = token[1];
 
@@ -152,31 +195,33 @@ function process(ast, scope){
 
     'call': function(token){
 
-    },
+    },*/
 
     assign: function(token){
       var op = token[1];
       var lvalue = token[2];
-      var rvalue = token[3];
+      var rvalue = this.walk(token, 3);
 
-      rvalue = this.walk(rvalue);
-      token[3] = rvalue;
-
-      if (op === true)
+      if (lvalue[0] == 'name')
       {
-        if (lvalue[0] == 'name')
+        var ref = this.scope.get(lvalue[1]);
+        if (op === true)
         {
-          putScope(scope, lvalue[1], 'var', resolveNameRef(rvalue) && rvalue);
-          scope[lvalue[1]].classDef = isClassConstructor(rvalue);
+          if (ref && !ref.ref)
+            ref.ref = rvalue;
+          else
+            ; // ???
         }
         else
         {
-          var pn = resolveNameRef(lvalue);
+          //if (ref)
         }
       }
+      else
+        this.walk(token, 2);
 
       return token;
-    }*/
+    }
   });
 }
 

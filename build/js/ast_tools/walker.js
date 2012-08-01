@@ -248,6 +248,24 @@ function ast_walker(){
   };
 
   var walker = {
+    currentPath: function(asString){
+      var pos = stack.length - 1;
+      var token = stack[pos];
+
+      if (!token || token[0] != 'name')
+        return;
+
+      var path = [token[1]];
+      while (token = stack[--pos])
+      {
+        if (token[0] != 'dot')
+          break;
+
+        path.push(token[2]);
+      }
+
+      return asString ? path.join('.') : path;
+    },
     walk: function(ast, customWalkers, context){
       if (typeof customWalkers == 'function')
         customWalkers = { '*': customWalkers };

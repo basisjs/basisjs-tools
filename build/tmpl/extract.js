@@ -1,9 +1,10 @@
 
 module.exports = function(flow){
-  global.basis = require(flow.js.basisScript).basis;
   try {
+    global.basis = require(flow.js.basisScript).basis;
     basis.require('basis.template');
   } catch(e) {
+    global.basis = require(flow.js.basisScript).basis;
     global.document = require('jsdom-nocontextifiy').jsdom();
     basis.require('basis.template');
   }

@@ -7,7 +7,7 @@ function isReserved(name){
       || name == 'arguments';
 }
 
-function resolveName(token, asString){
+function resolveName(token, asString, scope){
   var result;
 
   switch (token && token[0])
@@ -20,6 +20,11 @@ function resolveName(token, asString){
 
       break;
     case 'name':
+      var name = token[1];
+      if (scope)
+        var ref = scope.get(name);
+        if (ref)
+          ref = resolveName(ref[1]);
       result = [token[1]];
   }
 
