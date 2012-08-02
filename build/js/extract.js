@@ -19,7 +19,8 @@ module.exports = function(flow){
   flow.js = {
     globalScope: globalScope,
     rootNSFile: {},
-    getFileContext: getFileContext
+    getFileContext: getFileContext,
+    fn: []
   };
 
 
@@ -197,9 +198,23 @@ function processScript(scriptFile, flow){
   scriptFile.deps = deps;
   scriptFile.resources = resources;
 
-  scriptFile.ast = at.parse(content, scriptFile.jsScope || flow.js.globalScope);
+  if (scriptFile.basisScript)
+  {
+    var len = flow.js.globalScope.subscopes.length;
+  }
+
+  var ast = at.applyScope(at.parse(content), scriptFile.jsScope || flow.js.globalScope);
+
+  if (scriptFile.basisScript)
+  {
+    /*var basisScope = flow.js.globalScope.subscopes.slice(len)[0];
+    flow.js.fn.push([basisScope.get('getNamespace'), function(namespace, wrapperFn){
+      console.log('FOUND', arguments);
+    }]);
+    require('./ast_tools/structure').process(ast, flow.js.fn);*/
+  }
  
-  at.walk(scriptFile.ast, {
+  scriptFile.ast = at.walk(ast, {
     "call": function(token){
       var expr = token[1];
       var args = token[2];

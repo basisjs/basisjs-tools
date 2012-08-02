@@ -32,7 +32,7 @@ function ast_walker(){
 
   function walkEach(array){
     for (var i = 0, len = array.length; i < len; i++)
-      array[i] = walk(array[i]);
+      walk(array, i);
   };
 
   var idx = 0;
@@ -230,11 +230,11 @@ function ast_walker(){
       // nothing to do
       /*
       case "debugger":  // function(type){ return [type]; },
+      case "break":     // function(label){ return [type, label]; },
+      case "continue":  // function(label){ return [type, label]; },
       case "string":    // function(str){ return [type, str]; },
       case "num":       // function(num){ return [type, num]; },
       case "name":      // function(name){ return [type, name]; },
-      case "break":     // function(label){ return [type, label]; },
-      case "continue":  // function(label){ return [type, label]; },
       case "regexp":    // function(rx, mods){ return [type, rx, mods]; },
       case "atom":      // function(name){ return [type, name]; },
       case "directive": // function(dir){ return [type, dir]; }
@@ -244,7 +244,7 @@ function ast_walker(){
     scope = storedScope;
     stack.pop();
 
-    return ast;
+    return token;
   };
 
   var walker = {
@@ -298,6 +298,7 @@ function ast_walker(){
   var overrideProps = {
     walker: walker,
     walk: walk,
+    walkEach: walkEach,
     stack: stack,
     scope: null
   };

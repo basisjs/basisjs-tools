@@ -67,16 +67,12 @@ module.exports = {
   resolveName: names.resolveName,
   resolveNameRef: names.resolveNameRef,
 
+  Scope: Scope,
+  applyScope: scoper.process,
+
   //////
 
-  parse: function(text, scope){
-    var ast = parse(text);
-
-    if (scope)
-      scoper.process(ast, scope);
-
-    return ast;
-  },
+  parse: parse,
   /*map: function(tokens, fn){
     return processor.MAP(tokens, fn || walker.walk);
   },
@@ -97,8 +93,6 @@ module.exports = {
   walk: function(ast, walkers, context){
     return walker.walk(ast, walkers, context);
   },
-
-  Scope: Scope,
 
   processPath: function(ast, rootNames, refs, exportMap, namespace){
     return resolver.process(ast, walker, rootNames, refs, exportMap, namespace);

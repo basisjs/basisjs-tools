@@ -4,7 +4,7 @@ var utils = require('util');
 var parser = require("uglify-js").parser;
 var processor = require("uglify-js").uglify;
 
-var ast = parser.parse('(function(){}).call(this)');console.log(utils.inspect(ast,0,null,1));process.exit();
+var ast = parser.parse('asd[1?3:4]["df"]');console.log(utils.inspect(ast,0,null,1));process.exit();
 
 
 var code = fs.readFileSync('test3.js', 'utf-8');
