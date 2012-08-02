@@ -161,7 +161,7 @@ function createScope(file, flow){
       : { type: 'resource' };
 
     var scope = new at.Scope('function', flow.js.globalScope);
-    var exports = ['object'];
+    scope.exports = ['object', []];
 
     var names = {
       __filename: ['string', file.relpath],
@@ -169,8 +169,8 @@ function createScope(file, flow){
       global: '?', //flow.js.globalScope,
       //basis: '?',
       resource: '?',
-      module: ['object', [['exports', exports]]],
-      exports: exports
+      module: ['object', [['exports', scope.exports]]],
+      exports: scope.exports
     };
 
     for (var name in names)
@@ -180,9 +180,9 @@ function createScope(file, flow){
   }
 }
 
-function processScript(scriptFile, flow){
-  var context = getFileContext(scriptFile);
-  var content = scriptFile.content;
+function processScript(file, flow){
+  var context = getFileContext(file);
+  var content = file.content;
 
   if (flow.options.buildMode)
   {
@@ -195,26 +195,85 @@ function processScript(scriptFile, flow){
   var deps = [];
   var resources = [];
 
-  scriptFile.deps = deps;
-  scriptFile.resources = resources;
+  file.deps = deps;
+  file.resources = resources;
 
-  if (scriptFile.basisScript)
+  if (file.basisScript)
   {
     var len = flow.js.globalScope.subscopes.length;
   }
 
-  var ast = at.applyScope(at.parse(content), scriptFile.jsScope || flow.js.globalScope);
+  var ast = at.applyScope(at.parse(content), file.jsScope || flow.js.globalScope);
 
-  if (scriptFile.basisScript)
+  if (file.basisScript)
   {
-    /*var basisScope = flow.js.globalScope.subscopes.slice(len)[0];
-    flow.js.fn.push([basisScope.get('getNamespace'), function(namespace, wrapperFn){
-      console.log('FOUND', arguments);
-    }]);
-    require('./ast_tools/structure').process(ast, flow.js.fn);*/
+    var basisScope = flow.js.globalScope.subscopes.slice(len)[0];
+
+    function astExtend(context, dest, source){
+      if (dest && source && source[0] == 'object')
+      {
+        if (!dest.obj)
+          dest.obj = {};
+        for (var i = 0, props = source[1], prop; prop = props[i]; i++)
+          dest.obj[prop[0]] = context.resolve(prop[1]);
+      }
+    }
+    function createNS(path){
+      var token = ['function', path, []];
+      token.obj = {
+        extend: nsExtend,
+        path: path
+      };
+      return token;
+    }
+
+    basisScope.get('extend').token.run = function(token, t, args){
+      //console.log('extend', arguments);
+      astExtend(this.scope, args[0], args[1]);
+    };
+    basisScope.get('getNamespace').token.run = function(token, t, args){
+      //console.log('getNamespace', arguments);
+      var namespace = args[0];
+      if (namespace && namespace[0] == 'string')
+      {
+        var path = namespace[1].split('.');
+        var root = path.shift();
+
+        var ns = flow.js.globalScope.get(root);
+        if (!ns)
+          ns = flow.js.globalScope.put(root, 'ns', createNS(root)).token;
+        else
+          ns = ns.token;
+
+        for (var i = 0; i < path.length; i++)
+        {
+          if (!ns.obj[path[i]])
+            ns.obj[path[i]] = createNS(path.slice(0, i + 1).join('.'));
+
+          ns = ns.obj[path[i]];
+        }
+
+        token.obj = ns.obj;
+      }
+    };
+    var nsExtend = at.createRunner(function(token, t, args){
+      astExtend(this.scope, t, args[0]);
+      token.obj = t.obj;
+    });
+
+    at.struct(ast);
+
+    /*console.log(basisScope.get('basis').token.obj.Class.obj);
+    var ast = at.parse('basis.Class.create', true);
+    debugger;
+    
+    var res = basisScope.resolve(ast)
+    console.log('>>>', res);*/
+
+    //process.exit();
   }
  
-  scriptFile.ast = at.walk(ast, {
+  file.ast = at.walk(ast, {
     "call": function(token){
       var expr = token[1];
       var args = token[2];
@@ -237,7 +296,7 @@ function processScript(scriptFile, flow){
 
               createScope(newFile, flow);
 
-              scriptFile.link(newFile);
+              file.link(newFile);
               resources.push(newFile);
 
               token[2] = [['string', newFile.relpath]];
@@ -249,19 +308,19 @@ function processScript(scriptFile, flow){
           break;
 
         case 'resource':
-          if (this.scope.get('resource') === scriptFile.jsScope.get('resource'))
+          if (this.scope.get('resource') === file.jsScope.get('resource'))
           {
             newFilename = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];
             if (newFilename)
             {
               newFile = flow.files.add({
-                filename: scriptFile.resolve(newFilename),
+                filename: file.resolve(newFilename),
                 jsRefCount: 0
               });
               newFile.isResource = true;
               createScope(newFile, flow);
 
-              scriptFile.link(newFile);
+              file.link(newFile);
               resources.push(newFile);
 
               token[1] = ['dot', ['name', 'basis'], 'resource'];
@@ -311,7 +370,7 @@ function processScript(scriptFile, flow){
 
               createScope(newFile, flow);
 
-              scriptFile.link(newFile);
+              file.link(newFile);
               deps.push(newFile);
             }
           }

@@ -1,14 +1,13 @@
 
 var vm = require('vm');
-var parser = require("uglify-js").parser;
-var processor = require("uglify-js").uglify;
+var parser = require('uglify-js').parser;
+var processor = require('uglify-js').uglify;
 
 //var walker = processor.ast_walker();
 var walker = require('./walker').ast_walker();
 var scoper = require('./scope');
-var Scope = scoper.Scope;
-
 var names = require('./names');
+var structure = require('./structure');
 
 var resolver = require('./resolver');
 
@@ -67,17 +66,22 @@ module.exports = {
   resolveName: names.resolveName,
   resolveNameRef: names.resolveNameRef,
 
-  Scope: Scope,
+  Scope: scoper.Scope,
   applyScope: scoper.process,
+
+  struct: structure.process,
+  createRunner: function(fn){
+    var token = ['function', null, []];
+    token.run = fn;
+    return token;
+  },
 
   //////
 
-  parse: parse,
-  /*map: function(tokens, fn){
-    return processor.MAP(tokens, fn || walker.walk);
+  parse: function(text, top){
+    var ast = parse(text);
+    return top ? ast[1][0][1] : ast;
   },
-  walker: walker,*/
-  getAstTop: getAstTop,
   normalize: normalize,
   getCallArgs: getCallArgs,
 

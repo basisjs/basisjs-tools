@@ -292,7 +292,10 @@ function ast_walker(){
 
       return ast;
     },
-    stack: stack
+    stack: stack,
+    top: function(idx){
+      return this.stack[this.stack.length - (idx || 0) - 1];
+    }
   };
 
   var overrideProps = {

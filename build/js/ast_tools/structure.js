@@ -22,7 +22,12 @@ function process(ast){
   }
 
   return walker.walk(ast, {
-    'call': extract/*,
+    'return': function(token){
+      var res = this.walk(token, 1);
+      if (res.obj && !walker.top().obj)
+        walker.top().obj = res.obj;
+    },
+    'call': extract,/*,
     'for-in': function(token){
       var v = token[1];
       var key = token[2][1];
@@ -44,14 +49,19 @@ function process(ast){
       var res = this.walk(token, 1).obj;
       if (res && res[0] == 'name' && res[1] == 'true')
         this.walk(token, 2);
-    },
+    },*/
     'assign': function(token){
       var op = token[1];
       var lvalue = token[2];
-      var rvalue = token[3];
 
-      if (op == true)
+      if (op == true && lvalue[0] == 'dot')
       {
+        var rvalue = this.walk(token, 3);
+        var dest = this.scope.resolve(lvalue[1]);
+
+        if (dest && dest.obj)
+          dest.obj[lvalue[2]] = this.scope.resolve(rvalue);
+/*
         var val = this.scope.resolve(rvalue);
         if (val && val[0] == 'num' && lvalue[0] == 'sub')
         {
@@ -60,9 +70,9 @@ function process(ast){
           {
             left.obj[this.scope.resolve(lvalue[2])[1]] = val;
           }
-        }
+        }*/
       }
-    }*/
+    }
   });
 }
 

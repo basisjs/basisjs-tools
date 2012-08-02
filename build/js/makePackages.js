@@ -1,4 +1,6 @@
 
+var at = require('./ast_tools');
+
 module.exports = function(flow){
 
   var packages = {};
@@ -15,6 +17,17 @@ module.exports = function(flow){
     }
 
   flow.js.packages = packages;
+
+  /*for (var name in packages)
+  {
+    var files = packages[name];
+    for (var i = 0, file; file = files[i]; i++)
+    {
+      console.log(files[i].relpath);
+      at.struct(file.ast);
+      console.log(file.ast.scope.exports);
+    }
+  }*/
 }
 
 module.exports.handlerName = '[js] Make packages';

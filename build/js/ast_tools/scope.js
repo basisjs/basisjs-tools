@@ -100,10 +100,7 @@ Scope.prototype = {
     var path = [];
     var cursor = token;
 
-    if (token.obj)
-      return token.obj;
-
-    cycle: while (cursor)
+    cycle: while (cursor && !cursor.obj)
     {
       switch (cursor[0])
       {
@@ -187,12 +184,6 @@ Scope.prototype = {
 //
 
 var walker = require('./walker').ast_walker();
-var processor = require("uglify-js").uglify;
-
-function translate(ast){
-  return processor.gen_code(ast);
-}
-
 var runFunction = require('./structure').process;
 
 function process(ast, scope){
@@ -215,6 +206,28 @@ function process(ast, scope){
       func.scope = oldScope;
     }
   }*/
+  /*function createRun(fn, name){
+    var result = ['function', name || null, []];
+    result.run = fn;
+    return result;
+  }
+
+  var objectProto = {
+    hasOwnProperty: createRun(function(token, t, args){
+      var res = Object.prototype.hasOwnProperty.call(t.obj, args[0].obj);
+      token.obj = ['name', res ? 'true' : 'false'];
+    }, 'hasOwnProperty'),
+    self: createRun(function(token, t, args){
+      token.obj = t.obj;
+    }, 'self')
+  };
+
+  function createObj(proto){
+    var F = Function();
+    F.prototype = proto;
+    return new F;
+  }*/
+
 
   var fn_walker = function(token){
     var name = token[1];
@@ -229,10 +242,7 @@ function process(ast, scope){
 
     token.scope = scope;
     /*if (name)
-    {
-      token.run = createRunner(token);
-      console.log(token.run.toString());
-    }*/
+      token.run = createRunner(token);*/
   }
 
   var var_walker = function(token){
@@ -257,28 +267,6 @@ function process(ast, scope){
   //
 
   ast.scope = scope;
-
-  /*function createRun(fn, name){
-    var result = ['function', name || null, []];
-    result.run = fn;
-    return result;
-  }
-
-  var objectProto = {
-    hasOwnProperty: createRun(function(token, t, args){
-      var res = Object.prototype.hasOwnProperty.call(t.obj, args[0].obj);
-      token.obj = ['name', res ? 'true' : 'false'];
-    }, 'hasOwnProperty'),
-    self: createRun(function(token, t, args){
-      token.obj = t.obj;
-    }, 'self')
-  };
-
-  function createObj(proto){
-    var F = Function();
-    F.prototype = proto;
-    return new F;
-  }*/
 
   return walker.walk(ast, {
     'var': var_walker,
