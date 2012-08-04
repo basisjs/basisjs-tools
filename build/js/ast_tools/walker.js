@@ -1,5 +1,5 @@
 
-var processor = require("uglify-js").uglify;
+var processor = require('uglify-js').uglify;
 
 function overrideObject(obj, props){
   var old = {};
@@ -31,13 +31,14 @@ function ast_walker(){
   var scope;
 
   function walkEach(array){
-    for (var i = 0, len = array.length; i < len; i++)
-      walk(array, i);
+    if (array)
+      for (var i = 0, len = array.length; i < len; i++)
+        walk(array, i);
   };
 
-  var idx = 0;
   function walk(ast, idx){
-    var token = typeof idx == 'number' && ast ? ast[idx] : ast;
+    var indexed = typeof idx == 'number';
+    var token = indexed && ast ? ast[idx] : ast;
 
     if (!token)
       return ast;
@@ -55,7 +56,6 @@ function ast_walker(){
     var userFn = user[token[0]] || user['*'];
     if (userFn)
     {
-      //idx++; if (idx == -1) debugger; console.log('walk user ' + type + ' ' + idx);
       walkerContext.scope = scope;
 
       var ret = userFn.call(walkerContext, token);
@@ -64,7 +64,7 @@ function ast_walker(){
 
       if (ret != null)
       {
-        if (idx)
+        if (indexed && Array.isArray(ret))
           ast[idx] = ret;
 
         scope = storedScope;
@@ -90,14 +90,14 @@ function ast_walker(){
         var body = token[1];
         if (body)
           for (var i = 0, len = body.length; i < len; i++)
-            body[i] = walk(body[i]);
+            walk(body, i);
 
         break;
 
       case "seq":      // type, ...tokens
 
         for (var len = token.length, i = 1; i < len; i++)
-          token[i] = walk(token[i]);
+          walk(token, i);
 
         break;
 
@@ -124,7 +124,7 @@ function ast_walker(){
         for (var i = 0, branches = token[2], branch; branch = branches[i]; i++)
         {
           if (branch[0])               // branch expr
-            branch[0] = walk(branch[0]);
+            walk(branch, 0);
 
           walkEach(branch[1]);  // branch body
         }
@@ -148,7 +148,7 @@ function ast_walker(){
 
       case "try":      // type, try, catch, finally
 
-        walkEach(token[1]);                // try
+        walkEach(token[1]);                  // try
         if (token[2]) walkEach(token[2][1]); // catch
         if (token[3]) walkEach(token[3]);    // finally
 
@@ -208,21 +208,21 @@ function ast_walker(){
 
       case "stat":     // type, stat
       case "dot":      // type, expr
-      case "throw":    // type, expr
 
         walk(token, 1); // expr | stat
 
         break;
 
+      case "throw":    // type, expr
       case "return":   // type, expr
 
         if (token[1]) walk(token, 1); // expr
 
         break;
 
-      case "unary-prefix":          // type, op, expr
-      case "unary-postfix":         // type, op, expr
-      case "label":                 // type, name, block
+      case "unary-prefix":   // type, op, expr
+      case "unary-postfix":  // type, op, expr
+      case "label":          // type, name, block
 
         walk(token, 2); // expr | block
 
