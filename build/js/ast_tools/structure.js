@@ -24,8 +24,13 @@ function process(ast){
   return walker.walk(ast, {
     'return': function(token){
       var res = this.walk(token, 1);
-      if (res.obj && !walker.top().obj)
-        walker.top().obj = res.obj;
+      if (res.obj)
+      {
+        var callToken = this.top(2);
+        //console.log(this.stack.slice().reverse().map(function(t){ return t[0]}));
+        if (callToken && callToken[0] == 'call' && !callToken.obj)
+          callToken.obj = res.obj;
+      }
     },
     'call': extract,/*,
     'for-in': function(token){

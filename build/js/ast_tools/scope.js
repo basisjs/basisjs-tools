@@ -70,6 +70,10 @@ Scope.prototype = {
     if (this.has(name))
       return this.names[name];
   },
+  token: function(name){
+    var ref = this.get(name);
+    return ref && ref.token;
+  },
   put: function(name, type, token){
     var cur = this.get(name);
 
@@ -105,13 +109,17 @@ Scope.prototype = {
       switch (cursor[0])
       {
         case 'name':
-          var nameScope = this.scopeByName(cursor[1]);
+          var nameScope = cursor.scope || this.scopeByName(cursor[1]);
 
           if (!nameScope)
             return;
 
           if (nameScope === this)
-            cursor = this.names[cursor[1]].token;
+          {
+            cursor = this.names[cursor[1]];
+            if (cursor)
+              cursor = cursor.token;
+          }
           else
             cursor = nameScope.resolve(cursor);
 
@@ -253,13 +261,13 @@ function process(ast, scope){
       var name = def[0];
       var val = def[1];
 
-      if (val)
-        val = this.walk(def, 1);
+      //if (val)
+      //  val = this.walk(def, 1);
 
       this.scope.put(name, 'var', val);
     }
 
-    return token;
+    //return token;
   }
 
   //
@@ -273,6 +281,12 @@ function process(ast, scope){
     'const': var_walker,
     'defun': fn_walker,
     'function': fn_walker,
+
+    'name': function(token){
+      token.scope = this.scope;
+      //var ref = this.scope.get(token[1]);
+      //return (ref && ref.token) || token;
+    },
 
     /*'object': function(token){
       console.log('!');
@@ -315,6 +329,14 @@ function process(ast, scope){
 
     'call': function(token){
 
+    },*/
+    /*object: function(token){
+      this.walk(token, 1);
+
+      for (var i = 0, props = token[1], prop; prop = token[i]; i++)
+        prop[1] = this.scope.resolve(prop[1]) || prop[1];
+
+      return token;
     },*/
 
     assign: function(token){

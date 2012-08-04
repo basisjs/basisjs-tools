@@ -42,8 +42,6 @@ function ast_walker(){
     if (!token)
       return ast;
 
-    stack.push(token);
-
     var storedScope = scope;
     var scopeSwitch = false;
     if (token.scope)
@@ -51,6 +49,8 @@ function ast_walker(){
       scopeSwitch = true;
       scope = token.scope;
     }
+
+    stack.push(token);
 
     var userFn = user[token[0]] || user['*'];
     if (userFn)
@@ -76,6 +76,7 @@ function ast_walker(){
       if (token.scope)
         scope = token.scope;
     }
+
 
     switch (token[0])
     {
@@ -247,6 +248,10 @@ function ast_walker(){
     return token;
   };
 
+  function top(idx){
+    return stack[stack.length - (idx || 0) - 1];
+  }
+
   var walker = {
     currentPath: function(asString){
       var pos = stack.length - 1;
@@ -293,9 +298,7 @@ function ast_walker(){
       return ast;
     },
     stack: stack,
-    top: function(idx){
-      return this.stack[this.stack.length - (idx || 0) - 1];
-    }
+    top: top
   };
 
   var overrideProps = {
@@ -303,6 +306,7 @@ function ast_walker(){
     walk: walk,
     walkEach: walkEach,
     stack: stack,
+    top: top,
     scope: null
   };
 
