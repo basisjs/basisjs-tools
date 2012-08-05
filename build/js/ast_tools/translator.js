@@ -13,19 +13,23 @@ function is_identifier(name) {
                 && !HOP(parser.KEYWORDS, name);
 };
 
+var ascii_zero = '0000';
 function to_ascii(str) {
-  return str.replace(/[\u0080-\uffff]/g, function (ch) {
+  return str.replace(/[\u0080-\uffff]/g, function(ch){
     var code = ch.charCodeAt(0).toString(16);
-    while (code.length < 4) code = "0" + code;
-    return "\\u" + code;
+    //while (code.length < 4) code = "0" + code;
+    return "\\u" + ascii_zero.substr(code.length) + code;
   });
 };
 
-function make_string(str, ascii_only) {
-  var dq = 0,
-    sq = 0;
-  str = str.replace(/[\\\b\f\n\r\t\x22\x27\u2028\u2029\0]/g, function (s) {
-    switch (s) {
+function make_string(str, quote){
+  var dq = 0;
+  var sq = 0;
+
+  str = str.replace(/[\0\\\b\f\n\r\t\"\'\u2028\u2029]/g, function(s){
+    switch (s)
+    {
+      case "\0": return "\\0";
       case "\\": return "\\\\";
       case "\b": return "\\b";
       case "\f": return "\\f";
@@ -33,34 +37,42 @@ function make_string(str, ascii_only) {
       case "\r": return "\\r";
       case "\u2028": return "\\u2028";
       case "\u2029": return "\\u2029";
-      case '"': ++dq; return '"';
-      case "'": ++sq; return "'";
-      case "\0": return "\\0";
+      case '"':
+        if (quote == '"')
+          return '\\"';
+        dq++;
+        break;
+      case "'":
+        if (quote == '\'')
+          return '\\\'';
+        sq++;
+        break;
     }
     return s;
   });
-  if (ascii_only) str = to_ascii(str);
-  if (dq > sq) return "'" + str.replace(/\x27/g, "\\'") + "'";
-  else return '"' + str.replace(/\x22/g, '\\"') + '"';
+
+  if (quote)
+    return quote + str + quote;
+
+  if (dq > sq)
+    return "'" + (sq ? str.replace(/'/g, "\\'") : str) + "'";
+  else
+    return '"' + (dq ? str.replace(/"/g, '\\"') : str) + '"';
 };
 
-function member(name, array) {
-        for (var i = array.length; --i >= 0;)
-                if (array[i] == name)
-                        return true;
-        return false;
+
+function repeat_string(str, i) {
+        if (i <= 0) return "";
+        if (i == 1) return str;
+        var d = repeat_string(str, i >> 1);
+        d += d;
+        if (i & 1) d += str;
+        return d;
 };
+
 
 function slice(a, start) {
         return Array.prototype.slice.call(a, start || 0);
-};
-
-function empty(token) {
-  if (!token) // null or token not a block
-    return true;
-
-  if (token[0] == 'block')
-    return !token[1] || token[1].length == 0; // no statements
 };
 
 
@@ -113,6 +125,15 @@ var MAP;
 })();
 
 
+function empty(token) {
+  if (!token) // null or token not a block
+    return true;
+
+  if (token[0] == 'block')
+    return !token[1] || token[1].length == 0; // no statements
+};
+
+
 var SPLICE_NEEDS_BRACKETS = {
   "if": 1,
   "while": 1,
@@ -134,113 +155,167 @@ var DOT_CALL_NO_PARENS = {
         "defun": 1
 };
 
+var $self = function(value){ return value };
 
-function gen_code(ast, options) {
+var w = ast_walker();
+var ctorWalker = ast_walker();
+function gen_code(ast, options){
   options = defaults(options,
   {
     indent_start: 0,
     indent_level: 4,
+    indent_char: ' ',
     quote_keys: false,
     space_colon: false,
     beautify: false,
     ascii_only: false,
-    inline_script: false
+    inline_script: false,
+    quote: 'auto'
   });
 
   var ascii_only = !!options.ascii_only;
   var beautify = !!options.beautify;
+  var quote = /^(["']|auto)$/.test(options.quote) ? options.quote : 'auto';
+
+  var newline = beautify ? '\n' : '';
+  var space = beautify ? ' ' : '';
+  var comma = ',' + space;
+
+  var space_colon = !!(beautify && options.space_colon);
+
+  var indent_char = options.indent_char;
+  var indent_start = options.indent_start;
+  var indent_level = options.indent_level;
   var indentation = 0;
-  var newline = beautify ? "\n" : "";
-  var space = beautify ? " " : "";
-
-  var comma = "," + space;
-
-  function encode_string(str) {
-    var ret = make_string(str, ascii_only);
-    if (options.inline_script) ret = ret.replace(/<\x2fscript([>\/\t\n\f\r ])/gi, "<\\/script$1");
-    return ret;
-  };
-
-  function make_name(name) {
-    name = name.toString();
-    if (ascii_only) name = to_ascii(name);
-    return name;
-  };
-
-  function indent(line) {
-    if (line == null) line = "";
-    if (beautify) line = repeat_string(" ", options.indent_start + indentation * options.indent_level) + line;
-    return line;
-  };
-
-  function with_indent(cont, incr) {
-    if (incr == null) incr = 1;
-    indentation += incr;
-    try {
-      return cont.apply(null, slice(arguments, 1));
-    } finally {
-      indentation -= incr;
-    }
-  };
-
-  function last_char(str) {
-    str = str.toString();
-    return str.charAt(str.length - 1);
-  };
-
-  function add_spaces(a) {
-    if (beautify)
-      return a.join(" ");
-
-    var b = [];
-    for (var i = 0; i < a.length; ++i)
-    {
-      var next = a[i + 1];
-      b.push(a[i]);
-      if (next)
-      {
-        var firstChar = String(next)[0];
-        var lastChar = last_char(a[i]);
-        if (
-            (is_identifier_char(lastChar) && (is_identifier_char(firstChar) || firstChar == "\\"))
-            ||
-            (/[\+\-]$/.test(a[i].toString()) && /^[\+\-]/.test(next.toString()))
-           )
-        {
-          b.push(" ");
-        }
+  var indentStr = repeat_string(indent_char, indent_start);
+  var indent = beautify
+    ? function(str){
+        return indentStr + str;
       }
-    }
-    return b.join("");
+    : $self;
+
+  var make_name = ascii_only
+    ? to_ascii
+    : $self;
+
+  var makeString = ascii_only
+    ? function(str){
+        return to_ascii(make_string(str));
+      }
+    : (quote != 'auto'
+        ? function(str){
+            return make_string(str, quote);
+          }
+        : make_string
+      );
+
+  var encode_string = options.inline_script
+    ? function(str){
+        return makeString(str).replace(/<\/script([>\/\t\n\f\r ])/gi, "<\\/script$1");
+      }
+    : makeString;
+
+  var ccache = {};
+  function is_identifier_char2(ch){
+    if (ch in ccache)
+      return ccache[ch];
+    else
+      return ccache[ch] = is_identifier_char(ch);
   };
 
-  function add_commas(a){
-    return a.join(comma);
-  };
+  var add_spaces = beautify
+    ? function(array){
+        return array.join(" ");
+      }
+    : function(array){
+        var result = "";
+        for (var i = 0, next; i < array.length; ++i)
+        {
+          result += array[i];
+
+          if (next = array[i + 1])
+          {
+            var next = String(next);
+            var fc = next.charAt(0);
+            var cur = String(array[i]);
+            var lc = cur.charAt(cur.length - 1);
+            if (
+                (is_identifier_char2(lc) && (is_identifier_char2(fc) || fc == "\\"))
+                ||
+                ((lc == '+' || lc == '-') && (fc == '+' || fc == '-'))
+               )
+            {
+              result += " ";
+            }
+          }
+        }
+        return result;
+      };
+
+  var indentCache = {};
+  function genIndent(offset){
+    var len = indent_start + offset * indent_level;
+    return len
+      ? indentCache[len] || (indentCache[len] = repeat_string(indent_char, len))
+      : '';
+  }
+
+  var indent_ = beautify
+    ? function(delta, once){
+        if (once)
+          return genIndent(indentation + delta);
+
+        if (delta)
+          indentStr = genIndent(indentation += delta);
+
+        return indentStr;
+      } 
+    : function(){
+        return '';
+      };
+
+
+  function parenthesizeSeq(token){
+    return token[0] == 'seq'
+      ? '(' + w.walkro(token) + ')'
+      : w.walkro(token);
+  }
 
   function parenthesize(expr) {
-    var gen = make(expr);
-    for (var i = 1; i < arguments.length; ++i) {
+    var gen = w.walkro(expr);
+
+    for (var i = 1; i < arguments.length; ++i)
+    {
       var el = arguments[i];
-      if ((el instanceof Function && el(expr)) || expr[0] == el) return "(" + gen + ")";
+      if ((typeof el == 'function' && el(expr)) || expr[0] == el)
+        return "(" + gen + ")";
     }
+
     return gen;
   };
 
-  function best_of(a) {
-    if (a.length == 1) {
-      return a[0];
+  // search for shortest string in array
+  function best_of(array) {
+    var len = array.length;
+    var best = Infinity;
+    var idx = -1;
+
+    for (var i = 0; i < len; i++)
+    {
+      var itemLen = array[i].length;
+      if (best > itemLen)
+      {
+        idx = i;
+        best = itemLen;
+      }
     }
-    if (a.length == 2) {
-      var b = a[1];
-      a = a[0];
-      return a.length <= b.length ? a : b;
-    }
-    return best_of([a[0], best_of(a.slice(1))]);
+
+    return array[idx];
   };
 
   function needs_parens(expr) {
-    if (expr[0] == "function" || expr[0] == "object") {
+    if (expr[0] == "function" || expr[0] == "object")
+    {
       // dot/call on a literal function requires the
       // function literal itself to be parenthesized
       // only if it's the first "thing" in a
@@ -249,19 +324,43 @@ function gen_code(ast, options) {
       // we're the first in this "seq" and the
       // parent is "stat", and so on.  Messy stuff,
       // but it worths the trouble.
-      var a = slice(w.stack),
-        self = a.pop(),
-        p = a.pop();
-      while (p) {
-        if (p[0] == "stat") return true;
-        if (((p[0] == "seq" || p[0] == "call" || p[0] == "dot" || p[0] == "sub" || p[0] == "conditional") && p[1] === self) || ((p[0] == "binary" || p[0] == "assign" || p[0] == "unary-postfix") && p[2] === self)) {
-          self = p;
-          p = a.pop();
-        } else {
-          return false;
+      var stack = w.stack;
+      var self = expr;
+      var idx = stack.length - 1;
+      var next;
+      while (next = stack[--idx])
+      {
+        switch (next[0])
+        {
+          case "stat":
+            return true;
+
+          case "seq":
+          case "call":
+          case "dot":
+          case "sub":
+          case "conditional":
+            if (next[1] !== self)
+              return false;
+
+            break;
+
+          case "binary":
+          case "assign":
+          case "unary-postfix":
+            if (next[2] !== self)
+              return false;
+
+            break;
+
+          default:
+            return false;
         }
+
+        self = next;
       }
     }
+
     return !HOP(DOT_CALL_NO_PARENS, expr[0]);
   };
 
@@ -306,194 +405,232 @@ function gen_code(ast, options) {
     if (th == null)
       return ";";
 
-    if (th[0] == "do") {
+    if (th[0] == "do")
+    {
       // https://github.com/mishoo/UglifyJS/issues/#issue/57
       // IE croaks with "syntax error" on code like this:
       //     if (foo) do ... while(cond); else ...
       // we need block brackets around do/while
       return make_block([th]);
     }
+
     var b = th;
-    while (true)
+    walk: while (true)
     {
-      var type = b[0];
-      if (type == "if") {
-        if (!b[3])
-        // no else, we must add the block
-        return make(["block", [th]]);
-        b = b[3];
-      } else if (type == "while" || type == "do") b = b[2];
-      else if (type == "for" || type == "for-in") b = b[4];
-      else break;
+      switch(b[0])
+      {
+        case 'if':
+          if (!b[3]) // no else, we must add the block
+            return w.walkro(["block", [th]]);
+
+          b = b[3];
+          break;
+
+        case 'while':
+        case 'do':
+          b = b[2];
+          break;
+
+        case 'for':
+        case 'for-in':
+          b = b[4];
+          break;
+
+        default:
+          break walk;
+      }
     }
-    return make(th);
+
+    return w.walkro(th);
   };
 
   function make_function(token, keyword, no_parens) {
     var name = token[1];
     var args = token[2];
     var body = token[3];
-    var out = keyword || "function";
 
-    if (name)
-      out += " " + make_name(name);
+    var out = add_spaces([
+      (keyword || 'function') + (name ? ' ' + make_name(name) : '') + '(' + args.map(make_name).join(comma) + ')',
+      make_block(body)
+    ]);
 
-    out += "(" + args.map(make_name).join(comma) + ")";
-    out = add_spaces([out, make_block(body)]);
-
-    return (!no_parens && needs_parens(token)) ? "(" + out + ")" : out;
+    return !no_parens && needs_parens(token)
+      ? "(" + out + ")"
+      : out;
   };
 
   function must_has_semicolon(node) {
-    switch (node[0]){
-      case "with":
-      case "while":
-        return empty(node[2]) || must_has_semicolon(node[2]);
-      case "for":
-      case "for-in":
-        return empty(node[4]) || must_has_semicolon(node[4]);
-      case "if":
-        if (empty(node[2]) && !node[3]) // `if' with empty `then' and no `else'
-          return true; 
+    while (node)
+    {
+      switch (node[0])
+      {
+        case "with":
+        case "while":
+          node = node[2];
 
-        if (node[3]) 
-        {
-          if (empty(node[3])) // `else' present but empty
+          if (empty(node))
+            return true;
+
+          break;
+
+        case "for":
+        case "for-in":
+          node = node[4];
+
+          if (empty(node))
+            return true;
+
+          break;
+
+        case "if":
+          if (empty(node[2]) && !node[3]) // `if' with empty `then' and no `else'
             return true; 
 
-          return must_has_semicolon(node[3]); // dive into the `else' branch
-        }
-        return must_has_semicolon(node[2]); // dive into the `then' branch
-      case "directive":
-        return true;
-    }
-  };
+          if (node[3]) 
+          {
+            if (empty(node[3])) // `else' present but empty
+              return true; 
 
-  function make_block_statements(statements, noindent) {
-    for (var a = [], last = statements.length - 1, i = 0; i <= last; ++i) {
-      var stat = statements[i];
-      var code = make(stat);
-      if (code != ";") {
-        if (!beautify && i == last && !must_has_semicolon(stat)) {
-          code = code.replace(/;+\s*$/, "");
-        }
-        a.push(code);
+            node = node[3]; // dive into the `else' branch
+          }
+          else
+            node = node[2]; // dive into the `then' branch
+
+          break;
+
+        case "directive":
+          return true;
+
+        default:
+          return false;
       }
     }
-    return noindent ? a : MAP(a, indent);
   };
 
-  function make_switch_block(body) {
-    var n = body.length;
-    if (n == 0) return "{}";
-    return "{" + newline + MAP(body, function (branch, i) {
-      var has_body = branch[1].length > 0,
-        code = with_indent(function () {
-          return indent(branch[0] ? add_spaces(["case", make(branch[0]) + ":"]) : "default:");
-        }, 0.5) + (has_body ? newline + with_indent(function () {
-          return make_block_statements(branch[1]).join(newline);
-        }) : "");
-      if (!beautify && has_body && i < n - 1) code += ";";
-      return code;
-    }).join(newline) + newline + indent("}");
+
+  function make_block_statements(statements, noindent){
+    var result = [];
+
+    for (var i = 0, last = statements.length - 1, stat; stat = statements[i]; i++)
+    {
+      var code = w.walkro(stat);
+      if (code != ";")
+      {
+        if (!beautify && i == last && !must_has_semicolon(stat))
+          code = code.replace(/;+\s*$/, "");
+
+        result.push(code);
+      }
+    }
+
+    return noindent
+      ? result
+      : result.map(indent);
   };
 
-  function make_block(statements) {
-    if (!statements) return ";";
-    if (statements.length == 0) return "{}";
-    return "{" + newline + with_indent(function () {
-      return make_block_statements(statements).join(newline);
-    }) + newline + indent("}");
+
+  function make_block(statements){
+    if (!statements)
+      return ";";
+
+    if (statements.length == 0)
+      return "{}";
+
+    indent_(+1);
+    return (
+      "{" + newline +
+        make_block_statements(statements).join(newline) + newline + 
+      indent_(-1) + "}"
+    );
   };
 
-  function make_1vardef(def) {
-    var name = def[0],
-      val = def[1];
-    if (val != null) name = add_spaces([make_name(name), "=", parenthesize(val, "seq")]);
+  function make_1vardef(def){
+    var name = make_name(def[0]);
+    var val = def[1];
+
+    if (val)
+      name = add_spaces([name, "=", parenthesizeSeq(val)]);
+
     return name;
   };
 
-  var w = ast_walker();
-  var make = w.walk;
+  var make = w.walkro;
   return w.walk(ast, {
     "string": function(token){
       var str = token[1];
-      return encode_string(str)
+      return encode_string(str);
     },
     "num": function(token){
       var num = token[1];
-      return make_num(num)
+      return make_num(num);
     },
     "name": function(token){
       var name = token[1];
-      return make_name(name)
+      return make_name(name);
+    },
+    "atom": function(token){
+      var name = token[1];
+      return make_name(name);
     },
     "debugger": function () {
       return "debugger;"
     },
-    "toplevel": function (token) {
+    "toplevel": function(token){
       var statements = token[1];
       return make_block_statements(statements).join(newline + newline);
-    },
-    "splice": function (token) {
-      var statements = token[1];
-      var parent = w.top(1);
-      if (HOP(SPLICE_NEEDS_BRACKETS, parent)) {
-        // we need block brackets in this case
-        return make_block(token[1]);
-      } else {
-        return MAP(make_block_statements(statements, true),
-
-        function (line, i) {
-          // the first line is already indented
-          return i > 0 ? indent(line) : line;
-        }).join(newline);
-      }
     },
     "block": function(token){
       var statements = token[1];
       return make_block(statements);
     },
-    "var": function (token) {
+    "var": function(token){
       var defs = token[1];
-      return "var " + add_commas(MAP(defs, make_1vardef)) + ";";
+      return "var " + defs.map(make_1vardef).join(comma) + ";";
     },
-    "const": function (token) {
+    "const": function(token){
       var defs = token[1];
-      return "const " + add_commas(MAP(defs, make_1vardef)) + ";";
+      return "const " + defs.map(make_1vardef).join(comma) + ";";
     },
-    "try": function (token) {
-      var tr = token[1];
-      var ca = token[2];
-      var fi = token[3];
+    "try": function(token){
+      var try_ = token[1];
+      var catch_ = token[2];
+      var finally_ = token[3];
 
-      var out = ["try", make_block(tr)];
-      if (ca) out.push("catch", "(" + ca[0] + ")", make_block(ca[1]));
-      if (fi) out.push("finally", make_block(fi));
+      var out = ["try", make_block(try_)];
+
+      if (catch_)
+        out.push("catch", "(" + catch_[0] + ")",
+          make_block(catch_[1])
+        );
+
+      if (finally_)
+        out.push("finally",
+          make_block(finally_)
+        );
+
       return add_spaces(out);
     },
-    "throw": function (token) {
+    "throw": function(token){
       var expr = token[1];
-      return add_spaces(["throw", make(expr)]) + ";";
+
+      return add_spaces(["throw", this.walk(expr)]) + ";";
     },
-    "new": function (token) {
+    "new": function(token){
       var ctor = token[1];
       var args = token[2];
-      args = args.length > 0 ? "(" + add_commas(MAP(args, function (expr) {
-        return parenthesize(expr, "seq");
-      })) + ")" : "";
 
-      return add_spaces(["new", parenthesize(ctor, "seq", "binary", "conditional", "assign", function (expr) {
-        var w = ast_walker(),
-          has_call = {};
+      args = args.length > 0
+        ? "(" + args.map(parenthesizeSeq).join(comma) + ")"
+        : "";
+
+      return add_spaces(["new", parenthesize(ctor, "seq", "binary", "conditional", "assign", function(expr){
+        var has_call = {};
         try {
-          w.walk(expr, {
-            "call": function () {
+          ctorWalker.walk(expr, {
+            "call": function(){
               throw has_call
             },
-            "function": function (token) {
-              return token;
-            }
+            "function": $self
           });
         } catch (ex) {
           if (ex === has_call) return true;
@@ -501,228 +638,375 @@ function gen_code(ast, options) {
         }
       }) + args]);
     },
-    "switch": function (token) {
+    "switch": function(token){
       var expr = token[1];
       var body = token[2];
-      return add_spaces(["switch", "(" + make(expr) + ")", make_switch_block(body)]);
+
+      var n = body.length;
+      var bodyCode = n == 0
+        ? "{}"
+        : "{" + newline +
+            body.map(function(branch, i){
+              var has_body = branch[1].length > 0;
+
+              ;
+              var code = branch[0]
+                ? indent_(+.5, true) + add_spaces(["case", this.walk(branch[0]) + ":"])
+                : indent_(+.5, true) + "default:";
+                
+              if (has_body)
+              {
+                indent_(+1);
+                code += newline + make_block_statements(branch[1]).join(newline);
+                indent_(-1);
+
+                if (!beautify && i < n - 1)
+                  code += ";";
+              }
+
+              return code;
+            }, this).join(newline) + newline +
+          indent_() + "}";
+
+      return add_spaces([
+        "switch", "(" + this.walk(expr) + ")",
+        bodyCode
+      ]);
     },
-    "break": function (token) {
+    "break": function(token){
       var label = token[1];
-      var out = "break";
-      if (label != null) out += " " + make_name(label);
-      return out + ";";
+
+      return 'break' + (label ? ' ' + make_name(label) : '') + ';';
     },
-    "continue": function (token) {
+    "continue": function(token){
       var label = token[1];
-      var out = "continue";
-      if (label != null) out += " " + make_name(label);
-      return out + ";";
+
+      return 'continue' + (label ? ' ' + make_name(label) : '') + ';';
     },
-    "conditional": function (token) {
-      var co = token[1];
-      var th = token[2];
-      var el = token[3];
-      return add_spaces([parenthesize(co, "assign", "seq", "conditional"), "?",
-      parenthesize(th, "seq"), ":",
-      parenthesize(el, "seq")]);
+    "conditional": function(token){
+      var cond = token[1];
+      var then_ = token[2];
+      var else_ = token[3];
+
+      return add_spaces([
+        parenthesize(cond, "assign", "seq", "conditional"),
+        "?",
+        parenthesizeSeq(then_),
+        ":",
+        parenthesizeSeq(else_)
+      ]);
     },
-    "assign": function (token) {
+    "assign": function(token){
       var op = token[1];
       var lvalue = token[2];
       var rvalue = token[3];
-      if (op && op !== true) op += "=";
-      else op = "=";
-      return add_spaces([make(lvalue), op, parenthesize(rvalue, "seq")]);
+
+      if (op && op !== true)
+        op += "=";
+      else
+        op = "=";
+
+      return add_spaces([
+        this.walk(lvalue), op, parenthesizeSeq(rvalue)
+      ]);
     },
-    "dot": function (token) {
+    "dot": function(token){
       var expr = token[1];
-      var out = make(expr);
-      if (expr[0] == "num") {
+      var out = this.walk(expr);
+
+      if (expr[0] == "num")
+      {
         if (!/[a-f.]/i.test(out))
           out += ".";
-      } else if (expr[0] != "function" && needs_parens(expr)) out = "(" + out + ")";
+      }
+      else
+      {
+        if (expr[0] != "function" && needs_parens(expr))
+          out = "(" + out + ")";
+      }
+
       out += "." + make_name(token[2]);
       return out;
     },
-    "call": function (token) {
-      var func = token[1];
+    "call": function (token){
+      var fn = token[1];
       var args = token[2];
-      var f = make(func);
-      if (f.charAt(0) != "(" && needs_parens(func)) f = "(" + f + ")";
-      return f + "(" + add_commas(MAP(args, function (expr) {
-        return parenthesize(expr, "seq");
-      })) + ")";
+
+      var result = this.walk(fn);
+
+      if (result.charAt(0) != "(" && needs_parens(fn))
+        result = "(" + result + ")";
+
+      return result + "(" + args.map(parenthesizeSeq).join(comma) + ")";
     },
     "function": function(token){
-      var name = token[1];
-      var args = token[2];
-      var body = token[3];
       return make_function(token);
     },
     "defun": function(token){
-      var name = token[1];
-      var args = token[2];
-      var body = token[3];
       return make_function(token);
     },
-    "if": function (token) {
-      var co = token[1];
-      var th = token[2];
-      var el = token[3];
-      var out = ["if", "(" + make(co) + ")", el ? make_then(th) : make(th)];
-      if (el) {
-        out.push("else", make(el));
-      }
+    "if": function(token){
+      var cond = token[1];
+      var then_ = token[2];
+      var else_ = token[3];
+
+      var out = [
+        "if", "(" + this.walk(cond) + ")"
+      ];
+
+      if (!else_)
+        out.push(
+          this.walk(then_)
+        );
+      else
+        out.push(
+          make_then(then_),
+          "else",
+          this.walk(else_)
+        );
+
       return add_spaces(out);
     },
-    "for": function (token) {
+    "for": function(token){
       var init = token[1];
       var cond = token[2];
       var step = token[3];
       var block = token[4];
 
-      var out = ["for"];
-      init = (init != null ? make(init) : "").replace(/;*\s*$/, ";" + space);
-      cond = (cond != null ? make(cond) : "").replace(/;*\s*$/, ";" + space);
-      step = (step != null ? make(step) : "").replace(/;*\s*$/, "");
+      init = (init ? this.walk(init) : "").replace(/;*\s*$/, ";" + space);
+      cond = (cond ? this.walk(cond) : "").replace(/;*\s*$/, ";" + space);
+      step = (step ? this.walk(step) : "").replace(/;*\s*$/, "");
+
       var args = init + cond + step;
       if (args == "; ; ") args = ";;";
-      out.push("(" + args + ")", make(block));
-      return add_spaces(out);
+
+      return add_spaces([
+        'for', '(' + args + ')',
+        this.walk(block)
+      ]);
     },
-    "for-in": function (token) {
+    "for-in": function(token){
       var vvar = token[1];
       var key = token[2];
       var hash = token[3];
       var block = token[4];
 
-      return add_spaces(["for", "(" + (vvar ? make(vvar).replace(/;+$/, "") : make(key)), "in",
-      make(hash) + ")", make(block)]);
+      return add_spaces([
+        'for', '(' + (vvar ? this.walk(vvar).replace(/;+$/, '') : this.walk(key)), 'in', this.walk(hash) + ")",
+        this.walk(block)
+      ]);
     },
-    "while": function (token) {
+    "while": function(token){
       var condition = token[1];
       var block = token[2];
-      return add_spaces(["while", "(" + make(condition) + ")", make(block)]);
+      return add_spaces([
+        'while', '(' + this.walk(condition) + ')',
+        this.walk(block)
+      ]);
     },
-    "do": function (token) {
+    "do": function(token){
       var condition = token[1];
       var block = token[2];
-      return add_spaces(["do", make(block), "while", "(" + make(condition) + ")"]) + ";";
+      return add_spaces([
+        'do', this.walk(block),
+        'while', '(' + this.walk(condition) + ')'
+      ]) + ";";
     },
-    "return": function (token) {
+    "return": function(token){
       var expr = token[1];
       var out = ["return"];
-      if (expr != null) out.push(make(expr));
+
+      if (expr)
+        out.push(this.walk(expr));
+
       return add_spaces(out) + ";";
     },
-    "binary": function (token) {
+    "binary": function(token){
       var operator = token[1];
       var lvalue = token[2];
       var rvalue = token[3];
 
-      var left = make(lvalue),
-        right = make(rvalue);
+      var left = this.walk(lvalue);
+      var right = this.walk(rvalue);
+
       // XXX: I'm pretty sure other cases will bite here.
       //      we need to be smarter.
       //      adding parens all the time is the safest bet.
-      if (member(lvalue[0], ["assign", "conditional", "seq"]) || lvalue[0] == "binary" && PRECEDENCE[operator] > PRECEDENCE[lvalue[1]] || lvalue[0] == "function" && needs_parens(token)) {
+      if (["assign", "conditional", "seq"].indexOf(lvalue[0]) != -1 ||
+          (lvalue[0] == "binary" && PRECEDENCE[operator] > PRECEDENCE[lvalue[1]]) ||
+          (lvalue[0] == "function" && needs_parens(this))
+         )
+      {
         left = "(" + left + ")";
       }
-      if (member(rvalue[0], ["assign", "conditional", "seq"]) || rvalue[0] == "binary" && PRECEDENCE[operator] >= PRECEDENCE[rvalue[1]] && !(rvalue[1] == operator && member(operator, ["&&", "||", "*"]))) {
+
+      if (["assign", "conditional", "seq"].indexOf(rvalue[0]) != -1 ||
+          (rvalue[0] == "binary"
+           && PRECEDENCE[operator] >= PRECEDENCE[rvalue[1]]
+           && !(rvalue[1] == operator && ['&&', '||', '*'].indexOf(operator) != -1)
+         ))
+      {
         right = "(" + right + ")";
-      } else if (!beautify && options.inline_script && (operator == "<" || operator == "<<") && rvalue[0] == "regexp" && /^script/i.test(rvalue[1])) {
-        right = " " + right;
       }
-      return add_spaces([left, operator, right]);
+      else
+      {
+        if (!beautify && options.inline_script && (operator == "<" || operator == "<<") && /^\/script/i.test(right))
+          right = " " + right;
+      }
+
+      return add_spaces([
+        left, operator, right
+      ]);
     },
-    "unary-prefix": function (token) {
+    "unary-prefix": function(token){
       var operator = token[1];
       var expr = token[2];
 
-      var val = make(expr);
-      if (!(expr[0] == "num" || (expr[0] == "unary-prefix" && !HOP(OPERATORS, operator + expr[1])) || !needs_parens(expr))) val = "(" + val + ")";
-      return operator + (is_alphanumeric_char(operator.charAt(0)) ? " " : "") + val;
+      var val = this.walk(expr);
+
+      if (!(expr[0] == "num" || (expr[0] == "unary-prefix" && !HOP(OPERATORS, operator + expr[1])) || !needs_parens(expr)))
+        val = "(" + val + ")";
+
+      return operator + (['typeof', 'void', 'delete'].indexOf(operator) != -1 ? " " : "") + val;
     },
-    "unary-postfix": function (token) {
+    "unary-postfix": function(token){
       var operator = token[1];
       var expr = token[2];
 
-      var val = make(expr);
-      if (!(expr[0] == "num" || (expr[0] == "unary-postfix" && !HOP(OPERATORS, operator + expr[1])) || !needs_parens(expr))) val = "(" + val + ")";
+      var val = this.walk(expr);
+
+      if (!(expr[0] == "num" || (expr[0] == "unary-postfix" && !HOP(OPERATORS, operator + expr[1])) || !needs_parens(expr)))
+        val = "(" + val + ")";
+
       return val + operator;
     },
-    "sub": function (token) {
+    "sub": function(token){
       var expr = token[1];
       var subscript = token[2];
 
-      var hash = make(expr);
-      if (needs_parens(expr)) hash = "(" + hash + ")";
-      return hash + "[" + make(subscript) + "]";
+      var hash = this.walk(expr);
+
+      if (needs_parens(expr))
+        hash = "(" + hash + ")";
+
+      return hash + "[" + this.walk(subscript) + "]";
     },
-    "object": function (token) {
+    "object": function(token){
       var props = token[1];
 
-      var obj_needs_parens = needs_parens(token);
-      if (props.length == 0) return obj_needs_parens ? "({})" : "{}";
-      var out = "{" + newline + with_indent(function () {
-        return MAP(props, function (p) {
-          if (p.length == 3) {
-            // getter/setter.  The name is in p[0], the arg.list in p[1][2], the
-            // body in p[1][3] and type ("get" / "set") in p[2].
-            return indent(make_function(['function', p[0], p[1][2], p[1][3]], p[2], true));
-          }
-          var key = p[0],
-            val = parenthesize(p[1], "seq");
-          if (options.quote_keys) {
-            key = encode_string(key);
-          } else if ((typeof key == "number" || !beautify && +key + "" == key) && parseFloat(key) >= 0) {
-            key = make_num(+key);
-          } else if (!is_identifier(key)) {
-            key = encode_string(key);
-          }
-          return indent(add_spaces(beautify && options.space_colon ? [key, ":", val] : [key + ":", val]));
-        }).join("," + newline);
-      }) + newline + indent("}");
-      return obj_needs_parens ? "(" + out + ")" : out;
+      var out;
+      
+      if (props.length == 0)
+        out = '{}';
+      else
+      {
+        indent_(+1);
+        out = 
+          '{' + newline +
+            props.map(function(p){
+              if (p.length == 3)
+              {
+                // getter/setter.  The name is in p[0], the arg.list in p[1][2], the
+                // body in p[1][3] and type ("get" / "set") in p[2].
+                return indent_() + make_function(['function', p[0], p[1][2], p[1][3]], p[2], true);
+              }
+
+              var key = p[0];
+              var val = parenthesizeSeq(p[1]);
+
+              if (options.quote_keys)
+                key = encode_string(key);
+              else
+              {
+                if ((typeof key == 'number' || (!beautify && String(+key) == key)) && parseFloat(key) >= 0)
+                  key = make_num(+key);
+                else
+                {
+                  if (!is_identifier(key))
+                    key = encode_string(key);
+                }
+              }
+
+              return indent_() + add_spaces(space_colon
+                ? [key, ":", val]
+                : [key + ":", val]
+              );
+            }).join("," + newline) + newline +
+          indent_(-1) + '}';
+      }
+
+      return needs_parens(token)
+        ? "(" + out + ")"
+        : out;
     },
-    "regexp": function (token) {
+    "regexp": function(token){
       var rx = token[1];
       var mods = token[2];
-      if (ascii_only) rx = to_ascii(rx);
+
+      if (ascii_only)
+        rx = to_ascii(rx);
+
       return "/" + rx + "/" + mods;
     },
-    "array": function (token) {
+    "array": function(token){
       var elements = token[1];
-      if (elements.length == 0) return "[]";
-      return add_spaces(["[", add_commas(MAP(elements, function (el, i) {
-        if (!beautify && el[0] == "atom" && el[1] == "undefined") return i === elements.length - 1 ? "," : "";
-        return parenthesize(el, "seq");
-      })), "]"]);
+
+      if (elements.length == 0)
+        return "[]";
+
+      return add_spaces([
+        "[",
+          elements.map(function(el, i){
+            if (!beautify && el[0] == "atom" && el[1] == "undefined")
+              return i == elements.length - 1 ? "," : "";
+            else
+              return parenthesizeSeq(el);
+          }).join(comma),
+        "]"
+      ]);
     },
-    "stat": function (token) {
+    "stat": function(token){
       var stmt = token[1];
-      return make(stmt).replace(/;*\s*$/, ";");
+      return this.walk(stmt).replace(/;*\s*$/, ";");
     },
-    "seq": function (token) {
-      return add_commas(MAP(slice(token, 1), make));
+    "seq": function(token){
+      return slice(token, 1).map(this.walkro).join(comma);
     },
-    "label": function (token) {
+    "label": function(token){
       var name = token[1];
       var block = token[2];
-      return add_spaces([make_name(name), ":", make(block)]);
+      return add_spaces([make_name(name), ":", this.walk(block)]);
     },
-    "with": function (token) {
+    "with": function(token){
       var expr = token[1];
       var block = token[2];
-      return add_spaces(["with", "(" + make(expr) + ")", make(block)]);
+
+      return add_spaces([
+        "with", "(" + this.walk(expr) + ")",
+        this.walk(block)
+      ]);
     },
-    "atom": function (token) {
-      var name = token[1];
-      return make_name(name);
-    },
-    "directive": function (token) {
+    "directive": function(token){
       var dir = token[1];
-      return make_string(dir) + ";";
+      return makeString(dir) + ";";
+    },
+
+    ///////////////////
+    "splice": function(token){  // ???
+      var statements = token[1];
+      var parent = this.top(1);
+      if (HOP(SPLICE_NEEDS_BRACKETS, parent))
+      {
+        // we need block brackets in this case
+        return make_block(token[1]);
+      }
+      else
+      {
+        return make_block_statements(statements, true).map(function(line, i){
+          // the first line is already indented
+          return i > 0 ? indent(line) : line;
+        }).join(newline);
+      }
     }
   });
 };

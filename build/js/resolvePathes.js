@@ -8,7 +8,7 @@ module.exports = function(flow){
   if (!flow.options.jsResolvePath)
   {
     fconsole.log('Skiped.')
-    fconsole.log('Use option --js-resolve-path for path resolveing');
+    fconsole.log('Use option --js-resolve-path for path resolving');
     return;
   }
 

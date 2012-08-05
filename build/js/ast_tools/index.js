@@ -29,8 +29,8 @@ function isAstEqualsCode(expr, code){
   return translate(expr) == normalize(code);
 }
 
-function translate(ast){
-  return processor.gen_code(ast);
+function translate(ast, options){
+  return processor.gen_code(ast, options);
 }
 
 function translateCallExpr(expr, args){
@@ -88,6 +88,7 @@ module.exports = {
   isAstEqualsCode: isAstEqualsCode,
 
   translate: translate,
+  translate2: require('./translator').gen_code,
   translateCallExpr: translateCallExpr,
 
   append: function(ast, appendAst){

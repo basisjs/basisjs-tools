@@ -1,6 +1,4 @@
 
-var processor = require('uglify-js').uglify;
-
 function overrideObject(obj, props){
   var old = {};
   for (var key in props)
@@ -298,12 +296,14 @@ function ast_walker(){
       return ast;
     },
     stack: stack,
-    top: top
+    top: top,
+    walkro: function(token){ return walk(token) }
   };
 
   var overrideProps = {
     walker: walker,
     walk: walk,
+    walkro: function(token){ return walk(token) },
     walkEach: walkEach,
     stack: stack,
     top: top,

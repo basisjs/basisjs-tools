@@ -13,13 +13,13 @@ module.exports = function(flow){
     {
       fconsole.log(file.relpath);
 
-      file.outputContent = at.translate(file.ast);
+      file.outputContent = at.translate2(file.ast);
 
       try {
         file.jsResourceContent = new Function('exports, module, basis, global, __filename, __dirname, resource', file.outputContent);
       } catch(e) {
         file.jsResourceContent = Function();
-        fconsole.log('[ERROR] Compilation error: ' + file.relpath);
+        fconsole.log('[ERROR] Compilation error: ' + file.relpath + ' (' + e + ')');
       }
     }
 };
