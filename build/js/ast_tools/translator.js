@@ -1,24 +1,55 @@
 var ast_walker = require('./walker').ast_walker;
-var parser = require('uglify-js').parser;
-var is_identifier_char = parser.is_identifier_char;
-var is_alphanumeric_char = parser.is_alphanumeric_char;
-var PRECEDENCE = parser.PRECEDENCE;
-var OPERATORS = parser.OPERATORS;
+
+var SpecialSymbol = /^[\[\]\(\)\{\}\=\-\+\*\/\~\%\.\,\!\<\>\?\&\|\^\"\'\:\;]$/;
+
+var OPERATORS = ["in", "instanceof", "typeof", "new", "void", "delete", "++", "--", "+", "-", "!", "~", "&", "|", "^", "*", "/", "%", ">>", "<<", ">>>", "<", ">", "<=", ">=", "==", "===", "!=", "!==", "?", "=", "+=", "-=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=", "&&", "||"].reduce(function(res, key){ res[key] = true; return res }, {});
+var KEYWORDS = ["break", "case", "catch", "const", "continue", "debugger", "default", "delete", "do", "else", "finally", "for", "function", "if", "in", "instanceof", "new", "return", "switch", "throw", "try", "typeof", "var", "void", "while", "with"];
+var RESERVED_WORDS = ["abstract", "boolean", "byte", "char", "class", "double", "enum", "export", "extends", "final", "float", "goto", "implements", "import", "int", "interface", "long", "native", "package", "private", "protected", "public", "short", "static", "super", "synchronized", "throws", "transient", "volatile"];
+var KEYWORDS_ATOM = ["false", "null", "true", "undefined"];
+
+var ASSIGN_CONDITIONAL_SEQ = { "assign": true, "conditional": true, "seq": true };
+
+var PRECEDENCE = (function(a, ret){
+        for (var i = 0, n = 1; i < a.length; ++i, ++n) {
+                var b = a[i];
+                for (var j = 0; j < b.length; ++j) {
+                        ret[b[j]] = n;
+                }
+        }
+        return ret;
+})(
+        [
+                ["||"],
+                ["&&"],
+                ["|"],
+                ["^"],
+                ["&"],
+                ["==", "===", "!=", "!=="],
+                ["<", ">", "<=", ">=", "in", "instanceof"],
+                [">>", "<<", ">>>"],
+                ["+", "-"],
+                ["*", "/", "%"]
+        ],
+        {}
+);
+
+var INDENTINFIER_EXCLUDE = { 'this': true };
+[KEYWORDS_ATOM, RESERVED_WORDS, KEYWORDS].forEach(function(keys){
+  keys.forEach(function(key){
+    INDENTINFIER_EXCLUDE[key] = true;
+  })
+});
 
 function is_identifier(name) {
         return /^[a-z_$][a-z0-9_$]*$/i.test(name)  //
-                && name != "this"
-                && !HOP(parser.KEYWORDS_ATOM, name)
-                && !HOP(parser.RESERVED_WORDS, name)
-                && !HOP(parser.KEYWORDS, name);
+               && !INDENTINFIER_EXCLUDE.hasOwnProperty(name);
 };
 
-var ascii_zero = '0000';
+var ascii_zero = '\\u0000';
 function to_ascii(str) {
   return str.replace(/[\u0080-\uffff]/g, function(ch){
     var code = ch.charCodeAt(0).toString(16);
-    //while (code.length < 4) code = "0" + code;
-    return "\\u" + ascii_zero.substr(code.length) + code;
+    return ascii_zero.substr(0, 6 - code.length) + code;
   });
 };
 
@@ -62,22 +93,17 @@ function make_string(str, quote){
 
 
 function repeat_string(str, i) {
-        if (i <= 0) return "";
-        if (i == 1) return str;
-        var d = repeat_string(str, i >> 1);
-        d += d;
-        if (i & 1) d += str;
-        return d;
-};
-
-
-function slice(a, start) {
-        return Array.prototype.slice.call(a, start || 0);
+  if (i <= 0) return "";
+  if (i == 1) return str;
+  var d = repeat_string(str, i >> 1);
+  d += d;
+  if (i & 1) d += str;
+  return d;
 };
 
 
 function HOP(obj, prop) {
-        return Object.prototype.hasOwnProperty.call(obj, prop);
+  return Object.prototype.hasOwnProperty.call(obj, prop);
 };
 
 function defaults(args, defs) {
@@ -90,41 +116,6 @@ function defaults(args, defs) {
         return ret;
 };
 
-var MAP;
-
-(function(){
-        MAP = function(a, f, o) {
-                var ret = [], top = [], i;
-                function doit() {
-                        var val = f.call(o, a[i], i);
-                        if (val instanceof AtTop) {
-                                val = val.v;
-                                if (val instanceof Splice) {
-                                        top.push.apply(top, val.v);
-                                } else {
-                                        top.push(val);
-                                }
-                        }
-                        else if (val != skip) {
-                                if (val instanceof Splice) {
-                                        ret.push.apply(ret, val.v);
-                                } else {
-                                        ret.push(val);
-                                }
-                        }
-                };
-                if (a instanceof Array) for (i = 0; i < a.length; ++i) doit();
-                else for (i in a) if (HOP(a, i)) doit();
-                return top.concat(ret);
-        };
-        MAP.at_top = function(val) { return new AtTop(val) };
-        MAP.splice = function(val) { return new Splice(val) };
-        var skip = MAP.skip = {};
-        function AtTop(val) { this.v = val };
-        function Splice(val) { this.v = val };
-})();
-
-
 function empty(token) {
   if (!token) // null or token not a block
     return true;
@@ -133,6 +124,9 @@ function empty(token) {
     return !token[1] || token[1].length == 0; // no statements
 };
 
+var $self = function(value){
+  return value;
+};
 
 var SPLICE_NEEDS_BRACKETS = {
   "if": 1,
@@ -144,20 +138,17 @@ var SPLICE_NEEDS_BRACKETS = {
 };
 
 var DOT_CALL_NO_PARENS = {
-        "name": 1,
-        "array": 1,
-        "object": 1,
-        "string": 1,
-        "dot": 1,
-        "sub": 1,
-        "call": 1,
-        "regexp": 1,
-        "defun": 1
+  "name": 1,
+  "array": 1,
+  "object": 1,
+  "string": 1,
+  "dot": 1,
+  "sub": 1,
+  "call": 1,
+  "regexp": 1,
+  "defun": 1
 };
 
-var $self = function(value){ return value };
-
-var w = ast_walker();
 var ctorWalker = ast_walker();
 function gen_code(ast, options){
   options = defaults(options,
@@ -194,20 +185,11 @@ function gen_code(ast, options){
       }
     : $self;
 
-  var make_name = ascii_only
-    ? to_ascii
-    : $self;
-
-  var makeString = ascii_only
+  var makeString = quote != 'auto'
     ? function(str){
-        return to_ascii(make_string(str));
+        return make_string(str, quote);
       }
-    : (quote != 'auto'
-        ? function(str){
-            return make_string(str, quote);
-          }
-        : make_string
-      );
+    : make_string;
 
   var encode_string = options.inline_script
     ? function(str){
@@ -215,41 +197,32 @@ function gen_code(ast, options){
       }
     : makeString;
 
-  var ccache = {};
-  function is_identifier_char2(ch){
-    if (ch in ccache)
-      return ccache[ch];
-    else
-      return ccache[ch] = is_identifier_char(ch);
-  };
-
   var add_spaces = beautify
-    ? function(array){
+    ? function add_spaces(array){
         return array.join(" ");
       }
-    : function(array){
-        var result = "";
-        for (var i = 0, next; i < array.length; ++i)
-        {
-          result += array[i];
+    : function add_spaces(array){
+        var result;
 
-          if (next = array[i + 1])
+        for (var i = 0, len = array.length, item; i < len; i++)
+        {
+          item = String(array[i]);
+
+          if (!i)
+            result = item;
+          else
           {
-            var next = String(next);
-            var fc = next.charAt(0);
-            var cur = String(array[i]);
-            var lc = cur.charAt(cur.length - 1);
-            if (
-                (is_identifier_char2(lc) && (is_identifier_char2(fc) || fc == "\\"))
-                ||
-                ((lc == '+' || lc == '-') && (fc == '+' || fc == '-'))
-               )
-            {
-              result += " ";
-            }
+            var fc = item.charAt(0);
+            var lc = result.charAt(result.length - 1);
+
+            if ((!SpecialSymbol.test(lc) && !SpecialSymbol.test(fc)) || (lc == fc && (lc == '+' || lc == '-')))
+              result += ' ';
+
+            result += item;
           }
         }
-        return result;
+
+        return result || '';
       };
 
   var indentCache = {};
@@ -277,12 +250,12 @@ function gen_code(ast, options){
 
   function parenthesizeSeq(token){
     return token[0] == 'seq'
-      ? '(' + w.walkro(token) + ')'
-      : w.walkro(token);
+      ? '(' + walk(token) + ')'
+      : walk(token);
   }
 
-  function parenthesize(expr) {
-    var gen = w.walkro(expr);
+  function parenthesize(expr){
+    var gen = walk(expr);
 
     for (var i = 1; i < arguments.length; ++i)
     {
@@ -295,7 +268,7 @@ function gen_code(ast, options){
   };
 
   // search for shortest string in array
-  function best_of(array) {
+  function best_of(array){
     var len = array.length;
     var best = Infinity;
     var idx = -1;
@@ -313,7 +286,7 @@ function gen_code(ast, options){
     return array[idx];
   };
 
-  function needs_parens(expr) {
+  function needs_parens(expr){
     if (expr[0] == "function" || expr[0] == "object")
     {
       // dot/call on a literal function requires the
@@ -324,7 +297,6 @@ function gen_code(ast, options){
       // we're the first in this "seq" and the
       // parent is "stat", and so on.  Messy stuff,
       // but it worths the trouble.
-      var stack = w.stack;
       var self = expr;
       var idx = stack.length - 1;
       var next;
@@ -361,7 +333,7 @@ function gen_code(ast, options){
       }
     }
 
-    return !HOP(DOT_CALL_NO_PARENS, expr[0]);
+    return !DOT_CALL_NO_PARENS.hasOwnProperty(expr[0]);
   };
 
   function make_num(num) {
@@ -401,27 +373,27 @@ function gen_code(ast, options){
   // IF *without* an ELSE block (then the outer ELSE would refer
   // to the inner IF).  This function checks for this case and
   // adds the block brackets if needed.
-  function make_then(th) {
-    if (th == null)
+  function make_then(then_) {
+    if (then_ == null)
       return ";";
 
-    if (th[0] == "do")
+    if (then_[0] == "do")
     {
       // https://github.com/mishoo/UglifyJS/issues/#issue/57
       // IE croaks with "syntax error" on code like this:
       //     if (foo) do ... while(cond); else ...
       // we need block brackets around do/while
-      return make_block([th]);
+      return make_block([then_]);
     }
 
-    var b = th;
+    var b = then_;
     walk: while (true)
     {
       switch(b[0])
       {
         case 'if':
           if (!b[3]) // no else, we must add the block
-            return w.walkro(["block", [th]]);
+            return make_block([then_]);
 
           b = b[3];
           break;
@@ -441,25 +413,26 @@ function gen_code(ast, options){
       }
     }
 
-    return w.walkro(th);
+    return walk(then_);
   };
 
-  function make_function(token, keyword, no_parens) {
+  function make_function(token, keyword, no_parens){
     var name = token[1];
     var args = token[2];
     var body = token[3];
 
-    var out = add_spaces([
-      (keyword || 'function') + (name ? ' ' + make_name(name) : '') + '(' + args.map(make_name).join(comma) + ')',
+    var out = (
+      (keyword || 'function') + (name ? ' ' + name : '') + '(' + args.join(comma) + ')' + space +
       make_block(body)
-    ]);
+    );
+
 
     return !no_parens && needs_parens(token)
       ? "(" + out + ")"
       : out;
   };
 
-  function must_has_semicolon(node) {
+  function must_has_semicolon(node){
     while (node)
     {
       switch (node[0])
@@ -513,7 +486,7 @@ function gen_code(ast, options){
 
     for (var i = 0, last = statements.length - 1, stat; stat = statements[i]; i++)
     {
-      var code = w.walkro(stat);
+      var code = walk(stat);
       if (code != ";")
       {
         if (!beautify && i == last && !must_has_semicolon(stat))
@@ -545,36 +518,16 @@ function gen_code(ast, options){
   };
 
   function make_1vardef(def){
-    var name = make_name(def[0]);
+    var name = def[0];
     var val = def[1];
 
     if (val)
-      name = add_spaces([name, "=", parenthesizeSeq(val)]);
+      name += space + '=' + space + parenthesizeSeq(val);
 
     return name;
   };
 
-  var make = w.walkro;
-  return w.walk(ast, {
-    "string": function(token){
-      var str = token[1];
-      return encode_string(str);
-    },
-    "num": function(token){
-      var num = token[1];
-      return make_num(num);
-    },
-    "name": function(token){
-      var name = token[1];
-      return make_name(name);
-    },
-    "atom": function(token){
-      var name = token[1];
-      return make_name(name);
-    },
-    "debugger": function () {
-      return "debugger;"
-    },
+  var handlers = {
     "toplevel": function(token){
       var statements = token[1];
       return make_block_statements(statements).join(newline + newline);
@@ -599,7 +552,7 @@ function gen_code(ast, options){
       var out = ["try", make_block(try_)];
 
       if (catch_)
-        out.push("catch", "(" + catch_[0] + ")",
+        out.push("catch" + space + "(" + catch_[0] + ")",
           make_block(catch_[1])
         );
 
@@ -610,11 +563,6 @@ function gen_code(ast, options){
 
       return add_spaces(out);
     },
-    "throw": function(token){
-      var expr = token[1];
-
-      return add_spaces(["throw", this.walk(expr)]) + ";";
-    },
     "new": function(token){
       var ctor = token[1];
       var args = token[2];
@@ -623,14 +571,14 @@ function gen_code(ast, options){
         ? "(" + args.map(parenthesizeSeq).join(comma) + ")"
         : "";
 
-      return add_spaces(["new", parenthesize(ctor, "seq", "binary", "conditional", "assign", function(expr){
+      return add_spaces(["new", parenthesize(ctor, 'seq', 'binary', 'conditional', 'assign', 'call', function(expr){
         var has_call = {};
         try {
-          ctorWalker.walk(expr, {
-            "call": function(){
-              throw has_call
-            },
-            "function": $self
+          ctorWalker.walk(expr, function(token){
+            if (token[0] == 'call')
+              throw has_call;
+            if (token[0] == 'function' || token[0] == 'sub')
+              return token;
           });
         } catch (ex) {
           if (ex === has_call) return true;
@@ -651,7 +599,7 @@ function gen_code(ast, options){
 
               ;
               var code = branch[0]
-                ? indent_(+.5, true) + add_spaces(["case", this.walk(branch[0]) + ":"])
+                ? indent_(+.5, true) + add_spaces(["case", walk(branch[0]) + ":"])
                 : indent_(+.5, true) + "default:";
                 
               if (has_body)
@@ -668,33 +616,23 @@ function gen_code(ast, options){
             }, this).join(newline) + newline +
           indent_() + "}";
 
-      return add_spaces([
-        "switch", "(" + this.walk(expr) + ")",
+      return (
+        "switch" + space + "(" + walk(expr) + ")" + space +
         bodyCode
-      ]);
-    },
-    "break": function(token){
-      var label = token[1];
-
-      return 'break' + (label ? ' ' + make_name(label) : '') + ';';
-    },
-    "continue": function(token){
-      var label = token[1];
-
-      return 'continue' + (label ? ' ' + make_name(label) : '') + ';';
+      )
     },
     "conditional": function(token){
       var cond = token[1];
       var then_ = token[2];
       var else_ = token[3];
 
-      return add_spaces([
-        parenthesize(cond, "assign", "seq", "conditional"),
-        "?",
-        parenthesizeSeq(then_),
-        ":",
+      return (
+        (ASSIGN_CONDITIONAL_SEQ.hasOwnProperty(cond[0]) ? '(' + walk(cond) + ')' : walk(cond)) +//parenthesize(cond, "assign", "seq", "conditional") +
+        space + "?" + space +
+        parenthesizeSeq(then_) +
+        space + ":" + space +
         parenthesizeSeq(else_)
-      ]);
+      );
     },
     "assign": function(token){
       var op = token[1];
@@ -706,13 +644,11 @@ function gen_code(ast, options){
       else
         op = "=";
 
-      return add_spaces([
-        this.walk(lvalue), op, parenthesizeSeq(rvalue)
-      ]);
+      return walk(lvalue) + space + op + space + parenthesizeSeq(rvalue);
     },
     "dot": function(token){
       var expr = token[1];
-      var out = this.walk(expr);
+      var out = walk(expr);
 
       if (expr[0] == "num")
       {
@@ -721,18 +657,17 @@ function gen_code(ast, options){
       }
       else
       {
-        if (expr[0] != "function" && needs_parens(expr))
+        if (expr[0] != "function" && expr[0] != "object" && needs_parens(expr))
           out = "(" + out + ")";
       }
 
-      out += "." + make_name(token[2]);
-      return out;
+      return out + "." + token[2];
     },
     "call": function (token){
       var fn = token[1];
       var args = token[2];
 
-      var result = this.walk(fn);
+      var result = walk(fn);
 
       if (result.charAt(0) != "(" && needs_parens(fn))
         result = "(" + result + ")";
@@ -751,18 +686,18 @@ function gen_code(ast, options){
       var else_ = token[3];
 
       var out = [
-        "if", "(" + this.walk(cond) + ")"
+        "if" + space + "(" + walk(cond) + ")"
       ];
 
       if (!else_)
         out.push(
-          this.walk(then_)
+          walk(then_)
         );
       else
         out.push(
-          make_then(then_),
-          "else",
-          this.walk(else_)
+          make_then(then_) +
+          space + "else",
+          walk(else_)
         );
 
       return add_spaces(out);
@@ -773,17 +708,17 @@ function gen_code(ast, options){
       var step = token[3];
       var block = token[4];
 
-      init = (init ? this.walk(init) : "").replace(/;*\s*$/, ";" + space);
-      cond = (cond ? this.walk(cond) : "").replace(/;*\s*$/, ";" + space);
-      step = (step ? this.walk(step) : "").replace(/;*\s*$/, "");
+      init = (init ? walk(init) : "").replace(/;*\s*$/, ";" + space);
+      cond = (cond ? walk(cond) : "").replace(/;*\s*$/, ";" + space);
+      step = (step ? walk(step) : "").replace(/;*\s*$/, "");
 
       var args = init + cond + step;
       if (args == "; ; ") args = ";;";
 
-      return add_spaces([
-        'for', '(' + args + ')',
-        this.walk(block)
-      ]);
+      return (//add_spaces([
+        'for' + space + '(' + args + ')' + space +
+        walk(block)
+      )//]);
     },
     "for-in": function(token){
       var vvar = token[1];
@@ -792,24 +727,24 @@ function gen_code(ast, options){
       var block = token[4];
 
       return add_spaces([
-        'for', '(' + (vvar ? this.walk(vvar).replace(/;+$/, '') : this.walk(key)), 'in', this.walk(hash) + ")",
-        this.walk(block)
+        'for' + space + '(' + (vvar ? walk(vvar).replace(/;+$/, '') : walk(key)) + ' in', walk(hash) + ")",
+        walk(block)
       ]);
     },
     "while": function(token){
       var condition = token[1];
       var block = token[2];
-      return add_spaces([
-        'while', '(' + this.walk(condition) + ')',
-        this.walk(block)
-      ]);
+      return (//add_spaces([
+        'while' + space + '(' + walk(condition) + ')' + space +
+        walk(block)
+      )//]);
     },
     "do": function(token){
       var condition = token[1];
       var block = token[2];
       return add_spaces([
-        'do', this.walk(block),
-        'while', '(' + this.walk(condition) + ')'
+        'do', walk(block),
+        'while' + space + '(' + walk(condition) + ')'
       ]) + ";";
     },
     "return": function(token){
@@ -817,22 +752,27 @@ function gen_code(ast, options){
       var out = ["return"];
 
       if (expr)
-        out.push(this.walk(expr));
+        out.push(walk(expr));
 
       return add_spaces(out) + ";";
+    },
+    "throw": function(token){
+      var expr = token[1];
+
+      return add_spaces(["throw", walk(expr)]) + ";";
     },
     "binary": function(token){
       var operator = token[1];
       var lvalue = token[2];
       var rvalue = token[3];
 
-      var left = this.walk(lvalue);
-      var right = this.walk(rvalue);
+      var left = walk(lvalue);
+      var right = walk(rvalue);
 
       // XXX: I'm pretty sure other cases will bite here.
       //      we need to be smarter.
       //      adding parens all the time is the safest bet.
-      if (["assign", "conditional", "seq"].indexOf(lvalue[0]) != -1 ||
+      if (ASSIGN_CONDITIONAL_SEQ.hasOwnProperty(lvalue[0]) ||
           (lvalue[0] == "binary" && PRECEDENCE[operator] > PRECEDENCE[lvalue[1]]) ||
           (lvalue[0] == "function" && needs_parens(this))
          )
@@ -840,10 +780,10 @@ function gen_code(ast, options){
         left = "(" + left + ")";
       }
 
-      if (["assign", "conditional", "seq"].indexOf(rvalue[0]) != -1 ||
+      if (ASSIGN_CONDITIONAL_SEQ.hasOwnProperty(rvalue[0]) ||
           (rvalue[0] == "binary"
            && PRECEDENCE[operator] >= PRECEDENCE[rvalue[1]]
-           && !(rvalue[1] == operator && ['&&', '||', '*'].indexOf(operator) != -1)
+           && !(rvalue[1] == operator && (operator == '&&' || operator == '||' || operator == '*'))
          ))
       {
         right = "(" + right + ")";
@@ -862,20 +802,20 @@ function gen_code(ast, options){
       var operator = token[1];
       var expr = token[2];
 
-      var val = this.walk(expr);
+      var val = walk(expr);
 
-      if (!(expr[0] == "num" || (expr[0] == "unary-prefix" && !HOP(OPERATORS, operator + expr[1])) || !needs_parens(expr)))
+      if (!(expr[0] == "num" || (expr[0] == "unary-prefix" && !OPERATORS.hasOwnProperty(operator + expr[1])) || !needs_parens(expr)))
         val = "(" + val + ")";
 
-      return operator + (['typeof', 'void', 'delete'].indexOf(operator) != -1 ? " " : "") + val;
+      return operator + (operator == 'typeof' || operator == 'void' || operator == 'delete' ? " " : "") + val;
     },
     "unary-postfix": function(token){
       var operator = token[1];
       var expr = token[2];
 
-      var val = this.walk(expr);
+      var val = walk(expr);
 
-      if (!(expr[0] == "num" || (expr[0] == "unary-postfix" && !HOP(OPERATORS, operator + expr[1])) || !needs_parens(expr)))
+      if (!(expr[0] == "num" || (expr[0] == "unary-postfix" && !OPERATORS.hasOwnProperty(operator + expr[1])) || !needs_parens(expr)))
         val = "(" + val + ")";
 
       return val + operator;
@@ -884,12 +824,12 @@ function gen_code(ast, options){
       var expr = token[1];
       var subscript = token[2];
 
-      var hash = this.walk(expr);
+      var hash = walk(expr);
 
       if (needs_parens(expr))
         hash = "(" + hash + ")";
 
-      return hash + "[" + this.walk(subscript) + "]";
+      return hash + "[" + walk(subscript) + "]";
     },
     "object": function(token){
       var props = token[1];
@@ -927,10 +867,7 @@ function gen_code(ast, options){
                 }
               }
 
-              return indent_() + add_spaces(space_colon
-                ? [key, ":", val]
-                : [key + ":", val]
-              );
+              return indent_() + key + (space_colon ? space : '') + ':' + space + val;
             }).join("," + newline) + newline +
           indent_(-1) + '}';
       }
@@ -943,9 +880,6 @@ function gen_code(ast, options){
       var rx = token[1];
       var mods = token[2];
 
-      if (ascii_only)
-        rx = to_ascii(rx);
-
       return "/" + rx + "/" + mods;
     },
     "array": function(token){
@@ -954,61 +888,109 @@ function gen_code(ast, options){
       if (elements.length == 0)
         return "[]";
 
-      return add_spaces([
-        "[",
+      return (
+        "[" + space +
           elements.map(function(el, i){
             if (!beautify && el[0] == "atom" && el[1] == "undefined")
               return i == elements.length - 1 ? "," : "";
             else
               return parenthesizeSeq(el);
-          }).join(comma),
+          }).join(comma) + space +
         "]"
-      ]);
+      );
     },
     "stat": function(token){
       var stmt = token[1];
-      return this.walk(stmt).replace(/;*\s*$/, ";");
+      return walk(stmt).replace(/;*\s*$/, ";");
     },
     "seq": function(token){
-      return slice(token, 1).map(this.walkro).join(comma);
+      return token.slice(1).map(walk).join(comma);
     },
     "label": function(token){
       var name = token[1];
       var block = token[2];
-      return add_spaces([make_name(name), ":", this.walk(block)]);
+      return name + space + ":" + space + walk(block);
     },
     "with": function(token){
       var expr = token[1];
       var block = token[2];
 
       return add_spaces([
-        "with", "(" + this.walk(expr) + ")",
-        this.walk(block)
+        "with" + space + "(" + walk(expr) + ")",
+        walk(block)
       ]);
-    },
-    "directive": function(token){
-      var dir = token[1];
-      return makeString(dir) + ";";
-    },
+    }/*,
 
     ///////////////////
     "splice": function(token){  // ???
       var statements = token[1];
-      var parent = this.top(1);
-      if (HOP(SPLICE_NEEDS_BRACKETS, parent))
+      var parent = stack[stack.length - 1];
+      if (SPLICE_NEEDS_BRACKETS.hasOwnProperty(parent))
       {
         // we need block brackets in this case
         return make_block(token[1]);
       }
       else
       {
-        return make_block_statements(statements, true).map(function(line, i){
-          // the first line is already indented
-          return i > 0 ? indent(line) : line;
-        }).join(newline);
+        return make_block_statements(statements, true).join(newline + indent_());
       }
+    }*/
+  };
+
+  //global.stat = global.stat || {};
+  function walk(token){
+
+    /*global.count = (global.count || 0) + 1;
+
+    if (!stat[token[0]])
+      stat[token[0]] = 1;
+    else
+      stat[token[0]]++;*/
+
+    var ret;
+    switch (token[0])
+    {
+      case 'name':
+      case 'atom':
+        return token[1];
+
+      case 'string':
+        return encode_string(token[1]);
+
+      case 'num':
+        return make_num(token[1]);
+
+      case 'break':
+      case 'continue':
+        return token[0] + (token[1] ? ' ' + token[1] : '') + ';';
+
+      case 'debugger':
+        return 'debugger;';
+
+      case "directive":
+        return encode_string(token[1]) + ";";
+
+      default:
+        var fn = handlers[token[0]];
+
+        if (!fn)
+        {
+          console.warn('AST translate: Unknonw token type ')
+          return '';
+        }
+
+        stack.push(token);
+        ret = fn(token);
+        stack.pop();
     }
-  });
+
+    return ret;
+  }
+
+  var stack = [];
+  var result = walk(ast);
+
+  return ascii_only ? to_ascii(result) : result;
 };
 
 exports.gen_code = gen_code;

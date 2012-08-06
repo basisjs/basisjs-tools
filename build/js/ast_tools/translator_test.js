@@ -33,24 +33,28 @@ module.exports = function(flow){
   var ug_time = 0;
   var my_b_time = 0;
   var ug_b_time = 0;
+  //var tmp = [];
 
   for (var i = 0, file, t; file = flow.files.queue[i]; i++)
     if (file.type == 'script')
     {
+      //tmp.push(file.ast);
       console.log(file.relpath);
 
       var t = new Date;
       at.walk(file.ast, function(){ });
       time_ += new Date - t;
 
-      t = test(file, {});
+      t = test(file, {ascii_only:0});
       my_time += t[0];
       ug_time += t[1];
 
-      t = test(file, {beautify:true});
+      t = test(file, {ascii_only:0,beautify:true});
       my_b_time += t[0];
       ug_b_time += t[1];
     }
+
+  //require('fs').writeFileSync('ast.json', 'var ast = [\n' + tmp.map(JSON.stringify).join(',\n') + '\n]', 'utf-8');
 
   console.log('\n\n=================\n');
   console.log('base walk time:', time_);

@@ -213,7 +213,8 @@ function process(ast, walker, rootNames, refMap, exportMap, namespace){
     return rootNames.indexOf(name) != -1 && (!scope.hasOwnProperty(name) || isSpecial(name));
   }
 
-  function resolveName(token){
+  function resolveName(token, asString){
+    var result;
     if (token)
       switch (token[0])
       {
@@ -221,12 +222,17 @@ function process(ast, walker, rootNames, refMap, exportMap, namespace){
           var res = resolveName(token[1]);
 
           if (res)
-            return res.concat(token[2]);
+            result = res.concat(token[2]);
 
           break;
         case 'name':
-          return [token[1]];
+          result = [token[1]];
       }
+
+    if (result && asString)
+      return result.join('.');
+
+    return result;
   }
 
   function resolveNameRef(token){
@@ -243,12 +249,12 @@ function process(ast, walker, rootNames, refMap, exportMap, namespace){
     if (name)
       putScope(scope, name, 'defun');
 
-    body.scope = newScope();
+    var ast_fragment = ['block', body];
+    fnqueue.push(ast_fragment);
 
+    ast_fragment.scope = newScope();
     for (var i = 0; i < args.length; i++)
-      putScope(body.scope, args[i], 'arg');
-
-    fnqueue.push(['block', body]);
+      putScope(ast_fragment.scope, args[i], 'arg');
 
     return token;
   }
@@ -319,6 +325,7 @@ function process(ast, walker, rootNames, refMap, exportMap, namespace){
       if (re)
       {
         var isClass = re[re.length - 1] == 'subclass' && getClassDef(re.slice(0, re.length - 1), true);
+                      // re.pop() == 'subclass' && getClassDef(re, true);
 
         if (isClass)
         {
@@ -419,11 +426,28 @@ function process(ast, walker, rootNames, refMap, exportMap, namespace){
         token[1] = ['num', throwIdx];
       },
 
+      'dot': function(token){
+        if (namespace && scope == rootScope && token[2] == 'path' && resolveName(token[1], true) == 'this')
+          return ['string', namespace];
+      },
+
       name: function(token){
         var name = token[1];
+
+        if (name == 'this' && namespace && scope == rootScope)
+        {
+          var topToken = walkerStack[walkerStack.length - 2];
+          if (topToken[0] == 'dot' && topToken[1] == 'path')
+          {
+            console.log('>>>>', topToken);
+            topToken.splice(0, topToken.length, 'string', namespace);
+            return token;
+          }
+        }
+
         var ret = scope[name] && scope[name][1];
 
-        if (ret && resolveNameRef(ret)[0] != name)
+        if (ret && resolveNameRef(ret) && resolveNameRef(ret)[0] != name)
         {
           // TODO: check for name conflict, it base name not in scope
           token.splice.apply(token, [0, token.length].concat(ret));
