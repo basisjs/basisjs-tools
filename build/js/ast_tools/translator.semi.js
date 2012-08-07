@@ -428,10 +428,13 @@ function gen_code(ast, options){
     var body = token[3];
 
     indent_(+1);
+    var body = make_block_statements(body, true).map(indent).join(newline)
+    indent_(-1);
+
     var out = (
-      (keyword || 'function') + (name ? ' ' + name : '') + '(' + args.join(comma) + ')' + space + '{' + newline +
-        make_block_statements(body, true).join(newline) + newline +
-      indent_(-1) + '}'
+      (keyword || 'function') + (name ? ' ' + name : '') + '(' + args.join(comma) + ')' + space + '{' + 
+        (body ? newline + body + newline + indent_() : '') +
+      '}'
     );
 
 
@@ -496,64 +499,106 @@ function gen_code(ast, options){
     'const': true,
     'directive': true,
     'stat': true,
-    //'return': true,
+    'return': true,
     'break': true,
     'continue': true
   };
 
   var semicolon = '';
+  var semicolons = [];
+  var yy = [];
   var ll = 0;
-  function make_block_statements(statements, setSem){
+  function make_block_statements(statements, setSem, xx){
     var result = [];
     var oldSem = semicolon;
     //ll++;
     //console.log(repeat_string('>', ll), 'enter');
 
-    if (setSem) 
+    /*if (setSem)
+    {
+      semicolons.push(semicolon);
       semicolon = beautify ? '[last];' : '';
+    }*/
 
+    if (setSem)
+    {
+      setSemicolon = false;
+      yy.push(setSemicolon);
+    }
+
+    var semicolon = beautify ? ';' : '';
+
+    var f = -1;
+    var hasLast = false;
     for (var i = statements.length - 1, stat; stat = statements[i]; i--)
     {
       //console.log(JSON.stringify(stat));
       var line = walk(stat);
 
+      if (line && !/\S/.test(line)) console.log(stat);
+
       if (!line) continue;
+      f = i;
 
       if (SEMICOLON_AFTER.hasOwnProperty(stat[0]))
+      {
+        if (f == i)
+          hasLast = true;
         result.unshift(line + semicolon);
+      }
       else
         result.unshift(line);
 
-      semicolon = ';'
+      setSemicolon = true;
+      semicolon = ';';
     }
     //console.log(repeat_string('>', ll), 'exit');
     //ll--;
 
     if (setSem)
-      semicolon = oldSem;
+    {
+      //semicolon = oldSem;
+      setSemicolon = yy.pop();
+    }
+
+    if (xx && result.length < 2 && !beautify && hasLast && setSemicolon)
+    {
+      setSemicolon = false;
+      result[result.length - 1] += ';';
+    }
 
     return result;
   };
+
+  function force_block(token){
+    if (token[0] != 'block')
+      return make_block([token]);
+    else
+      return make_block(token[1]);
+  }
 
 
   function make_block(statements){
     if (!statements)
       return '';
     if (statements.length == 0)
-      return semicolon;
+      return '';
 
     indent_(+1);
-    var lines = make_block_statements(statements, true);
+    var lines = make_block_statements(statements, false, true);
     indent_(-1);
 
     if (lines.length > 1)
     {
+      //semicolon = '';
       return '{' + newline +
-        lines.join(newline) + newline + 
-      indent_() + '}'
+        lines.map(indent).join(newline) + newline + 
+      indent_(-1, 1) + '}'
     }
     else
-      return newline + lines[0] + (beautify ? '' : semicolon);
+    {
+      return lines[0];
+    }
   };
 
   function make_1vardef(def){
@@ -728,11 +773,11 @@ function gen_code(ast, options){
       var out = 'if' + space + '(' + walk(cond) + ')' + space;
 
       if (!else_)
-        out += make_block([then_]);
+        out += force_block(then_);
       else
         out += make_then(then_) +
           space + "else" + 
-          prependSpace(make_block([else_]));
+          prependSpace(force_block(else_));
 
       return out;
     },
@@ -749,7 +794,7 @@ function gen_code(ast, options){
       var args = init + cond + step;
       if (args == '; ; ') args = ';;';
 
-      return 'for' + space + '(' + args + ')' + space + walk(block);
+      return 'for' + space + '(' + args + ')' + space + force_block(block);
     },
     "for-in": function(token){
       var vvar = token[1];
@@ -975,6 +1020,7 @@ function gen_code(ast, options){
       stat[token[0]]++;*/
 
     var ret;
+    if (!token) debugger;
     switch (token[0])
     {
       case 'name':
@@ -1016,6 +1062,7 @@ function gen_code(ast, options){
 
     return ret;
   }
+
 
   var stack = [];
   var result = walk(ast);
