@@ -1,15 +1,16 @@
+#!/usr/bin/env node
 
 var commander = require('commander');
 
 // fetch version
 commander.version(
-  require('./package').version,
+  require('../package').version,
   '-v, --version'
 );
 
 // attach commands
-require('./build').command('build');
-require('./server').command('server');
+require('../build').command('build');
+require('../server').command('server');
 
 // check arguments
 var args = process.argv;
