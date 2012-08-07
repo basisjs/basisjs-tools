@@ -1,8 +1,8 @@
 {
   "name": "basis-devtools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/lahmatiy/basis-devtools",
-  "description": "A set of tools for basis framework",
+  "description": "Developer tools for basis framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
   "contributors": [ 
     {
@@ -14,13 +14,18 @@
     "type": "git",
     "url": "https://github.com/lahmatiy/basis-devtools.git"
   },
+  "preferGlobal": true,
+  "bin": {
+    "basis": "./basis.js"
+  },
   "dependencies": {
     "commander": "~0.6.1",
     "htmlparser2": "~2.2.9",
     "csso": "~1.2.14",
     "uglify-js": "~1.3.0",
     "jsdom-nocontextifiy": "~0.2.10",
-    "mime": "~1.2.6"
+    "mime": "~1.2.6",
+    "socket.io": "~0.9.9"
   },
   "engines": {
     "node": ">=8.0.0"

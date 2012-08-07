@@ -111,7 +111,7 @@ module.exports = function(flow){
   if (!flow.js.basisScript)
   {
     fconsole.log('[FAULT] basis.js not found (should be a <script> tag with src & basis-config attributes)');
-    process.exit();
+    //process.exit();
   }
 
   fconsole.endl();
