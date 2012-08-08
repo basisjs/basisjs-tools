@@ -141,11 +141,7 @@ module.exports = function(flow){
       {
         var filename = file.htmlFile.resolve((flow.js.rootBaseURI[config.autoload] || '') + config.autoload + '.js');
         fconsole.log('Autoload for `' + config.autoload + '` found: ' + filename);
-        flow.files.add({
-          inline: true,
-          type: 'script',
-          content: 'basis.require("' + config.autoload + '");'
-        });
+        file.content += ';basis.require("' + config.autoload + '");'
       }
 
       fconsole.end();
