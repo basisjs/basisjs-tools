@@ -166,7 +166,7 @@ File.prototype = {
     return this.digest_;
   },
   get encoding(){
-    return this.type == 'image' /*|| textFiles.indexOf(this.ext) == -1*/ ? 'binary' : 'utf-8';
+    return textFiles.indexOf(this.ext) == -1 ? 'binary' : 'utf-8';
   }
 };
 
