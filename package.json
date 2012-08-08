@@ -1,7 +1,7 @@
 {
   "name": "basis-devtools",
   "title": "Basis developer tools",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "homepage": "https://github.com/lahmatiy/basis-devtools",
   "description": "Developer tools for basis framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
@@ -29,7 +29,7 @@
     "basis": "./bin/basis"
   },
   "engines": {
-    "node": "~8.0.0"
+    "node": ">=0.8.0"
   },
   "dependencies": {
     "commander": "~0.6.1",
