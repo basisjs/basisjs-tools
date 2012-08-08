@@ -46,3 +46,7 @@ Builder search for `index` file (`index.html` in current folder by default, but 
 Optionally builder may merge, optimize, pack etc. Use `--help` option to get more info:
 
         $ basis server --help
+
+## Tools
+
+Dual licensed under the MIT or GPL Version 2 licenses.
