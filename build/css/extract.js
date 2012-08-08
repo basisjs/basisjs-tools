@@ -59,6 +59,20 @@ module.exports = function(flow){
               }));
 
               break;
+
+            default:
+              var attrs = html_at.getAttrs(node);
+              if (attrs.style)
+              {
+                file.link(flow.files.add({
+                  type: 'style',
+                  baseURI: file.baseURI,
+                  inline: true,
+                  rule: true,
+                  htmlNode: node,
+                  content: attrs.style
+                }));
+              }
           }
         }
       });
@@ -75,7 +89,7 @@ module.exports = function(flow){
 
   fconsole.log('Prepare output files');
   var outputFiles = queue.filter(function(file){
-    return file.type == 'style' && file.htmlNode;
+    return file.type == 'style' && file.htmlNode && !file.rule;
   });
 
   fconsole.log();
@@ -126,7 +140,10 @@ function processFile(file, flow){
   file.imports = [];
 
   // parse css into tree
-  file.ast = csso.parse(file.content, 'stylesheet');
+  if (file.rule)
+    file.ast = csso.parse('{' + file.content + '}', 'block');
+  else
+    file.ast = csso.parse(file.content, 'stylesheet');
 
   // search and extract css files
   at.walk(file.ast, {

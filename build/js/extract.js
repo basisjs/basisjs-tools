@@ -110,8 +110,7 @@ module.exports = function(flow){
 
   if (!flow.js.basisScript)
   {
-    fconsole.log('[FAULT] basis.js not found (should be a <script> tag with src & basis-config attributes)');
-    //process.exit();
+    fconsole.log('[WARN] basis.js not found (should be a <script> tag with src & basis-config attributes)');
   }
 
   fconsole.endl();
@@ -127,9 +126,6 @@ module.exports = function(flow){
       fconsole.start(file.relpath);
 
       processScript(file, flow);
-
-      //if (file.basisScript)
-      //  globalScope.put('basis', 'global');
 
       fconsole.endl();
     }
@@ -325,7 +321,6 @@ function processScript(file, flow){
 
           case BASIS_REQUIRE:
             namespace = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];
-            //console.log('basis.require call found:', translateCallExpr(expr, args));
             if (namespace)
             {
               var parts = namespace.split(/\./);
