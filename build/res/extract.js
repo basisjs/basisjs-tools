@@ -1,14 +1,11 @@
 
 var atCss = require('../css/ast_tools');
 var utils = require('../misc/utils');
-var path = require('path');
 
-module.exports = function(flowData){
-  var atTmpl = require('../tmpl/ast_tools');
-
-  var files = flowData.files;
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var files = flow.files;
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   var urlMap = [];
 
@@ -27,14 +24,12 @@ module.exports = function(flowData){
 
             if (uri.filename)
             {
-              var filename = path.resolve(file.baseURI, uri.filename);
-
               var resFile = files.add({
-                source: 'style:url',
-                filename: filename
+                filename: file.resolve(uri.filename)
               });
+              file.link(resFile);
               resFile.cssResource = true;
-              resFile.outputFilename = 'res/' + resFile.digest + path.extname(filename);
+              resFile.outputFilename = flow.outputResourceDir + resFile.digest + resFile.ext;
               resFile.fileRef = resFile.relOutputFilename;
 
               atCss.packUri(resFile.fileRef, token);
@@ -52,17 +47,21 @@ module.exports = function(flowData){
       case 'template':
         fconsole.start('Scan (' + file.type + ') ' + file.relpath);
 
-        atTmpl.walk(file.ast, {
-          attr: function(token, parentToken){
-            switch (atTmpl.tokenName(token))
-            {
-              case 'src':
-                if (atTmpl.tokenName(parentToken) == 'img')
-                  fconsole.log('Found <img src="' + atTmpl.tokenValue(token) + '"/>');
-                break;
+        if (file.ast)
+        {
+          var tmpl_at = require('../tmpl/ast_tools');
+          tmpl_at.walk(file.ast, {
+            attr: function(token, parentToken){
+              switch (tmpl_at.tokenName(token))
+              {
+                case 'src':
+                  if (tmpl_at.tokenName(parentToken) == 'img')
+                    fconsole.log('Found <img src="' + tmpl_at.tokenValue(token) + '"/>');
+                  break;
+              }
             }
-          }
-        })
+          });
+        }
 
         fconsole.endl();
       break;
@@ -70,4 +69,4 @@ module.exports = function(flowData){
   }
 }
 
-module.exports.handlerName = '[res] Search for resources';
+module.exports.handlerName = '[res] Extract';

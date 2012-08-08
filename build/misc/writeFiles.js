@@ -1,16 +1,17 @@
 
 var fs = require('fs');
+var path = require('path');
 
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   //
   // Create output folders (if required)
   //
 
-  flowData.files.mkdir(flowData.outputDir);
-  flowData.files.mkdir(flowData.outputResourceDir);
+  flow.files.mkdir(flow.options.output);
+  flow.files.mkdir(path.resolve(flow.options.output, flow.outputResourceDir));
 
 
   //
@@ -22,7 +23,7 @@ module.exports = function(flowData){
     if (file.outputFilename && 'outputContent' in file)
     {
       fconsole.log(file.relpath + ' -> ' + file.relOutputFilename);
-      fs.writeFile(file.outputFilename, file.outputContent, file.encoding);
+      fs.writeFile(path.resolve(flow.options.output, file.outputFilename), file.outputContent, file.encoding);
     }
   }
 

@@ -1,8 +1,8 @@
 
-module.exports = function(flowData){
-  if (flowData.options.jsSingleFile)
+module.exports = function(flow){
+  if (flow.options.jsSingleFile)
   {
-    var queue = flowData.files.queue;
+    var queue = flow.files.queue;
 
     // make one package
     for (var i = 0, file; file = queue[i]; i++)

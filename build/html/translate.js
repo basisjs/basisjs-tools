@@ -1,6 +1,5 @@
 
 var at = require('./ast_tools');
-var path = require('path');
 
 module.exports = function(flow){
   var fconsole = flow.console;
@@ -12,7 +11,7 @@ module.exports = function(flow){
     {
       fconsole.log(file.relpath);
 
-      file.outputFilename = path.basename(file.filename);
+      file.outputFilename = file.basename;
       file.outputContent = at.translate(file.ast);
     }
   }

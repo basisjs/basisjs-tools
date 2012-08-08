@@ -1,11 +1,10 @@
 
 var html_at = require('../html/ast_tools');
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
-  var fconsole = flowData.console;
-  var queue = flowData.files.queue;
-  var inputDir = flowData.inputDir;
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
   //
   // Scan html files for styles
@@ -19,50 +18,62 @@ module.exports = function(flowData){
     {
       fconsole.start(file.relpath);
 
-      html_at.walk(flowData.inputFile.ast, function(node){
-        var file;
+      html_at.walk(file.ast, {
+        tag: function(node){
+          switch (node.name)
+          {
+            case 'link':
+              var attrs = html_at.getAttrs(node);
+              if (/\bstylesheet\b/i.test(attrs.rel))
+              {
+                fconsole.log('External style found: <link rel="' + attrs.rel + '">');
+                file.link(flow.files.add({
+                  type: 'style',
+                  filename: file.resolve(attrs.href),
+                  media: attrs.media || 'all',
+                  htmlNode: node
+                }));
+              }
 
-        switch (node.type)
-        {
-          case 'tag':
-            var attrs = html_at.getAttrs(node);
-            if (node.name == 'link' && /\bstylesheet\b/i.test(attrs.rel))
-            {
-              fconsole.log('External style found: <link rel="' + attrs.rel + '">');
-              file = flowData.files.add({
-                source: 'html:link',
+              break;
+
+            case 'style':
+              var attrs = html_at.getAttrs(node);
+
+              // ignore <style> with type other than text/css
+              if (attrs.type && attrs.type != 'text/css')
+              {
+                fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
+                return;
+              }
+
+              fconsole.log('Inline style found');
+
+              file.link(flow.files.add({
                 type: 'style',
-                filename: attrs.href,
+                baseURI: file.baseURI,
+                inline: true,
                 media: attrs.media || 'all',
-                htmlInsertPoint: node
-              });
-            }
+                htmlNode: node,
+                content: html_at.getText(node)
+              }));
 
-            break;
+              break;
 
-          case 'style':
-            var attrs = html_at.getAttrs(node);
-
-            // ignore <style> with type other than text/css
-            if (attrs.type && attrs.type != 'text/css')
-            {
-              fconsole.log('[!] <style> with type ' + attrs.type + ' ignored');
-              return;
-            }
-
-            fconsole.log('Inline style found');
-
-            file = flowData.files.add({
-              source: 'html:style',
-              type: 'style',
-              baseURI: inputDir,
-              inline: true,
-              media: attrs.media || 'all',
-              htmlInsertPoint: node,
-              content: html_at.getText(node)
-            });
-
-            break;
+            default:
+              var attrs = html_at.getAttrs(node);
+              if (attrs.style)
+              {
+                file.link(flow.files.add({
+                  type: 'style',
+                  baseURI: file.baseURI,
+                  inline: true,
+                  rule: true,
+                  htmlNode: node,
+                  content: attrs.style
+                }));
+              }
+          }
         }
       });
 
@@ -78,37 +89,8 @@ module.exports = function(flowData){
 
   fconsole.log('Prepare output files');
   var outputFiles = queue.filter(function(file){
-    return file.type == 'style' && file.htmlInsertPoint;
+    return file.type == 'style' && file.htmlNode && !file.rule;
   });
-
-
-  //
-  // Create generic file
-  // it contains all css file that doesn't include by styles on page, but includes by templates and others
-  //
-
-  fconsole.log('Create generic style');
-  var genericFile = flowData.files.add({
-    source: 'generic',
-    type: 'style',
-    baseURI: flowData.inputDir,
-    media: 'all',
-    content: '',
-    htmlInsertPoint: {
-      type: 'tag',
-      name: 'link',
-      attribs: {
-        rel: 'stylesheet',
-        type: 'text/css',
-        media: 'all'
-      }
-    }
-  });
-
-  // add node to html
-  fconsole.log('Inject generic file into html');
-  html_at.injectToHead(flowData.inputFile.ast, genericFile.htmlInsertPoint);
-
 
   fconsole.log();
 
@@ -118,12 +100,12 @@ module.exports = function(flowData){
   //
 
   fconsole.start('Process styles');
-  for (var i = 0, file; file = flowData.files.queue[i]; i++)
+  for (var i = 0, file; file = flow.files.queue[i]; i++)
   {
     if (file.type == 'style')
     {
       fconsole.start(file.relpath);
-      processFile(file, flowData);
+      processFile(file, flow);
       fconsole.endl();
     }
   }
@@ -134,9 +116,8 @@ module.exports = function(flowData){
   // Save result in flow
   //
 
-  flowData.css = {
-    outputFiles: outputFiles,
-    genericFile: genericFile
+  flow.css = {
+    outputFiles: outputFiles
   };
 
 };
@@ -148,20 +129,21 @@ module.exports.handlerName = '[css] Extract';
 // Main part: file process
 //
 
-var path = require('path');
 var csso = require('csso');
 var utils = require('../misc/utils');
 var at = require('./ast_tools');
 
-function processFile(file, flowData){
-  var fconsole = flowData.console;
-  var baseURI = path.dirname(file.filename);
+function processFile(file, flow){
+  var fconsole = flow.console;
 
   // import tokens
   file.imports = [];
 
   // parse css into tree
-  file.ast = csso.parse(file.content, 'stylesheet');
+  if (file.rule)
+    file.ast = csso.parse('{' + file.content + '}', 'block');
+  else
+    file.ast = csso.parse(file.content, 'stylesheet');
 
   // search and extract css files
   at.walk(file.ast, {
@@ -186,16 +168,14 @@ function processFile(file, flowData){
           return;
 
         // resolve import file
-        var importFile = flowData.files.add(
+        var importFile = flow.files.add(
           uri.filename
             ? {
-                source: 'css:import',
-                filename: path.resolve(baseURI, uri.filename)
+                filename: file.resolve(uri.filename)
               }
             : {
-                source: 'css:import',
                 type: 'style',
-                baseURI: baseURI,
+                baseURI: file.baseURI,
                 content: uri.content
               }
         );
@@ -204,6 +184,9 @@ function processFile(file, flowData){
         var media = parts;
         if (media[0] && media[0][1] != 's')
           media.unshift(at.packWhiteSpace(' '));
+
+        // add link
+        file.link(importFile);
 
         // add import
         file.imports.push({

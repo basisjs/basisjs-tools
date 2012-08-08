@@ -1,20 +1,26 @@
 
 var html_at = require('../html/ast_tools');
+var at = require('./ast_tools');
 
-module.exports = function(flowData){
+module.exports = function(flow){
 
-  var fconsole = flowData.console;
-  var queue = flowData.files.queue;
-  var inputDir = flowData.inputDir;
+  var fconsole = flow.console;
+  var queue = flow.files.queue;
 
   //
   // Init js section
   //
 
   fconsole.log('Init js');
-  flowData.js = {
-    rootBaseURI: {},
-    getFileContext: getFileContext
+
+  var globalScope = new at.Scope('global');
+  globalScope.put('global', '?', '?');
+
+  flow.js = {
+    globalScope: globalScope,
+    rootNSFile: {},
+    getFileContext: getFileContext,
+    fn: []
   };
 
 
@@ -30,52 +36,53 @@ module.exports = function(flowData){
     {
       fconsole.start(file.relpath);
 
-      html_at.walk(file.ast, function(node){
-        var file;
+      html_at.walk(file.ast, {
+        tag: function(node){
+          if (node.name != 'script')
+            return;
 
-        if (node.type != 'script')
-          return;
+          var attrs = html_at.getAttrs(node);
 
-        var attrs = html_at.getAttrs(node);
-
-        // ignore <script> tags with type other than text/javascript
-        if (attrs.type && attrs.type != 'text/javascript')
-        {
-          fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
-          return;
-        }
-
-        // external script
-        if (attrs.src)
-        {
-          fconsole.log('External script found: <script src="' + attrs.src + '">');
-
-          file = flowData.files.add({
-            htmlInsertPoint: node,
-            source: 'html:script',
-            type: 'script',
-            filename: attrs.src
-          });
-
-          if (attrs.hasOwnProperty('basis-config'))
+          // ignore <script> tags with type other than text/javascript
+          if (attrs.type && attrs.type != 'text/javascript')
           {
-            fconsole.log('[i] basis.js marker found (basis-config attribute)');
-            file.basisScript = true;
-            file.basisConfig = attrs['basis-config'];
+            fconsole.log('[!] <script> with type ' + attrs.type + ' ignored');
+            return;
           }
-        }
-        else
-        {
-          fconsole.log('Inline script found');
 
-          file = flowData.files.add({
-            htmlInsertPoint: node,
-            source: 'html:script',
-            type: 'script',
-            inline: true,
-            baseURI: inputDir,
-            content: html_at.getText(node)
-          });
+          // external script
+          if (attrs.src)
+          {
+            fconsole.log('External script found: <script src="' + attrs.src + '">');
+
+            var scriptFile = flow.files.add({
+              htmlNode: node,
+              type: 'script',
+              filename: file.resolve(attrs.src)
+            });
+
+            file.link(scriptFile);
+
+            if (attrs.hasOwnProperty('basis-config'))
+            {
+              fconsole.log('[i] basis.js marker found (basis-config attribute)');
+              scriptFile.basisScript = true;
+              scriptFile.basisConfig = attrs['basis-config'];
+              scriptFile.namespace = 'basis';
+            }
+          }
+          else
+          {
+            fconsole.log('Inline script found');
+
+            file.link(flow.files.add({
+              htmlNode: node,
+              type: 'script',
+              inline: true,
+              baseURI: file.baseURI,
+              content: html_at.getText(node)
+            }));
+          }
         }
       });
 
@@ -96,15 +103,14 @@ module.exports = function(flowData){
     if (file.type == 'script' && file.basisScript)
     {
       fconsole.log('[OK] basis.js found at path ' + file.relPath);
-      flowData.js.rootBaseURI.basis = file.baseURI;
-      flowData.js.basisScript = file.filename;
+      flow.js.rootNSFile.basis = file;
+      flow.js.basisScript = file.filename;
       break;
     }
 
-  if (!flowData.js.basisScript)
+  if (!flow.js.basisScript)
   {
-    fconsole.log('[FAULT] basis.js not found (should be a <script> tag with src & basis-config attributes)');
-    process.exit();
+    fconsole.log('[WARN] basis.js not found (should be a <script> tag with src & basis-config attributes)');
   }
 
   fconsole.endl();
@@ -117,9 +123,9 @@ module.exports = function(flowData){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script')
     {
-      fconsole.start(file.filename ? file.relpath : '[inline script]');
+      fconsole.start(file.relpath);
 
-      processScript(file, flowData);
+      processScript(file, flow);
 
       fconsole.endl();
     }
@@ -133,12 +139,7 @@ module.exports.handlerName = '[js] Extract';
 // main part
 //
 
-var path = require('path');
-var at = require('./ast_tools');
 
-var BASIS_RESOURCE = at.normalize('basis.resource');
-var RESOURCE = at.normalize('resource');
-var BASIS_REQUIRE = at.normalize('basis.require');
 
 function getFileContext(file){
   return {
@@ -148,11 +149,38 @@ function getFileContext(file){
   };
 }
 
-function processScript(scriptFile, flowData){
-  var context = getFileContext(scriptFile);
-  var content = scriptFile.content;
+function createScope(file, flow){
+  if (file.type == 'script' && !file.jsScope)
+  {
+    var thisObject = file.namespace
+      ? { type: 'module', names: { path: ['string', file.namespace] } }
+      : { type: 'resource' };
 
-  if (flowData.options.buildMode)
+    var scope = new at.Scope('function', flow.js.globalScope);
+    scope.exports = ['object', []];
+
+    var names = {
+      __filename: ['string', file.relpath],
+      __dirname: ['string', file.baseURI],
+      global: '?', //flow.js.globalScope,
+      //basis: '?',
+      resource: ['function', null, []],
+      module: ['object', [['exports', scope.exports]]],
+      exports: scope.exports
+    };
+
+    for (var name in names)
+      scope.put(name, 'arg', names[name]);
+
+    file.jsScope = scope;
+  }
+}
+
+function processScript(file, flow){
+  var context = getFileContext(file);
+  var content = file.content;
+
+  if (flow.options.buildMode)
   {
     content = content
       .replace(/;;;.*([\r\n]|$)/g, '')
@@ -163,86 +191,176 @@ function processScript(scriptFile, flowData){
   var deps = [];
   var resources = [];
 
-  scriptFile.deps = deps;
-  scriptFile.resources = resources;
+  file.deps = deps;
+  file.resources = resources;
 
-  scriptFile.ast = at.walk(at.parse(content), {
-    "call": function(expr, args){
-      var newFilename;
-      var newFile;
+  if (file.basisScript)
+  {
+    var len = flow.js.globalScope.subscopes.length;
+  }
 
-      switch (at.translate(expr))
+  var ast = at.applyScope(at.parse(content), file.jsScope || flow.js.globalScope);
+
+  if (file.basisScript)
+  {
+    var basisScope = flow.js.globalScope.subscopes.slice(len)[0];
+
+    function astExtend(context, dest, source){
+      if (dest && source && source[0] == 'object')
       {
-        case BASIS_RESOURCE:
-          newFilename = at.getCallArgs(args, context)[0];
-          if (newFilename)
-          {
-            newFile = flowData.files.add({
-              source: 'js:basis.resource',
-              filename: newFilename
-            });
-            newFile.isResource = true;
-
-            resources.push(newFile);
-
-            return [
-              'call',
-              ['dot', ['name', 'basis'], 'resource'],
-              [
-                ['string', newFile.relpath]
-              ]
-            ];
-          }
-
-          break;
-
-        case RESOURCE:
-          newFilename = at.getCallArgs(args, context)[0];
-          //console.log(JSON.stringify(arguments));
-          //console.log('resource call found:', translateCallExpr(expr, args));
-          if (newFilename)
-          {
-            newFile = flowData.files.add({
-              source: 'js:basis.resource',
-              filename: path.resolve(scriptFile.baseURI, newFilename)
-            });
-            newFile.isResource = true;
-
-            resources.push(newFile);
-            
-            return [
-              'call',
-              ['dot', ['name', 'basis'], 'resource'],
-              [
-                ['string', newFile.relpath]
-              ]
-            ];
-          }
-
-          break;
-
-        case BASIS_REQUIRE:
-          newFilename = at.getCallArgs(args, context)[0];
-          //console.log('basis.require call found:', translateCallExpr(expr, args));
-          if (newFilename)
-          {
-            var namespace = newFilename;
-            var parts = namespace.split(/\./);
-            var root = parts[0];
-            var baseURI = flowData.js.rootBaseURI[root];
-
-            newFile = flowData.files.add({
-              source: 'js:basis.require',
-              filename: (baseURI ? baseURI + '/' : '') + parts.join('/') + '.js'
-            });
-            newFile.namespace = namespace;
-            newFile.package = root;
-
-            deps.push(newFile);
-          }
-
-          break;
+        if (!dest.obj)
+          dest.obj = {};
+        for (var i = 0, props = source[1], prop; prop = props[i]; i++)
+          dest.obj[prop[0]] = context.resolve(prop[1]);
       }
     }
-  });
+    function createNS(path){
+      var token = ['function', path, []];
+      token.obj = {
+        extend: nsExtend,
+        path: path
+      };
+      return token;
+    }
+
+    basisScope.get('extend').token.run = function(token, t, args){
+      //console.log('extend', arguments);
+      astExtend(this.scope, args[0], args[1]);
+    };
+    basisScope.get('getNamespace').token.run = function(token, t, args){
+      //console.log('getNamespace', arguments);
+      var namespace = args[0];
+      if (namespace && namespace[0] == 'string')
+      {
+        var path = namespace[1].split('.');
+        var root = path.shift();
+
+        var ns = flow.js.globalScope.get(root);
+        if (!ns)
+          ns = flow.js.globalScope.put(root, 'ns', createNS(root)).token;
+        else
+          ns = ns.token;
+
+        for (var i = 0; i < path.length; i++)
+        {
+          if (!ns.obj[path[i]])
+            ns.obj[path[i]] = createNS(path.slice(0, i + 1).join('.'));
+
+          ns = ns.obj[path[i]];
+        }
+
+        token.obj = ns.obj;
+      }
+    };
+    var nsExtend = at.createRunner(function(token, t, args){
+      astExtend(this.scope, t, args[0]);
+      token.obj = t.obj;
+    });
+
+    file.ast = at.struct(ast);
+  }
+  else
+  {
+    var BASIS_REQUIRE = flow.js.globalScope.resolve(['dot', ['name', 'basis'], 'require']) || [];
+    var BASIS_RESOURCE = flow.js.globalScope.resolve(['dot', ['name', 'basis'], 'resource']) || [];
+    var RESOURCE = (file.jsScope && file.jsScope.token('resource')) || [];
+    //console.log(BASIS_RESOURCE);
+
+    file.ast = at.walk(ast, {
+      "call": function(token){
+        var expr = token[1];
+        var args = token[2];
+        var newFilename;
+        var newFile;
+
+        switch (this.scope.resolve(expr))
+        {
+          case BASIS_RESOURCE:
+            newFilename = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];
+            if (newFilename)
+            {
+              newFile = flow.files.add({
+                filename: newFilename,
+                jsRefCount: 0
+              });
+              newFile.isResource = true;
+
+              createScope(newFile, flow);
+
+              file.link(newFile);
+              resources.push(newFile);
+
+              token[2] = [['string', newFile.relpath]];
+              token.resourceRef = newFile;
+              newFile.jsRefCount++;
+            }
+
+            break;
+
+          case RESOURCE:
+            newFilename = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];
+            if (newFilename)
+            {
+              newFile = flow.files.add({
+                filename: file.resolve(newFilename),
+                jsRefCount: 0
+              });
+              newFile.isResource = true;
+              createScope(newFile, flow);
+
+              file.link(newFile);
+              resources.push(newFile);
+
+              token[1] = ['dot', ['name', 'basis'], 'resource'];
+              token[2] = [['string', newFile.relpath]];
+              token.resourceRef = newFile;
+              newFile.jsRefCount++;
+            }
+
+            break;
+
+          case BASIS_REQUIRE:
+            namespace = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];
+            if (namespace)
+            {
+              var parts = namespace.split(/\./);
+              var root = parts[0];
+              var rootFile = flow.js.rootNSFile[root];
+
+              if (!rootFile)
+              {
+                rootFile = flow.files.add({
+                  filename: root + '.js',  // TODO: resolve relative to html file
+                  namespace: namespace,
+                  package: root
+                });
+                flow.js.rootNSFile[root] = rootFile;
+
+                flow.js.globalScope.put(root, 'global', {});
+              }
+
+              if (root == namespace)
+              {
+                newFile = rootFile;
+              }
+              else
+              {
+                newFile = flow.files.add({
+                  filename: rootFile.resolve(parts.join('/') + '.js')
+                });
+                newFile.namespace = namespace;
+                newFile.package = root;
+              }
+
+              createScope(newFile, flow);
+
+              file.link(newFile);
+              deps.push(newFile);
+            }
+
+            break;
+        }
+      }
+    });
+  }
 }

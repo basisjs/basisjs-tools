@@ -1,9 +1,9 @@
 
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
-  flowData.l10n = {
+  flow.l10n = {
     cultureList: [],  // TODO: fetch culture list from basis.l10n
     defList: [],
     getTokenList: [],
@@ -22,16 +22,16 @@ module.exports = function(flowData){
     if (file.type == 'script')
     {
       // scan file for basis.l10n.createDictionary & basis.l10n.setCultureList
-      fconsole.start(file.filename ? file.relpath : '[inline script]');
+      fconsole.start(file.relpath);
 
       // store reference for basis.l10n module
       if (file.namespace == 'basis.l10n')
       {
         fconsole.log('[i] basis.l10n module found, store reference for it');
-        flowData.l10n.module = file;
+        flow.l10n.module = file;
       }
 
-      scanFile(file, flowData);
+      scanFile(file, flow);
 
       fconsole.endl();
     }
@@ -43,15 +43,21 @@ module.exports = function(flowData){
   //
 
   fconsole.start('Fetch dictionary files');
-  for (var path in flowData.l10n.pathes)
+  for (var path in flow.l10n.pathes)
   {
-    fconsole.start(path);
-    for (var i = 0; culture = flowData.l10n.cultureList[i]; i++)
+    var entryList = flow.l10n.pathes[path];
+
+    fconsole.start(reldir(flow, path));
+    for (var i = 0; culture = flow.l10n.cultureList[i]; i++)
     {
-      flowData.files.add({
+      var dictFile = flow.files.add({
         filename: path + '/' + culture + '.json',
         type: 'l10n',
         culture: culture
+      })
+
+      entryList.__files.forEach(function(file){
+        file.link(dictFile);
       });
     }
     fconsole.endl();
@@ -65,49 +71,55 @@ module.exports.handlerName = '[l10n] Extract';
 // Main part
 //
 
+var path = require('path');
 var at = require('../js/ast_tools');
-var CREATE_DICTIONARY = at.normalize('basis.l10n.createDictionary');
-var GET_TOKEN = at.normalize('basis.l10n.getToken');
-var SET_CULTURE_LIST = at.normalize('basis.l10n.setCultureList');
 
-function scanFile(file, flowData){
-  var context = flowData.js.getFileContext(file);
-  var fconsole = flowData.console;
-  var defList = flowData.l10n.defList;
-  var getTokenList = flowData.l10n.getTokenList;
-  var pathes = flowData.l10n.pathes;
+function reldir(flow, dir){
+  return path.relative(flow.options.base, dir).replace(/\\/g, '/') + '/';
+}
+
+function scanFile(file, flow){
+  var context = flow.js.getFileContext(file);
+  var fconsole = flow.console;
+  var defList = flow.l10n.defList;
+  var getTokenList = flow.l10n.getTokenList;
+  var pathes = flow.l10n.pathes;
 
   at.walk(file.ast, {
-    call: function(expr, args){
-      switch (at.translate(expr))
+    "call": function(token){
+      var expr = token[1];
+      var args = token[2];
+
+      switch (at.resolveName(expr, true))
       {
-        case CREATE_DICTIONARY:
+        case 'basis.l10n.createDictionary':
           var eargs = at.getCallArgs(args, context);
           var entry = {
             args: args,
             name: eargs[0],
-            path: eargs[1],
+            path: path.resolve(flow.options.base, eargs[1]),
             keys: eargs[2],
             file: file
           };
 
-          fconsole.log('[FOUND] createDictionary ' + entry.name + ' -> ' + entry.path);
+          fconsole.log('[FOUND] createDictionary ' + entry.name + ' -> ' + reldir(flow, entry.path));
 
           file.hasL10n = true;
           defList.push(entry);
 
           if (!pathes[entry.path])
-            pathes[entry.path] = {};
+            pathes[entry.path] = { __files: [] };
 
-          pathes[entry.path][entry.name] = true;
+          pathes[entry.path].__files.add(file);
+          pathes[entry.path][entry.name] = file;
 
           break;
 
         //case L10N_TOKEN:
-        case GET_TOKEN:
+        case 'basis.l10n.getToken':
           if (args.length == 1 && args[0][0] == 'string')
           {
-            fconsole.log('[FOUND] getToken ' + args[0][0]);
+            fconsole.log('[FOUND] getToken ' + args[0][1]);
 
             file.hasL10n = true;
             getTokenList.push({
@@ -115,9 +127,34 @@ function scanFile(file, flowData){
               file: file
             });
           }
+          /*else
+          {
+            fconsole.log('[FOUND] getToken ' + JSON.stringify(args));
+            if (args.length > 1)
+            {
+              token[2] = [args.reduce(function(res, item){
+                if (!res.length)
+                  res = item;
+                else
+                {
+                  if (item[0] == 'string')
+                    item[1] = '.' + item[1];
+                  else
+                    if (res[0] == 'string')
+                      res[1] = res[1] + '.';
+                    else
+                      res = ['binary', '+', res, ['string', '.']];
+                  res = ['binary', '+', res, item];
+                }
+                return res;
+              }, [])];
+              fconsole.log('replace for ' + JSON.stringify(token[2]));
+            }
+            //return token;
+          }*/
           break;
 
-        case SET_CULTURE_LIST:
+        case 'basis.l10n.setCultureList':
           var list = at.getCallArgs(args, context)[0];
 
           fconsole.log('[FOUND] ' + at.translateCallExpr(expr, args) + ' in ' + file.relpath);
@@ -134,7 +171,7 @@ function scanFile(file, flowData){
             }
 
             fconsole.log('        [OK] Set culture list ' + JSON.stringify(list));
-            list.forEach(flowData.l10n.cultureList.add, flowData.l10n.cultureList);
+            list.forEach(flow.l10n.cultureList.add, flow.l10n.cultureList);
           }
           else
           {

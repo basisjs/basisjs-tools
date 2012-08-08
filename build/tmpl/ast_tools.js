@@ -35,7 +35,7 @@ module.exports = {
         return '';
     }
   },
-  walk: function(ast, handlers){
+  walk: function(ast, handlers, context){
 
     function walk(ast, parentToken){
       //console.log(JSON.stringify(ast));
@@ -45,7 +45,7 @@ module.exports = {
 
         var handler = handlers[typeMap[tokenType]];
         if (typeof handler == 'function')
-          handler(token, parentToken);
+          handler.call(context, token, parentToken);
 
         if (tokenType == tmpl.TYPE_ELEMENT)
         {

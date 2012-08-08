@@ -2,16 +2,16 @@
 // export handler
 //
 
-module.exports = function(flowData){
-  var queue = flowData.files.queue;
-  var fconsole = flowData.console;
+module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && (file.deps.length || file.resources.length))
     {
-      fconsole.start(file.filename ? file.relpath : '[inline script]');
+      fconsole.start(file.relpath);
 
-      relinkScript(file, flowData);
+      relinkScript(file, flow);
 
       fconsole.endl();
     }
@@ -28,30 +28,33 @@ var at = require('./ast_tools');
 var BASIS_RESOURCE = at.normalize('basis.resource');
 var BASIS_REQUIRE = at.normalize('basis.require');
 
-function relinkScript(file, flowData){
+function relinkScript(file, flow){
   file.ast = at.walk(file.ast, {
-    "call": function(expr, args){
-      switch (at.translate(expr))
+    "call": function(token){
+      var expr = token[1];
+      var args = token[2];
+
+      switch (at.resolveName(expr, true))
       {
-        case BASIS_RESOURCE:
+        case 'basis.resource':
           var arg0 = args[0];
 
           if (arg0[0] == 'string')
           {
             var filename = arg0[1];
-            var file = flowData.files.get(filename);
+            var file = flow.files.get(filename);
 
             if (file && file.jsRef)
             {
-              var old = at.translate(this);
+              var old = at.translate(['call', expr, args]);
               arg0[1] = file.jsRef;
-              flowData.console.log(old + ' -> ' + at.translate(this));
+              flow.console.log(old + ' -> ' + at.translate(['call', expr, args]));
             }
           }
 
           break;
 
-        case BASIS_REQUIRE:
+        case 'basis.require':
           return ['block'];
       }
     }

@@ -3,6 +3,11 @@ var path = require('path');
 var fs = require('fs');
 var crypto = require('crypto');
 
+var externalRx = /^(\s*[a-z0-9\-]:)\/\//i;
+var absRx = /^\s*\//;
+var queryAndHashRx = /[\?\#].*$/;
+var slashRx = /\\/g;
+
 var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
 
 var typeByExt = {
@@ -22,186 +27,293 @@ var typeByExt = {
 };
 
 var typeNotFoundHandler = {
-  '.js': function(filename){
-    return '/* Javascript file ' + filename + ' not found */';
+  '.js': '/* Javascript file {filename} not found */',
+  '.css': '/* CSS file {filename} not found */'
+};
+
+function getFileContentOnFailure(filename){
+  return (typeNotFoundHandler[path.extname(filename)] || '').replace(/\{filename\}/, filename);
+}
+
+function unixpath(filename){
+  return path.normalize(filename).replace(slashRx, '/');
+}
+
+function abspath(baseURI, filename){
+  return unixpath(path.resolve(baseURI, filename.replace(queryAndHashRx, '')));
+}
+
+function isExternal(uri){
+  return externalRx.test(uri);
+}
+
+/**
+ * @class File
+ */
+
+function File(manager, cfg){
+  this.manager = manager;
+  this.linkTo = [];
+  this.linkBack = [];
+
+  for (var key in cfg)
+    this[key] = cfg[key];
+
+  if (!this.type)
+    this.type = typeByExt[this.ext] || 'unknown';
+};
+
+File.prototype = {
+  resolve: function(filename){
+    if (isExternal(filename))
+      return filename;
+
+    // remove everything after ? (query string) or # (hash)
+    filename = filename.replace(queryAndHashRx, '');
+
+    var rel = filename.replace(absRx, '');
+    var result;
+
+    if (rel == filename)
+      result = path.resolve(this.baseURI, filename);
+    else
+      result = path.resolve(this.manager.baseURI, rel);
+
+    return unixpath(result);
   },
-  '.css': function(filename){
-    return '/* CSS file ' + filename + ' not found */'
+
+  // input filename
+  get basename(){
+    return this.filename
+      ? path.basename(this.filename)
+      : '';
+  },
+  get name(){
+    return this.filename
+      ? path.basename(this.filename, path.extname(this.filename))
+      : '';
+  },
+  get ext(){
+    return this.filename
+      ? path.extname(this.filename)
+      : '';
+  },
+  get relpath(){
+    return this.filename
+      ? unixpath(path.relative(this.manager.baseURI, this.filename))
+      : '[inline ' + this.type + ']';
+  },
+
+  // input baseURI
+  get baseURI(){
+    return unixpath(this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '');
+  },
+  set baseURI(uri){
+    if (!this.filename)
+      this.baseURI_ = unixpath(path.resolve(this.manager.baseURI, uri) + '/');
+  },
+
+  // output filename
+  get outputFilename(){
+    return this.outputFilename_;
+  },
+  set outputFilename(filename){
+    this.outputFilename_ = unixpath(filename);
+  },
+  get relOutputFilename(){
+    return this.outputFilename || '[no output filename]';
+  },
+
+  // links
+  link: function(file){
+    this.linkTo.add(file);
+    file.linkBack.add(this);
+  },
+  linkFrom: function(file){
+    file.link(this);
+  },
+  unlink: function(file){
+    this.linkTo.remove(file);
+    file.linkBack.remove(this);
+  },
+
+  hasLinkTo: function(file){
+    return this.linkTo.indexOf(file) != -1;
+  },
+  hasLinkFrom: function(file){
+    return file.hasLinkTo(this);
+  },
+  hasLinkType: function(type){
+    return this.linkBack.some(function(file){
+      return file.type == type;
+    });
+  },
+
+  // misc
+  get digest(){
+    if (!this.digest_)
+    {
+      var hash = crypto.createHash('md5');
+      hash.update(this.outputContent || this.content);
+      this.digest_ = hash.digest('base64')
+        // remove trailing == which always appear on md5 digest, save 2 bytes
+        .replace(/=+$/, '')
+        // make digest web safe
+        .replace(/\//g, '_')
+        .replace(/\+/g, '-');
+    }
+
+    return this.digest_;
+  },
+  get encoding(){
+    return textFiles.indexOf(this.ext) == -1 ? 'binary' : 'utf-8';
   }
 };
 
+/**
+ * @class FileManager
+ */
+
+var FileManager = function(baseURI, console){
+  this.baseURI = baseURI;
+  this.console = console;
+
+  this.map = {};
+  this.queue = [];
+}
+
+FileManager.prototype = {
+ /**
+  * Get reference for File by filename.
+  * @param {string} filename Path to file.
+  * @returns {File} Returns file if exists.
+  */
+  get: function(filename){
+    return this.map[abspath(this.baseURI, filename)];
+  },
+
+ /**
+  * Create new file or return existing. It can returns undefined if filename is external reference.
+  * @params {object} data Config object to create new file.
+  * @return {File|undefined}
+  *
+  * TODO: extend file with, if it already exists
+  * TODO: reate file with uri, if it's external?
+  */
+  add: function(data){
+    var file;
+
+    if (!data.filename)
+    {
+      file = new File(this, data);
+    }
+    else
+    {
+      // ignore references for external resources
+      if (isExternal(data.filename))
+      {
+        // external resource
+        this.console.log('[i] External resource `' + data.filename + '` ignored');
+        return;
+      }
+
+      var filename = abspath(this.baseURI, data.filename);
+                     // remove everything after ? (query string) or # (hash)
+                     // and normalize
+
+      if (this.map[filename]) // ignore duplicates
+      {
+        this.console.log('[ ] File `' + unixpath(path.relative(this.baseURI, filename)) + '` already in queue');
+        return this.map[filename];
+      }
+
+      // create file
+      data.filename = filename;
+      file = new File(this, data);
+
+      // read content
+      if (fs.existsSync(filename))
+      {
+        if (fs.statSync(filename).isFile())
+        {
+          this.console.log('[+] ' + file.relpath + ' (' + file.type + ')');
+          file.content = fs.readFileSync(filename, file.encoding);
+        }
+        else
+        {
+          file.warn = '`' + file.relpath + '` is not a file';
+        }
+      }
+      else
+      {
+        file.warn = 'File `' + file.relpath + '` not found';
+      }
+
+      if (file.warn)
+      {
+        this.console.log('[WARN] ' + file.warn);
+        file.content = getFileContentOnFailure(filename);
+      }
+
+      this.map[filename] = file;
+    }
+
+    this.queue.add(file);
+
+    return file;
+  },
+
+ /**
+  * Remove a file from manager and break all links between files.
+  * @param {File|string} fileRef File name or File instance to be removed.
+  */
+  remove: function(fileRef){
+    var filename;
+    var file;
+    
+    if (fileRef instanceof File)
+    {
+      file = fileRef;
+      filename = file.filename;
+    }
+    else
+    {
+      filename = abspath(this.baseURI, fileRef);
+      file = this.map[filename];
+
+      if (!file)
+      {
+        fconsole.log('[WARN] File `' + fileRef + '` not found in map');
+        return;
+      }
+    }
+
+    // remove links
+    for (var i = file.linkTo.length, linkTo; linkTo = file.linkTo[i]; i--)
+      file.unlink(linkTo);
+
+    for (var i = file.linkBack.length, linkBack; linkBack = file.linkBack[i]; i--)
+      linkBack.unlink(file);
+
+    // remove from queue
+    this.queue.remove(file);
+
+    // remove from map
+    if (filename)
+      delete this.map[filename];
+  },
+
+  mkdir: function(dirpath){
+    if (!fs.existsSync(dirpath))
+    {
+      this.console.log('Create folder ' + dirpath);
+      fs.mkdirSync(dirpath);  
+    }
+  }
+};
 
 //
 // export
 //
 
-module.exports = function(options, fconsole, flowData){
-  var fileMap = {};
-  var queue = [];
-  var outputQueue = [];
-
-  var inputFilename = path.resolve(options.base, options.file);
-  var inputDir = path.normalize(path.dirname(inputFilename) + '/');
-  var inputBasename = path.basename(inputFilename, path.extname(inputFilename));
-
-  var outputDir = path.normalize(options.output + '/');
-  var outputFilename = path.resolve(outputDir, path.basename(inputFilename));
-  var outputResourceDir = path.resolve(outputDir, 'res');
-
-  flowData.inputFilename = inputFilename;
-  flowData.inputDir = inputDir;
-  flowData.inputBasename = inputBasename;
-
-  flowData.outputFilename = outputFilename;
-  flowData.outputDir = outputDir;
-  flowData.outputResourceDir = outputResourceDir;
-
-  // check input file exists
-  if (!fs.existsSync(inputFilename))
-  {
-    console.warn('Input file ' + inputFilename + ' not found');
-    process.exit();
-  }
-
-
-  //
-  // file class
-  //
-
-  function File(cfg){
-    for (var key in cfg)
-      this[key] = cfg[key];
-  };
-  File.prototype = {
-    get baseURI(){
-      return (this.filename ? path.dirname(this.filename) + '/' : this.baseURI_ || '').replace(/\\/g, '/');
-    },
-    set baseURI(uri){
-      if (!this.filename)
-        this.baseURI_ = path.normalize(path.resolve(flowData.inputPath, uri) + '/').replace(/\\/g, '/');
-    },
-    get outputFilename(){
-      return this.outputFilename_;
-    },
-    set outputFilename(filename){
-      this.outputFilename_ = path.resolve(flowData.outputDir, path.normalize(filename));
-    },
-    get relpath(){
-      return this.filename ? relpath(this.filename) : '[no filename]';
-    },
-    get relOutputFilename(){
-      return this.outputFilename_ ? path.relative(flowData.outputDir, this.outputFilename_).replace(/\\/g, '/') : '[no output filename]';
-    },
-    get digest(){
-      if (!this.digest_)
-      {
-        var hash = crypto.createHash('md5');
-        hash.update(this.outputContent || this.content);
-        this.digest_ = hash.digest('base64')
-          // remove trailing == which always appear on md5 digest, save 2 bytes
-          .replace(/=+$/, '')
-          // make digest web safe
-          .replace(/\//g, '_')
-          .replace(/\+/g, '-');
-      }
-
-      return this.digest_;
-    },
-    get encoding(){
-      return this.type == 'image' ? 'binary' : 'utf-8';
-    }
-  };
-
-  function normpath(filename){
-    return path.normalize(path.resolve(flowData.inputDir, filename)).replace(/\\/g, '/');
-  }
-
-  function getFileId(filename){
-    return relpath(path.resolve(flowData.inputDir, filename));
-  }
-
-  function relpath(filename){
-    return path.relative(flowData.inputDir, filename).replace(/\\/g, '/');
-  }
-
-  function mkdir(dirpath){
-    dirpath = path.resolve(flowData.inputDir, dirpath);
-
-    if (!fs.existsSync(dirpath))
-    {
-      fconsole.log('Create folder ' + dirpath);
-      fs.mkdirSync(dirpath);  
-    }
-  }
-
-  function addFile(data){
-    var file;
-
-    if (data.filename)
-    {
-      data.filename = normpath(data.filename);
-      var filename = data.filename;
-      var fileId = getFileId(filename);
-      var ext = path.extname(filename);
-
-      if (fileMap[fileId]) // ignore duplicates
-      {
-        fconsole.log('[ ] File `' + fileId + '` already in queue');
-
-        return fileMap[fileId];
-      }
-
-      if (!data.type)
-        data.type = typeByExt[ext] || 'unknown';
-
-      // create file
-      file = new File(data);
-
-      // read content
-      if (fs.existsSync(filename) && fs.statSync(filename).isFile())
-      {
-        fconsole.log('[+] ' + file.relpath + ' (' + file.type + ')');
-        file.content = fs.readFileSync(filename, textFiles.indexOf(ext) != -1 ? 'utf-8' : 'binary');
-      }
-      else
-      {
-        fconsole.log('[WARN] File `' + file.relpath + '` not found');
-        file.content = typeNotFoundHandler[ext] ? typeNotFoundHandler[ext](filename) : '';
-      }
-
-      fileMap[fileId] = file;
-    }
-    else
-    {
-      file = new File(data);
-    }
-
-    queue.add(file);
-
-    return file;
-  }
-
-  function getFile(filename){
-    filename = getFileId(filename);
-    return fileMap[filename];
-  }
-
-  function removeFile(filename){
-    filename = getFileId(filename);
-    queue.remove(fileMap[filename]);
-    delete fileMap[filename];
-  }  
-
-  flowData.inputFile = addFile({
-    filename: flowData.inputFilename
-  });
-
-  return {
-    queue: queue,
-    map: fileMap,
-    add: addFile,
-    get: getFile,
-    remove: removeFile,
-    mkdir: mkdir
-  };
-};
+module.exports = FileManager;
