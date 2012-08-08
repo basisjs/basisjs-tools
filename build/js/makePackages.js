@@ -5,6 +5,9 @@ module.exports = function(flow){
 
   var packages = {};
   var queue = flow.files.queue;
+
+  if (flow.js.basisScript)
+    packages['script'] = [];  // TODO: change for real basis package name
   
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && file.package)

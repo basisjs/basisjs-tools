@@ -1,5 +1,19 @@
 
 module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
+
+  if (!flow.js.basisScript)  // TODO: check for basis.template, but not for basis.js
+  {
+    fconsole.log('Skiped.')
+    fconsole.log('basis.template is not available');
+    return;    
+  }
+
+  //
+  // main part
+  //
+
   try {
     global.basis = require(flow.js.basisScript).basis;
     basis.require('basis.template');
@@ -8,9 +22,6 @@ module.exports = function(flow){
     global.document = require('jsdom-nocontextifiy').jsdom();
     basis.require('basis.template');
   }
-
-  var queue = flow.files.queue;
-  var fconsole = flow.console;
 
   for (var i = 0, file; file = queue[i]; i++)
   {

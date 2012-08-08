@@ -1,6 +1,5 @@
 
 module.exports = function(flow){
-  var at = require('./ast_tools');
   var fconsole = flow.console;
   var queue = flow.files.queue;
 
@@ -9,7 +8,7 @@ module.exports = function(flow){
     if (file.type == 'template')
     {
       fconsole.log(file.relpath);
-      file.jsResourceContent = file.ast;
+      file.jsResourceContent = file.ast || file.content;
     }
   }
 }

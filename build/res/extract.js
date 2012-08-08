@@ -3,8 +3,6 @@ var atCss = require('../css/ast_tools');
 var utils = require('../misc/utils');
 
 module.exports = function(flow){
-  var atTmpl = require('../tmpl/ast_tools');
-
   var files = flow.files;
   var queue = flow.files.queue;
   var fconsole = flow.console;
@@ -49,17 +47,21 @@ module.exports = function(flow){
       case 'template':
         fconsole.start('Scan (' + file.type + ') ' + file.relpath);
 
-        atTmpl.walk(file.ast, {
-          attr: function(token, parentToken){
-            switch (atTmpl.tokenName(token))
-            {
-              case 'src':
-                if (atTmpl.tokenName(parentToken) == 'img')
-                  fconsole.log('Found <img src="' + atTmpl.tokenValue(token) + '"/>');
-                break;
+        if (file.ast)
+        {
+          var tmpl_at = require('../tmpl/ast_tools');
+          tmpl_at.walk(file.ast, {
+            attr: function(token, parentToken){
+              switch (tmpl_at.tokenName(token))
+              {
+                case 'src':
+                  if (tmpl_at.tokenName(parentToken) == 'img')
+                    fconsole.log('Found <img src="' + tmpl_at.tokenValue(token) + '"/>');
+                  break;
+              }
             }
-          }
-        })
+          });
+        }
 
         fconsole.endl();
       break;
