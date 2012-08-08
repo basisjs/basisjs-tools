@@ -16,18 +16,15 @@ module.exports = {
 // main part
 //
 
-function command(command, parse, action){
-  var options = apply(!command || command === commander ? commander : commander.command(command), parse);
+function command(command, args, action){
+  var options = apply(!command || command === commander ? commander : commander.command(command), args);
 
-  if (parse)
-    action(options);
-  else
-    options.action(action);
+  action(options);
 
   return options;
 }
 
-function apply(obj, parse){
+function apply(obj, args){
   obj
     .description('Make an application build')
 
@@ -55,8 +52,8 @@ function apply(obj, parse){
     //experimental
     .option('-l, --l10n-pack', 'Build l10n index, pack dictionaries and replace token names for shorter one if possible.');
 
-  if (parse)
-    obj.parse(process.argv);
+  if (args)
+    obj.parse(args);
 
   return obj;
 }

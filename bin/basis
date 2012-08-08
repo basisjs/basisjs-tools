@@ -3,26 +3,28 @@
 var commander = require('commander');
 
 // fetch version
-commander.version(
-  require('../package').version,
-  '-v, --version'
-);
-
-// attach commands
-require('../build').command('build');
-require('../server').command('server');
+commander
+  .version(
+    require('../package.json').version,
+    '-v, --version'
+  )
+  .option('--no-config', 'don\'t use basis.config')
+  .on('*', function(args){
+    console.warn('Unknown command', args[0]);
+    process.exit();
+  })
+  .on('build', function(a, b){
+    require('../build').command('build', a.concat(b));
+  })
+  .on('server', function(a, b){
+    require('../server').command('server', a.concat(b));
+  });
 
 // check arguments
 var args = process.argv;
 if (args.length < 3)
 {
-  console.warn('Command required, use -h ot --help to get help');
-  process.exit();
-}
-
-if (!/^-/.test(args[2]) && commander.commands.map(function(cmd){ return cmd.name }).indexOf(args[2]) == -1)
-{
-  console.warn('Unknown command', args[2]);
+  console.warn('Command required, use -h or --help to get help');
   process.exit();
 }
 

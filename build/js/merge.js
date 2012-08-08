@@ -1,10 +1,10 @@
 
 module.exports = function(flow){
+  var queue = flow.files.queue;
+  var fconsole = flow.console;
+
   if (flow.options.jsSingleFile)
   {
-    var queue = flow.files.queue;
-    var fconsole = flow.console;
-
     // make one package
     for (var i = 0, file; file = queue[i]; i++)
       if (file.type == 'script' && file.package)

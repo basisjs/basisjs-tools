@@ -16,18 +16,15 @@ module.exports = {
 // main part
 //
 
-function command(command, parse, action){
-  var options = apply(!command || command === commander ? commander : commander.command(command), parse);
+function command(command, args, action){
+  var options = apply(!command || command === commander ? commander : commander.command(command), args);
 
-  if (parse)
-    action(options);
-  else
-    options.action(action);
+  action(options);
 
   return options;
 }
 
-function apply(options, parse){
+function apply(options, args){
   options
     .version('0.0.1', '-v, --version')
     .description('Launch a http server')
@@ -36,8 +33,8 @@ function apply(options, parse){
     .option('-p, --port <n>', 'listening port (default 8000)', Number, 8000)
 
   // parse argv
-  if (parse)
-    options.parse(process.argv);
+  if (args)
+    options.parse(args);
 
   return options;
 }

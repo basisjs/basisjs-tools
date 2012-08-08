@@ -15,8 +15,8 @@ var command = moduleOptions.command;
 
 exports.launch = launch;
 exports.options = moduleOptions;
-exports.command = function(commander, run){
-  return command(commander, run, launch);
+exports.command = function(commander, args){
+  return command(commander, args, launch);
 };
 
 //

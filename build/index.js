@@ -14,8 +14,8 @@ require('./misc/utils'); // TODO: make it explicit
 
 exports.build = build;
 exports.options = moduleOptions;
-exports.command = function(commander, parse){
-  return command(commander, parse, build);
+exports.command = function(commander, args){
+  return command(commander, args, build);
 };
 
 //
@@ -44,7 +44,7 @@ function build(options){
   var inputFilename = path.resolve(options.base, options.file);
 
   // check input file exists
-  if (!fs.existsSync(inputFilename))
+  if (!fs.existsSync(inputFilename) || !fs.statSync(inputFilename).isFile())
   {
     console.warn('Input file ' + inputFilename + ' not found');
     process.exit();
