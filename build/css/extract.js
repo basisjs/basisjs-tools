@@ -14,7 +14,7 @@ module.exports = function(flow){
 
   for (var i = 0, file; file = queue[i]; i++)
   {
-    if (file.type == 'html')
+    if (file.type == 'html' && file.ast)
     {
       fconsole.start(file.relpath);
 

@@ -10,18 +10,31 @@ module.exports = function(flow){
     return;    
   }
 
+  var templateModule;
+  for (var i = 0; i < queue.length; i++)
+    if (queue[i].type == 'script' && queue[i].namespace == 'basis.template')
+    {
+      templateModule = queue[i];
+      break;
+    }
+
+  if (!templateModule)  // TODO: check for basis.template, but not for basis.js
+  {
+    fconsole.log('Skiped.')
+    fconsole.log('basis.template is not available');
+    return;    
+  }
+
   //
   // main part
   //
 
-  try {
-    global.basis = require(flow.js.basisScript).basis;
-    basis.require('basis.template');
-  } catch(e) {
-    global.basis = require(flow.js.basisScript).basis;
+  global.basis = require(flow.js.basisScript).basis;
+
+  if (templateModule.deps.length && templateModule.deps.some(function(file){ return file.namespace == 'basis.dom' }))
     global.document = require('jsdom-nocontextifiy').jsdom();
-    basis.require('basis.template');
-  }
+
+  basis.require('basis.template');
 
   for (var i = 0, file; file = queue[i]; i++)
   {

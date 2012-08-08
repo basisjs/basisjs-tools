@@ -9,6 +9,7 @@ var queryAndHashRx = /[\?\#].*$/;
 var slashRx = /\\/g;
 
 var textFiles = ['.css', '.js', '.json', '.tmpl', '.txt', '.svg', '.html'];
+var textTypes = ['script', 'style', 'template', 'json', 'l10n', 'xml', 'svg', 'text'];
 
 var typeByExt = {
   '.js': 'script',
@@ -166,7 +167,7 @@ File.prototype = {
     return this.digest_;
   },
   get encoding(){
-    return textFiles.indexOf(this.ext) == -1 ? 'binary' : 'utf-8';
+    return textTypes.indexOf(this.type) == -1 && textFiles.indexOf(this.ext) == -1 ? 'binary' : 'utf-8';
   }
 };
 
