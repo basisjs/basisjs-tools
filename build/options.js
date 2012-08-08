@@ -33,7 +33,7 @@ function apply(obj, parse){
 
     .option('-b, --base <path>', 'Base input path for path resolving (current path by default)')
     .option('-f, --file <filename>', 'File name of file to build (index.html by default)', 'index.html')
-    .option('-o, --output <path>', 'Path for output', 'build.new')
+    .option('-o, --output <path>', 'Path for output (build by default)', 'build')
 
     // general
     .option('-p, --pack', 'Pack sources. It equals to: --js-build-mode --js-cut-dev --js-pack --css-pack')

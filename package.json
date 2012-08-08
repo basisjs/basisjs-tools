@@ -1,6 +1,6 @@
 {
   "name": "basis-devtools",
-  "version": "0.0.8",
+  "version": "0.0.13",
   "homepage": "https://github.com/lahmatiy/basis-devtools",
   "description": "Developer tools for basis framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",

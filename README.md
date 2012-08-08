@@ -16,7 +16,7 @@ Developer tools for [basis.js](https://github.com/lahmatiy/basisjs) framework.
 
 After that `basis` should be available in command line.
 
-NOTE: If you are on Windows make sure `path/to/nodejs/node_modules/.bin` is present in PATH
+NOTE: If you are on Windows make sure `path/to/nodejs/node_modules/.bin` is presented in PATH
 
 ## Tools
 

@@ -65,7 +65,7 @@ function build(options){
     require('./html/extract'),
     require('./js/extract'),
 
-    require('./js/ast_tools/translator_test')/*,
+    //require('./js/ast_tools/translator_test'),
 
     require('./tmpl/extract'),
     require('./css/extract'),
@@ -105,7 +105,7 @@ function build(options){
     require('./html/translate'),
     
     // flush output
-    require('./misc/writeFiles')*/
+    require('./misc/writeFiles')
   ];
 
   handlers.forEach(function(handler){
