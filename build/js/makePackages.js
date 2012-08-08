@@ -5,6 +5,7 @@ module.exports = function(flow){
 
   var packages = {};
   var queue = flow.files.queue;
+  var fconsole = flow.console;
 
   if (flow.js.basisScript)
     packages['script'] = [];  // TODO: change for real basis package name
@@ -18,6 +19,15 @@ module.exports = function(flow){
 
       package.push.apply(package, buildDep(file, file.package));
     }
+
+  for (var name in packages)
+  {
+    fconsole.start('Package `' + name + '`');
+    packages[name].forEach(function(file){
+      fconsole.log(file.relpath);
+    });
+    fconsole.endl();
+  }
 
   flow.js.packages = packages;
 
