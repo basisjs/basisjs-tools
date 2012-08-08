@@ -34,8 +34,9 @@ module.exports = function(flow){
     basisFile.ast = at.walk(basisFile.ast, {
       "dot": function(token){
         var expr = token[1];
+        var name = at.resolveName(token, true);
 
-        if (!inserted && at.resolveName(token, true) == 'this.__resources__')
+        if (!inserted && name == 'this.__resources__' || name == 'global.__resources__')
         {
           inserted = true;
           return at.parse('0,' + (function(){
@@ -101,7 +102,11 @@ module.exports = function(flow){
   for (var name in packages)
   {
     var packageFiles = packages[name];
-    fconsole.log('Package ' + name + ':\n  ' + packageFiles.map(function(f){ return f.relpath }).join('\n  '));
+    fconsole.start('Package ' + name + ':');
+    packageFiles.forEach(function(f){
+      fconsole.log(f.relpath);
+    });
+    fconsole.endl();
 
     var isCoreFile = basisFile && (flow.options.jsSingleFile || packageName == 'basis');
     var throwCodes = packageFiles.reduce(function(res, file){

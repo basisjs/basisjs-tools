@@ -18,6 +18,7 @@ module.exports = function(flow){
 
   flow.js = {
     globalScope: globalScope,
+    rootBaseURI: {},
     rootNSFile: {},
     getFileContext: getFileContext,
     fn: []
@@ -63,11 +64,20 @@ module.exports = function(flow){
 
             file.link(scriptFile);
 
-            if (attrs.hasOwnProperty('basis-config'))
+            var configAttr;
+
+            if (attrs.hasOwnProperty('data-basis-config'))
+              configAttr = 'data-basis-config';
+            else
+              if (attrs.hasOwnProperty('basis-config'))
+                configAttr = 'basis-config';
+
+            if (configAttr)
             {
               fconsole.log('[i] basis.js marker found (basis-config attribute)');
+              scriptFile.htmlFile = file;
               scriptFile.basisScript = true;
-              scriptFile.basisConfig = attrs['basis-config'];
+              scriptFile.basisConfig = attrs[configAttr] || '';
               scriptFile.namespace = 'basis';
             }
           }
@@ -102,9 +112,44 @@ module.exports = function(flow){
   for (var i = 0, file; file = queue[i]; i++)
     if (file.type == 'script' && file.basisScript)
     {
-      fconsole.log('[OK] basis.js found at path ' + file.relPath);
+      fconsole.log('[OK] basis.js found at path ' + file.relpath);
       flow.js.rootNSFile.basis = file;
       flow.js.basisScript = file.filename;
+
+      //
+      // parse basis config
+      //
+
+      fconsole.start('Parse config:');
+      var config = {};
+      try {
+        config = Function('return{' + file.basisConfig + '}')();
+      } catch(e) {
+        fconsole.log('[WARN] basis-config parse fault: ' + e);
+      }
+
+      if (!config.path)
+        config.path = {};
+
+      for (var key in config.path)
+      {
+        flow.js.rootBaseURI[key] = file.htmlFile.resolve(config.path[key]) + '/';
+        fconsole.log('Path found for ' + key + ': ' + config.path[key] + ' -> ' + flow.js.rootBaseURI[key]);
+      }
+
+      if (config.autoload)
+      {
+        var filename = file.htmlFile.resolve((flow.js.rootBaseURI[config.autoload] || '') + config.autoload + '.js');
+        fconsole.log('Autoload for `' + config.autoload + '` found: ' + filename);
+        flow.files.add({
+          inline: true,
+          type: 'script',
+          content: 'basis.require("' + config.autoload + '");'
+        });
+      }
+
+      fconsole.end();
+
       break;
     }
 
@@ -329,14 +374,15 @@ function processScript(file, flow){
 
               if (!rootFile)
               {
+                // TODO: resolve filename relative to html file
+                var filename = flow.js.rootBaseURI[root] ? path.resolve(flow.js.rootBaseURI[root] + root + '.js') : root + '.js';
                 rootFile = flow.files.add({
-                  filename: root + '.js',  // TODO: resolve relative to html file
+                  filename: filename,  
                   namespace: namespace,
                   package: root
                 });
                 flow.js.rootNSFile[root] = rootFile;
-
-                flow.js.globalScope.put(root, 'global', {});
+                flow.js.globalScope.put(root, 'global', {}); // ?? remove
               }
 
               if (root == namespace)

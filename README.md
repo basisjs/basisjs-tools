@@ -47,6 +47,6 @@ Optionally builder may merge, optimize, pack etc. Use `--help` option to get mor
 
         $ basis server --help
 
-## Tools
+## License
 
 Dual licensed under the MIT or GPL Version 2 licenses.
