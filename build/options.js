@@ -17,7 +17,7 @@ module.exports = {
 //
 
 function command(args, config, action){
-  var command = apply(commander.command('build'), args);
+  var command = apply(commander.command('build <file>'), args);
 
   if (config)
   {
@@ -34,6 +34,7 @@ function command(args, config, action){
     }
   }
 
+  //args.splice(2, 0, 'build');
   command.parse(args || process.argv);
   action(command);
 
@@ -82,7 +83,10 @@ function apply(command){
     .option('--css-inline-image-size <n>', 'Max size for resource to be inlined (in bytes).', Number, 0)
 
     //experimental
-    .option('-l, --l10n-pack', 'Build l10n index, pack dictionaries and replace token names for shorter one if possible.');
+    .option('-l, --l10n-pack', 'Build l10n index, pack dictionaries and replace token names for shorter one if possible.')
+    .on('*', function(args){
+      this.file = path.resolve(args[0]);
+    });
 }
 
 function norm(options){

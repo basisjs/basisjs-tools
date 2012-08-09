@@ -42,7 +42,7 @@ function build(options){
   flow.outputResourceDir = 'res/';
 
   fconsole.start('Build settings');
-  fconsole.log('Base path:', options.base);
+  fconsole.log('Base:', options.base);
   fconsole.log('Input file:', options.file);
   fconsole.log('Output path:', options.output);
   fconsole.endl();

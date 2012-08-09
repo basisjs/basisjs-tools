@@ -17,7 +17,6 @@ commander
   )
   .option('-n, --no-config', 'don\'t use basis.config')
   .option('-c, --config-file <filename>', 'set config filename (if not set search for basis.config from current folder up to top)')
-  .option('-d, --debug', 'verbose output for config search and apply')
   .on('*', function(args){
     console.warn('Unknown command', args[0]);
     process.exit();
@@ -48,14 +47,14 @@ function fetchConfig(filename){
   try {
     fileContent = fs.readFileSync(filename, 'utf-8');
   } catch(e) {
-    console.log('Config read error: ' + e);
+    console.warn('Config read error: ' + e);
     process.exit();
   }
 
   try {
     result = JSON.parse(fileContent);
   } catch(e) {
-    console.log('Config parse error: ' + e);
+    console.warn('Config parse error: ' + e);
     process.exit();
   }
 
