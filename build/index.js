@@ -14,15 +14,15 @@ require('./misc/utils'); // TODO: make it explicit
 
 exports.build = build;
 exports.options = moduleOptions;
-exports.command = function(commander, args){
-  return command(commander, args, build);
+exports.command = function(args, config){
+  return command(args, config, build);
 };
 
 //
 // if launched directly, run builder
 //
 if (process.mainModule === module)
-  command(null, true, build);
+  command(null, null, build);
 
 //
 // main function
@@ -41,7 +41,13 @@ function build(options){
 
   flow.outputResourceDir = 'res/';
 
-  var inputFilename = path.resolve(options.base, options.file);
+  fconsole.start('Build settings');
+  fconsole.log('Base path:', options.base);
+  fconsole.log('Input file:', options.file);
+  fconsole.log('Output path:', options.output);
+  fconsole.endl();
+
+  var inputFilename = options.file;
 
   // check input file exists
   if (!fs.existsSync(inputFilename) || !fs.statSync(inputFilename).isFile())

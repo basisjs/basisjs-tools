@@ -1,6 +1,6 @@
 
 var at = require('../index');
-var ast = at.parse(require('fs').readFileSync('test/test.js', 'utf-8'));
+var ast = at.parse(require('fs').readFileSync('test.js', 'utf-8'));
 var gs = new at.Scope('global');
 
 var sss = gs.put('String', 'var', ['function', 'String', ['val']]);

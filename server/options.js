@@ -16,30 +16,42 @@ module.exports = {
 // main part
 //
 
-function command(command, args, action){
-  var options = apply(!command || command === commander ? commander : commander.command(command), args);
+function command(args, config, action){
+  var command = apply(commander.command('server'), args);
 
-  action(options);
+  if (config)
+  {
+    config.base = path.resolve(config._configPath, config.base);
+    for (var key in config)
+    {
+      if (hasOption(command, key))
+        command[key] = config[key];
+    }
+  }
 
-  return options;
+  command.parse(args || process.argv);
+  action(command);
+
+  return command;
 }
 
-function apply(options, args){
-  options
+function hasOption(command, name){
+  for (var i = 0, option; option = command.options[i]; i++)
+    if (name == option.name().replace(/-([a-z])/ig, function(m, l){ return l.toUpperCase(); }))
+      return true;
+}
+
+function apply(command){
+  return command
     .version('0.0.1', '-v, --version')
     .description('Launch a http server')
 
-    .option('-b, --base <path>', 'base path for path resolving (current path by default)')
+    .option('-b, --base <path>', 'base path for path resolving (current path by default)', path.resolve)
     .option('-p, --port <n>', 'listening port (default 8000)', Number, 8000)
-
-  // parse argv
-  if (args)
-    options.parse(args);
-
-  return options;
 }
 
 function norm(options){
-  options.base = path.normalize(path.resolve('.', options.base) + '/');
+  options.base = path.normalize(path.resolve(options.base) + '/'); // [base]
+
   return options;
 }

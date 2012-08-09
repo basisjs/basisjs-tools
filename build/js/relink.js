@@ -7,7 +7,7 @@ module.exports = function(flow){
   var fconsole = flow.console;
 
   for (var i = 0, file; file = queue[i]; i++)
-    if (file.type == 'script' && (file.deps.length || file.resources.length))
+    if (file.type == 'script' && (file.basisScript || file.deps.length || file.resources.length))
     {
       fconsole.start(file.relpath);
 

@@ -7,7 +7,7 @@ function Flow(options){
   this.options = options;
 
   this.console = new Console();
-  this.files = new FileManager(this.options.base, this.console);
+  this.files = new FileManager(this.options.base, this.console);  // [base]
 }
 
 Flow.prototype = {

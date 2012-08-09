@@ -75,7 +75,7 @@ var path = require('path');
 var at = require('../js/ast_tools');
 
 function reldir(flow, dir){
-  return path.relative(flow.options.base, dir).replace(/\\/g, '/') + '/';
+  return path.relative(flow.options.base, dir).replace(/\\/g, '/') + '/';  // [base]
 }
 
 function scanFile(file, flow){
