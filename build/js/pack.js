@@ -27,7 +27,7 @@ function runProcess(file, fconsole, startFn, doneFn){
   var gcc = require('child_process').exec(
     'gcc --charset UTF-8',
     {
-      maxBuffer: 1024 *1024
+      maxBuffer: 10 * 1024 *1024
     },
     function(error, stdout, stderr){
       fconsole.log(file.relOutputFilename + ' compressed in ' + ((new Date - packStartTime)/1000).toFixed(3) + 's');
