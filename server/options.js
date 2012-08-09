@@ -27,6 +27,11 @@ function command(args, config, action){
       if (hasOption(command, key))
         command[key] = config[key];
     }
+
+    if (config.ignore)
+      command.ignore = config.ignore;
+    if (config.rewrite)
+      command.rewrite = config.rewrite;
   }
 
   command.parse(args || process.argv);

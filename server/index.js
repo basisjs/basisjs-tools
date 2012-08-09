@@ -53,48 +53,23 @@ function launch(options){
     process.exit();
   }
 
-  // process config
-  var configFilename = path.resolve(BASE_PATH, 'server.config');
-  if (fs.existsSync(configFilename))
+  if (Array.isArray(options.ignore))
+    ignorePathes = options.ignore;
+
+  if (options.rewrite)
   {
-    console.log('Config found:', configFilename);
     try {
-      var data = fs.readFileSync(configFilename);
-      var config = JSON.parse(String(data));
-
-      if ('port' in config)
+      httpProxy = require('http-proxy');
+      for (var key in options.rewrite)
       {
-        port = Number(config.port);
-        console.log('  Set server port:', port);
+        rewriteRules.push({
+          msg: '/' + key + '/ -> ' + options.rewrite[key],
+          re: new RegExp(key),
+          replace: options.rewrite[key]
+        });
       }
-
-      if (Array.isArray(config.ignore))
-      {
-        ignorePathes = config.ignore;
-        console.log('  Ignore pathes: ' + ignorePathes);
-      }
-
-      if (config.rewrite)
-      {
-        try {
-          httpProxy = require('http-proxy');
-          console.log('\n  Rewrite rules:');
-          for (var key in config.rewrite)
-          {
-            console.log('    /' + key + '/ -> ' + config.rewrite[key]);
-            rewriteRules.push({
-              re: new RegExp(key),
-              replace: config.rewrite[key]
-            });
-          }
-        } catch(e) {
-          console.warn('  Proxy is not supported (requires http-proxy). Rewrite rules ignored.');
-        }
-      }
-      console.log('\nConfig parse done.\n');
-
-    } catch(e) {  
-      console.warn(e + '\n');
+    } catch(e) {
+      console.warn('  Proxy is not supported (requires http-proxy). Rewrite rules ignored.');
     }
   }
 
@@ -279,7 +254,10 @@ function launch(options){
     console.log([
       'Server is online, listen for http://localhost:' + port,
       'Watching changes for path: ' + BASE_PATH,
-      'Ignore pathes:\n  ' + ignorePathes.join('\n  ')
+      'Ignore pathes:\n  ' + ignorePathes.join('\n  ') +
+      (rewriteRules
+        ? '\nRewrite rules:\n  ' + rewriteRules.map(function(rule){ return rule.msg }).join('\n  ')
+        : '')
     ].join('\n') + '\n------------');
   });
 
