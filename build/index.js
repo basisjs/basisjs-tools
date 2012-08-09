@@ -105,16 +105,47 @@ function build(options){
     require('./js/resolvePathes'),
     require('./js/translate'),
     require('./js/buildPackages'),
+    require('./js/pack'),
     require('./js/realignHtml'),
 
     // process html
     require('./html/translate'),
     
     // flush output
-    require('./misc/writeFiles')
+    require('./misc/writeFiles'),
+
+    finalHandler
   ];
 
-  handlers.forEach(function(handler){
+  var taskCount = 0;
+  var timing = [];
+  var time;
+
+  function asyncTaskStart(){
+    taskCount++;
+  }
+  function asyncTaskDone(){
+    taskCount--;
+    nextHandler();
+  }
+
+  function nextHandler(){
+    if (!taskCount && handlers.length)
+    {
+      time.time = new Date - time.time;
+      timing.push(time);
+
+      fconsole.resetDeep();
+
+      fconsole.log('');
+      fconsole.log('Time: ' + (time.time / 1000).toFixed(3) + 's');
+
+      process.nextTick(runHandler);
+    }
+  }
+
+  function runHandler(){
+    var handler = handlers.shift();
     var title = handler.handlerName;
 
     if (title)
@@ -122,50 +153,50 @@ function build(options){
 
     fconsole.incDeep();
 
-    var handlerTime = new Date();
-    handler(flow);
+    time = {
+      name: title,
+      time: +new Date
+    };
+    handler(flow, asyncTaskStart, asyncTaskDone);
 
-    // save handler time
-    handler.time = (new Date - handlerTime);
+    nextHandler();
+  }
 
-    fconsole.resetDeep();
-
-    fconsole.log('');
-    fconsole.log('Time: ' + (handler.time / 1000).toFixed(3) + 's');
-  });
+  runHandler();
 
   //
   // show totals
   //
+  function finalHandler(){
+    // file types
+    fconsole.start('File stat:');
+    (function(){
+      var fileTypeMap = {};
+      flow.files.queue.forEach(function(file){
+        if (!this[file.type])
+          this[file.type] = [];
 
-  fconsole.start('\nBuild stat\n==========\n');
+        this[file.type].push(file.filename);
+      }, fileTypeMap);
+                 
+      for (var key in fileTypeMap)
+        fconsole.log(key + ': ' + fileTypeMap[key].length);
+    })();
 
-  // file types
-  fconsole.start('File stat:');
-  (function(){
-    var fileTypeMap = {};
-    flow.files.queue.forEach(function(file){
-      if (!this[file.type])
-        this[file.type] = [];
+    fconsole.endl();
 
-      this[file.type].push(file.filename);
-    }, fileTypeMap);
-               
-    for (var key in fileTypeMap)
-      fconsole.log(key + ': ' + fileTypeMap[key].length);
-  })();
+    // timing
+    fconsole.start('Timing:');
+    timing.forEach(function(t){
+      var time = String(t.time || 0);
+      fconsole.log(' '.repeat(6 - time.length) + time + '  ' + (t.name || '[No title step]'));
+    });
+    fconsole.endl();
 
-  fconsole.endl();
+    // total time
+    fconsole.log('Build done in ' + (flow.time() / 1000).toFixed(3) + 's');
+  }
 
-  // timing
-  fconsole.start('Timing:');
-  handlers.forEach(function(handler){
-    var time = String(handler.time);
-    fconsole.log(' '.repeat(5 - time.length) + time + '  ' + (handler.handlerName || '[No title step]'));
-  });
-  fconsole.endl();
-
-  // total time
-  fconsole.log('Build done in ' + (flow.time() / 1000).toFixed(3) + 's');
+  finalHandler.title = 'Build stat';
 }
 

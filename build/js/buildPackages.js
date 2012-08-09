@@ -108,7 +108,7 @@ module.exports = function(flow){
     });
     fconsole.endl();
 
-    var isCoreFile = basisFile && (flow.options.jsSingleFile || packageName == 'basis');
+    var isCoreFile = basisFile && (flow.options.jsSingleFile || name == 'basis');
     var throwCodes = packageFiles.reduce(function(res, file){
       res.push.apply(res, file.throwCodes);
       return res;
@@ -122,6 +122,8 @@ module.exports = function(flow){
         (throwCodes.length ? '// throw codes:\n//  ' + throwCodes.map(function(item){ return item[0] + ' -> ' + at.translate(item[1]) }).join('\n//  ') + '\n//\n' : '') +
         wrapPackage(packages[name], flow, isCoreFile ? at.translate(basisFile.ast) : '')
     });
+
+    packages[name].file = packageFile;
 
     if (htmlNode)
       packageFile.htmlNode = htmlNode;
