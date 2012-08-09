@@ -141,7 +141,15 @@ module.exports = function(flow){
       {
         var filename = file.htmlFile.resolve((flow.js.rootBaseURI[config.autoload] || '') + config.autoload + '.js');
         fconsole.log('Autoload for `' + config.autoload + '` found: ' + filename);
-        file.content += ';basis.require("' + config.autoload + '");'
+
+        var autoloadFile = flow.files.add({
+          filename: filename,  
+          namespace: config.autoload,
+          package: config.autoload
+        });
+        createScope(autoloadFile, flow);
+        flow.js.rootNSFile[config.autoload] = autoloadFile;
+        flow.js.globalScope.put(config.autoload, 'global', {}); // ?? remove
       }
 
       fconsole.end();
@@ -374,7 +382,7 @@ function processScript(file, flow){
                 var filename = flow.js.rootBaseURI[root] ? path.resolve(flow.js.rootBaseURI[root] + root + '.js') : root + '.js';
                 rootFile = flow.files.add({
                   filename: filename,  
-                  namespace: namespace,
+                  namespace: root,
                   package: root
                 });
                 flow.js.rootNSFile[root] = rootFile;
