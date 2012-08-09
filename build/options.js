@@ -16,6 +16,19 @@ module.exports = {
 // main part
 //
 
+var handlers = {
+  pack: function(){
+    this.jsBuildMode = true;
+    this.jsCutDev = true;
+    this.jsPack = true;
+    this.cssPack = true;
+  },
+  singleFile: function(){
+    this.jsSingleFile = false;
+    this.cssSingleFile = false;
+  }
+}
+
 function command(args, config, action){
   var command = apply(commander.command('build <file>'), args);
 
@@ -26,15 +39,17 @@ function command(args, config, action){
     {
       if (hasOption(command, key))
       {
-        if ((key == 'file' || key == 'output') && config._configPath)
+        if (key == 'file' || key == 'output')
           config[key] = path.resolve(config._configPath, config[key]);
 
         command[key] = config[key];
+
+        if (handlers.hasOwnProperty(key))
+          handlers[key].call(command, config);
       }
     }
   }
 
-  //args.splice(2, 0, 'build');
   command.parse(args || process.argv);
   action(command);
 
@@ -57,17 +72,9 @@ function apply(command){
 
     // bulk flags
     .option('-p, --pack', 'Pack sources. It equals to: --js-build-mode --js-cut-dev --js-pack --css-pack')
-    .on('pack', function(){
-      this.jsBuildMode = true;
-      this.jsCutDev = true;
-      this.jsPack = true;
-      this.cssPack = true;
-    })
+    .on('pack', handlers.pack)
     .option('--no-single-file', 'Avoid merge sources into one file. It equals to: --js-no-single-file --css-no-single-file')
-    .on('single-file', function(){
-      this.jsSingleFile = false;
-      this.cssSingleFile = false;
-    })
+    .on('single-file', handlers.singleFile)
 
     // javascript
     .option('--js-no-single-file', 'Avoid merge javascript source into one file.')
