@@ -68,7 +68,7 @@ module.exports = function(flow){
       fconsole.endl();
     }
   }
-  fconsole.endl();
+
 
   //
   // output files

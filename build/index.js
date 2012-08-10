@@ -137,8 +137,8 @@ function build(options){
 
       fconsole.resetDeep();
 
-      fconsole.log('');
-      fconsole.log('Time: ' + (time.time / 1000).toFixed(3) + 's');
+      //fconsole.log('');
+      //fconsole.log('Time: ' + (time.time / 1000).toFixed(3) + 's');
 
       process.nextTick(runHandler);
     }
@@ -197,6 +197,6 @@ function build(options){
     fconsole.log('Build done in ' + (flow.time() / 1000).toFixed(3) + 's');
   }
 
-  finalHandler.title = 'Build stat';
+  finalHandler.handlerName = 'Build stat';
 }
 
