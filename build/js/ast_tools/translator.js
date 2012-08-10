@@ -975,7 +975,7 @@ function gen_code(ast, options){
 
         if (!fn)
         {
-          console.warn('AST translate: Unknonw token type ')
+          console.warn('AST translate: Unknown token type ', token[0]);
           return '';
         }
 

@@ -312,6 +312,7 @@ function processScript(file, flow){
   {
     var BASIS_REQUIRE = flow.js.globalScope.resolve(['dot', ['name', 'basis'], 'require']) || [];
     var BASIS_RESOURCE = flow.js.globalScope.resolve(['dot', ['name', 'basis'], 'resource']) || [];
+    var BASIS_ASSET = flow.js.globalScope.resolve(['dot', ['name', 'basis'], 'asset']) || [];
     var RESOURCE = (file.jsScope && file.jsScope.token('resource')) || [];
     //console.log(BASIS_RESOURCE);
 
@@ -324,6 +325,23 @@ function processScript(file, flow){
 
         switch (this.scope.resolve(expr))
         {
+          case BASIS_ASSET:
+            newFilename = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];            
+            if (newFilename)
+            {
+              newFile = flow.files.add({
+                filename: newFilename
+              });
+              //file.link(newFile);
+              newFile.outputContent = newFile.content;
+              newFile.outputFilename = flow.outputResourceDir + newFile.digest + newFile.ext;
+              newFile.fileRef = newFile.relOutputFilename;
+
+              token.splice(0, token.length, 'string', newFile.fileRef || '');
+              return token;
+            }
+            break;
+
           case BASIS_RESOURCE:
             newFilename = args[0][0] == 'string' ? args[0][1] : at.getCallArgs(args, context)[0];
             if (newFilename)
