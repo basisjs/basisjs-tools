@@ -103,7 +103,7 @@ function launch(options){
 
         //console.log(re);
         proxy.proxyRequest(req, res);
-        return;
+        return true;
       }
     }
   }
@@ -156,6 +156,59 @@ function launch(options){
   })();
 
 
+  var virtualPath = {
+    '/FDF31FF4-1532-421C-A865-99D0E77ADE04.js': function(req, res){
+      res.writeHead(200, {
+        'Content-Type': 'text/javascript'
+      });
+      res.end('window.__resources__ = ' + hotStartCache.get());
+    }
+  };
+
+  function resolvePathnameFile(req, res, filename, location){
+    var fnKey = normPath(filename);
+
+    if (virtualPath.hasOwnProperty(fnKey))
+      return virtualPath[fnKey](req, res);
+
+    if (fnKey == '/favicon.ico')
+    {
+      if (!fs.existsSync(filename))
+        return __dirname + '/assets/favicon.ico';
+    }
+
+    if (!fs.existsSync(filename))
+    {
+      res.writeHead(404);
+      res.end('File ' + filename + ' not found');
+      return false;
+    }
+
+    if (fs.statSync(filename).isDirectory())
+    {
+      if (!/\/$/.test(location.pathname))
+      {
+        res.writeHead(301, {
+          Location: location.pathname + '/'
+        });
+        res.end();
+        return false;
+      }
+
+      if (fs.existsSync(filename + '/index.html'))
+        return filename + '/index.html';
+
+      if (fs.existsSync(filename + '/index.htm'))
+        return filename + '/index.htm';
+
+      res.writeHead(404);
+      res.end('Path ' + filename + ' is not a file');
+      return false;
+    }
+
+    return filename;
+  }
+
   var proxy;
   var app = http.createServer(function(req, res){
     var location = url.parse(req.url, true, true);
@@ -165,92 +218,50 @@ function launch(options){
     if (proxyRequest(req, res, pathname))
       return;
 
-    //
-    var filename = path.normalize(BASE_PATH + location.pathname);
+    // resolve filename
+    var filename = resolvePathnameFile(req, res, path.normalize(BASE_PATH + location.pathname), location);
     var fnKey = normPath(filename);
-    console.log('[CLIENT] request', fnKey);
 
-    if (fnKey == '/FDF31FF4-1532-421C-A865-99D0E77ADE04.js')
+    console.log('[CLIENT] request', fnKey || ('unknown path ' + location.pathname));
+
+    if (filename)
     {
-      res.writeHead(200, {
-        'Content-Type': 'text/javascript'
-      });
-      res.end('window.__resources__ = ' + hotStartCache.get());
-      return;
-    }
-
-    if (fnKey == '/favicon.ico')
-    {
-      if (!fs.existsSync(filename))
-        filename = __dirname + '/assets/favicon.ico';
-    }
-
-    if (!fs.existsSync(filename))
-    {
-      res.writeHead(404);
-      res.end('File ' + filename + ' not found');
-    }
-    else
-    {
-      if (fs.statSync(filename).isDirectory())
-      {
-        if (!/\/$/.test(location.pathname))
-        {
-          res.writeHead(301, {
-            Location: location.pathname + '/'
-          });
-          res.end();
-          return;
-        }
-
-        if (fs.existsSync(filename + '/index.html'))
-          filename += '/index.html';
-        else
-          if (fs.existsSync(filename + '/index.htm'))
-            filename += '/index.htm';
-          else
-          {
-            res.writeHead(404);
-            res.end('Path ' + filename + ' is not file');
-          }
-      }
-
       function processFile(err, data){
         if (err)
         {
           res.writeHead(500);
           res.end('Can\'t read file ' + filename + ', error: ' + err);
+          return
+        }
+
+        // no errors
+        res.writeHead(200, {
+          'Content-Type': mime.lookup(filename, 'text/plain')
+        });
+
+        var ext = path.extname(filename);
+
+        if (hotStartExtensions.indexOf(ext) != -1 && ignorePathes.indexOf(path.normalize(filename)) == -1)
+          hotStartCache.add(fnKey, String(data));
+
+        if (ext == '.html' || ext == '.htm')
+        {
+          var fileContent = String(data)
+            .replace(/<head>/i, '<head><script src="/FDF31FF4-1532-421C-A865-99D0E77ADE04.js"></script>');
+
+          fs.readFile(__dirname + '/assets/client.js', 'utf-8', function(err, clientFileData){
+            if (!err)
+              res.end(fileContent.replace(/<\/body>/i, '<script>' + clientFileData + '</script></body>'));
+          });
         }
         else
         {
-          res.writeHead(200, {
-            'Content-Type': mime.lookup(filename, 'text/plain')
-          });
-
-          var ext = path.extname(filename);
-
-          if (hotStartExtensions.indexOf(ext) != -1 && ignorePathes.indexOf(path.normalize(filename)) == -1)
-            hotStartCache.add(fnKey, String(data));
-
-          if (ext == '.html' || ext == '.htm')
-          {
-            var fileContent = String(data)
-              .replace(/<head>/i, '<head><script src="/FDF31FF4-1532-421C-A865-99D0E77ADE04.js"></script>');
-
-            fs.readFile(__dirname + '/assets/client.js', 'utf-8', function(err, clientFileData){
-              if (!err)
-                res.end(fileContent.replace(/<\/body>/i, '<script>' + clientFileData + '</script></body>'));
-            });
-          }
-          else
-          {
-            res.end(data);
-          }
+          res.end(data);
         }
       }
 
       if (fileMap[fnKey] && fileMap[fnKey].content != null)
-        processFile(null, fileMap[fnKey].content)
+        processFile(null, fileMap[fnKey].content);
       else
         fs.readFile(filename, processFile);
     }
