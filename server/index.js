@@ -86,6 +86,28 @@ function launch(options){
     return path.resolve(BASE_PATH, p);
   });
 
+  function proxyRequest(req, res, pathname){
+    for (var i = 0, rule; rule = rewriteRules[i]; i++)
+    {
+      if (rule.re.test(pathname))
+      {
+        if (!proxy)
+        {
+          proxy = new httpProxy.HttpProxy({
+            target: {
+              host: 'localhost',
+              port: 80
+            }
+          });
+        }
+
+        //console.log(re);
+        proxy.proxyRequest(req, res);
+        return;
+      }
+    }
+  }
+
   //create server
   console.log('Start server');
 
@@ -140,25 +162,8 @@ function launch(options){
     var pathname = location.pathname.slice(1);
 
     //proxy request if nececcary
-    for (var i = 0, rule; rule = rewriteRules[i]; i++)
-    {
-      if (rule.re.test(pathname))
-      {
-        if (!proxy)
-        {
-          proxy = new httpProxy.HttpProxy({
-            target: {
-              host: 'localhost',
-              port: 80
-            }
-          });
-        }
-
-        //console.log(re);
-        proxy.proxyRequest(req, res);
-        return;
-      }
-    }
+    if (proxyRequest(req, res, pathname))
+      return;
 
     //
     var filename = path.normalize(BASE_PATH + location.pathname);
