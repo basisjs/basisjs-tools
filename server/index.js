@@ -92,18 +92,16 @@ function launch(options){
   var hotStartCache = (function(){
     var cache = {};
     var content = '{}';
-    var timer_;
+    var invalidate = false;
 
     function rebuild(){
-      timer_ = 0;
       content = JSON.stringify(cache, null, 2);
       console.log('[CACHE] rebuild');
-      //fs.writeFile('server/cache.tmp', content, 'utf-8');
     }
 
     return {
       isRequire: function(fnKey){
-        return fnKey in cache;
+        return cache.hasOwnProperty(fnKey);
       },
       add: function(fnKey, content){
         if (cache[fnKey] !== content)
@@ -111,8 +109,7 @@ function launch(options){
           console.log('[CACHE] ' + (fnKey in cache ? 'update ' : 'add ') + fnKey);
           cache[fnKey] = content;
 
-          if (!timer_)
-            timer_ = setTimeout(rebuild, 100);
+          invalidate = true;
         }
       },
       remove: function(fnKey){
@@ -121,11 +118,16 @@ function launch(options){
           console.log('[CACHE] remove ' + fnKey);
           delete cache[fnKey];
 
-          if (!timer_)
-            timer_ = setTimeout(rebuild, 100);
+          invalidate = true;
         }
       },
       get: function(){
+        if (invalidate)
+        {
+          invalidate = false;
+          rebuild();
+        }
+
         return content;
       }
     }
@@ -430,53 +432,53 @@ function launch(options){
 
     function lookup(dirname){
       fs.exists(dirname, function(exists){
-        if (exists)
-          fs.readdir(dirname, function(err, files){
-            if (err)
-              console.log('lookup error:', dirname, err);
-            else
+        if (!exists)
+          return;
+
+        fs.readdir(dirname, function(err, files){
+          if (err)
+            return console.log('lookup error:', dirname, err);
+
+          var filename;
+          var dirInfo = dirMap[dirname];
+
+          updateStat(dirname);
+
+          if (dirInfo)
+          {
+            var dirFiles = dirInfo.files;
+            for (var i = 0, file; file = dirFiles[i++];)
             {
-              var filename;
-              var dirInfo = dirMap[dirname];
-
-              updateStat(dirname);
-
-              if (dirInfo)
+              if (files.indexOf(file) == -1)
               {
-                var dirFiles = dirInfo.files;
-                for (var i = 0, file; file = dirFiles[i++];)
-                {
-                  if (files.indexOf(file) == -1)
-                  {
-                    var filename = path.normalize(dirname + '/' + file);
-                    var fnKey = normPath(filename);
-                    var fileInfo = fileMap[fnKey];
-                    delete fileMap[fnKey];
+                var filename = path.normalize(dirname + '/' + file);
+                var fnKey = normPath(filename);
+                var fileInfo = fileMap[fnKey];
+                delete fileMap[fnKey];
 
-                    hotStartCache.remove(fnKey);
+                hotStartCache.remove(fnKey);
 
-                    // event!!
-                    deleteCallback(filename);
-                    console.log('[FS] delete -> ' + filename); // file lost
-                  }
-                }
+                // event!!
+                deleteCallback(filename);
+                console.log('[FS] delete -> ' + filename); // file lost
               }
-              else
-              {
-                dirInfo = dirMap[dirname] = {};
-
-                // start watching
-                fs.watch(dirname, function(event, filename){
-                  lookup(dirname);
-                });
-              }
-
-              dirInfo.files = files;
-
-              for (var file, i = 0; file = files[i++];)
-                updateStat(dirname + '/' + file);
             }
-          });
+          }
+          else
+          {
+            dirInfo = dirMap[dirname] = {};
+
+            // start watching
+            fs.watch(dirname, function(event, filename){
+              lookup(dirname);
+            });
+          }
+
+          dirInfo.files = files;
+
+          for (var file, i = 0; file = files[i++];)
+            updateStat(dirname + '/' + file);
+        });
       });
     }
 
