@@ -1,11 +1,6 @@
-(function(global){
+;(function(global){
 
   basis.require('basis.data');
-
- /**
-  * @namespace
-  */
-  var namespace = 'basis.devtools';
 
   //
   // import names
@@ -148,8 +143,8 @@
                 serverState.update({ isOnline: false });
               },
               observeReady: function(filelist){
-                var fileItems = files.getItems();
-                for (var i = 0, file; file = fileItems[i]; i++)
+                var files = files.getItems();
+                for (var i = 0, file; file = files[i]; i++)
                   removeFile(file.filename);
 
                 for (var i = 0, fileData; fileData = filelist[i]; i++)
@@ -208,16 +203,14 @@
   // export names
   //
 
-  basis.namespace(namespace).extend({
-
-    getFile: getFile,
+  basis.devtools = {
     serverState: serverState,
     files: files,
 
+    getFile: getFile,
     createFile: function(filename){
       sendToServer('createFile', filename);
-    },
-    abs2rel: basis.path.relative  // TODO: remove
-  });
+    }
+  };
 
 })(this);
