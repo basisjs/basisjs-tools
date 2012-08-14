@@ -23,7 +23,9 @@
   // local vars
   //
 
-  var sendToServer = function(){ console.warn('Server backend is not allowed'); };
+  var sendToServer = function(){
+    console.warn('Server backend is not available');
+  };
 
   var serverState = new DataObject({
     data: {
@@ -37,16 +39,18 @@
   // Files
   //
 
-  var files = new Dataset({});
+  var files = new Dataset();
   var fileMap = {};
 
   var File = DataObject.subclass({
     read: function(){
       this.setState(STATE.PROCESSING);
+
       sendToServer('readFile', this.data.filename);      
     },
     save: function(){
       this.setState(STATE.PROCESSING);
+
       var self = this;
       sendToServer('saveFile', this.data.filename, this.data.content, function(err){
         if (err)
@@ -63,29 +67,36 @@
     },
     event_update: function(delta){
       DataObject.prototype.event_update.call(this);
+
       if ('filename' in delta || 'content' in delta)
         basis.resource(this.data.filename).update(this.data.content);
     }
   });
 
-  function createFile(filename)
-  {
-    var file = fileMap[filename] = new File(basis.data({ filename: filename }));
+  function createFile(filename){
+    var file = new File({
+      data: {
+        filename: filename
+      }
+    });
+
+    fileMap[filename] = file;
     files.add([file]);    
+
     return file;
   }
-  function removeFile(filename)
-  {
+
+  function removeFile(filename){
     var file = fileMap[filename];
+
     if (file)
     {
-      files.remove([file]);
       delete fileMap[filename];
       file.destroy();
     }
   }
-  function getFile(filename)
-  {
+
+  function getFile(filename){
     return fileMap[filename];
   }
 
@@ -106,14 +117,14 @@
           {
             console.log('Connecting to server via socket.io');
 
-            var observeCount = 0;
             var socket = io.connect('/');
             serverState.update({ isReady: true }); 
 
-            function sendToServerOffline(){
+            var sendToServerOffline = function(){
               console.warn('No connection with server :( Trying to send:', arguments);
             };
-            function sendToServerOnline(){
+
+            var sendToServerOnline = function(){
               console.log('Send to server: ', arguments[0], arguments[1]);
               socket.emit.apply(socket, arguments);
             };
@@ -127,7 +138,6 @@
               //
               connect: function(){
                 socket.emit('observe');
-
                 sendToServer = sendToServerOnline;
 
                 serverState.update({ isOnline: true });
@@ -146,8 +156,10 @@
                 {
                   if (fileData.type == 'file')
                   {
-                    var file = createFile(fileData.filename);
-                    file.update({ content: fileData.content, type: fileData.type });
+                    createFile(fileData.filename).update({
+                      content: fileData.content,
+                      type: fileData.type
+                    });
                   }
                 }
               },
@@ -158,14 +170,19 @@
               newFile: function(data){
                 console.log('New file', data);
 
-                var file = createFile(data.filename)
-                file.update({ content: data.content, type: data.type });
+                createFile(data.filename).update({
+                  type: data.type,
+                  content: data.content
+                });
               },
               updateFile: function(data){
                 console.log('File updated', data);
 
                 var file = getFile(data.filename);
-                file.update({ content: data.content, type: data.type });
+                file.update({
+                  type: data.type,
+                  content: data.content
+                });
                 file.setState(STATE.READY);
               },
               deleteFile: function(data){
@@ -200,9 +217,7 @@
     createFile: function(filename){
       sendToServer('createFile', filename);
     },
-    abs2rel: function(path, base){
-      return basis.path.relative(path, base);
-    }
+    abs2rel: basis.path.relative  // TODO: remove
   });
 
 })(this);
