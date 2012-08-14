@@ -1,2 +1,2 @@
 
-require('./index').command();
+  require('./index').command();

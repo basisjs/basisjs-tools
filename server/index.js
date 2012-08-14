@@ -175,7 +175,7 @@ function launch(options){
     if (fnKey == '/favicon.ico')
     {
       if (!fs.existsSync(filename))
-        filename = __dirname + '/favicon.ico';
+        filename = __dirname + '/assets/favicon.ico';
     }
 
     if (!fs.existsSync(filename))
@@ -217,7 +217,7 @@ function launch(options){
         else
         {
           res.writeHead(200, {
-            'Content-Type': mime.lookup(filename, 'text/plain') //MIME_TYPE[ext.slice(1)] || 'text/plain'
+            'Content-Type': mime.lookup(filename, 'text/plain')
           });
 
           var ext = path.extname(filename);
@@ -230,7 +230,7 @@ function launch(options){
             var fileContent = String(data)
               .replace(/<head>/i, '<head><script src="/FDF31FF4-1532-421C-A865-99D0E77ADE04.js"></script>');
 
-            fs.readFile(__dirname + '/client.js', 'utf-8', function(err, clientFileData){
+            fs.readFile(__dirname + '/assets/client.js', 'utf-8', function(err, clientFileData){
               if (!err)
                 res.end(fileContent.replace(/<\/body>/i, '<script>' + clientFileData + '</script></body>'));
             });
