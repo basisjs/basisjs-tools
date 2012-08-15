@@ -143,8 +143,8 @@
                 serverState.update({ isOnline: false });
               },
               observeReady: function(filelist){
-                var files = files.getItems();
-                for (var i = 0, file; file = files[i]; i++)
+                var items = files.getItems();
+                for (var i = 0, file; file = items[i]; i++)
                   removeFile(file.filename);
 
                 for (var i = 0, fileData; fileData = filelist[i]; i++)
