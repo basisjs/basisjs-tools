@@ -1,7 +1,7 @@
 {
   "name": "basis-devtools",
   "title": "Basis developer tools",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "homepage": "https://github.com/lahmatiy/basis-devtools",
   "description": "Developer tools for basis framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
@@ -25,6 +25,7 @@
     "type": "git",
     "url": "https://github.com/lahmatiy/basis-devtools.git"
   },
+  "main": "./lib/api",
   "bin": {
     "basis": "./bin/basis.js"
   },
