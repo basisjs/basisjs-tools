@@ -79,7 +79,7 @@ function searchConfig(){
 
 function defineCommand(name, module){
   if (!module)
-    module = '../' + name;
+    module = '../lib/' + name;
 
   commander.on(name, function(a, b){
     var config;
