@@ -1,0 +1,2365 @@
+[+] index.html (html)
+
+[html] Extract
+==============
+
+  index.html
+ 
+
+Time: 0.010s
+
+[js] Extract
+============
+
+  Init js
+  Scan html files for scripts
+    index.html
+      External script found: <script src="basis/src/basis.js">
+      [+] basis/src/basis.js (script)
+      [i] basis.js marker found (basis-config attribute)
+      Inline script found
+      Inline script found
+   
+ 
+  Search for basis.js
+    [OK] basis.js found at path undefined
+ 
+  Process scripts
+    basis/src/basis.js
+   
+    [inline script]
+      [+] app.js (script)
+   
+    [inline script]
+   
+    app.js
+      [+] basis/src/basis/l10n.js (script)
+      [+] basis/src/basis/data.js (script)
+      [+] basis/src/basis/dom.js (script)
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [+] basis/src/basis/ui.js (script)
+      [+] app/type.js (script)
+      [+] app/module/auth.js (script)
+      [+] app/module/layout.js (script)
+   
+    basis/src/basis/l10n.js
+Unable to evaluate " location+".json" " in context  { __filename: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/l10n.js',
+  __dirname: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/',
+  namespace: 'basis.l10n' }
+   
+    basis/src/basis/data.js
+      [+] basis/src/basis/event.js (script)
+   
+    basis/src/basis/dom.js
+      [+] basis/src/basis/ua.js (script)
+   
+    basis/src/basis/ui.js
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [+] basis/src/basis/dom/wrapper.js (script)
+      [+] basis/src/basis/cssom.js (script)
+      [+] basis/src/basis/template/html.js (script)
+Unable to evaluate " url " in context  { __filename: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/ui.js',
+  __dirname: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/',
+  namespace: 'basis.ui' }
+   
+    app/type.js
+      [+] basis/src/basis/entity.js (script)
+      [+] app/rpc.js (script)
+      [+] basis/src/basis/date.js (script)
+      [+] app/type/profile.js (script)
+      [+] app/type/group.js (script)
+      [+] app/type/account.js (script)
+      [+] app/type/pay.js (script)
+      [+] app/type/package.js (script)
+      [+] app/type/commit.js (script)
+      [+] app/type/user.js (script)
+      [+] app/type/balance.js (script)
+   
+    app/module/auth.js
+      [ ] File `basis/src/basis/ua.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [+] app/service.js (script)
+      [ ] File `app/type.js` already in queue
+      [+] app/module/auth/authWindow/authWindow.js (script)
+      [+] app/module/auth/checkSession/checkSession.js (script)
+   
+    app/module/layout.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/layout.js (script)
+      [+] basis/src/basis/ui/tabs.js (script)
+      [ ] File `app/type.js` already in queue
+      [+] app/module/userPanel.js (script)
+      [+] app/module/balance.js (script)
+      [+] app/module/paymentView.js (script)
+      [+] app/module/packageView.js (script)
+      [+] app/module/commitView.js (script)
+      [+] app/module/layout/pageControl.tmpl (template)
+      [+] app/module/layout/page.tmpl (template)
+      [+] app/module/layout/header.tmpl (template)
+   
+    basis/src/basis/event.js
+   
+    basis/src/basis/ua.js
+   
+    basis/src/basis/dom/wrapper.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+   
+    basis/src/basis/cssom.js
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [+] basis/src/basis/dom/event.js (script)
+   
+    basis/src/basis/template/html.js
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [+] basis/src/basis/template.js (script)
+   
+    basis/src/basis/entity.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [+] basis/src/basis/data/dataset.js (script)
+   
+    app/rpc.js
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `app/service.js` already in queue
+   
+    basis/src/basis/date.js
+   
+    app/type/profile.js
+      [ ] File `basis/src/basis/entity.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [+] basis/src/basis/crypt.js (script)
+      [ ] File `app/service.js` already in queue
+      [ ] File `app/rpc.js` already in queue
+      [ ] File `app/type/user.js` already in queue
+   
+    app/type/group.js
+      [ ] File `basis/src/basis/entity.js` already in queue
+      [ ] File `app/rpc.js` already in queue
+   
+    app/type/account.js
+      [ ] File `basis/src/basis/date.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/data/dataset.js` already in queue
+      [ ] File `basis/src/basis/entity.js` already in queue
+   
+    app/type/pay.js
+      [ ] File `basis/src/basis/date.js` already in queue
+      [ ] File `basis/src/basis/entity.js` already in queue
+   
+    app/type/package.js
+      [ ] File `basis/src/basis/date.js` already in queue
+      [ ] File `basis/src/basis/entity.js` already in queue
+      [ ] File `app/rpc.js` already in queue
+      [ ] File `app/type/account.js` already in queue
+      [ ] File `app/type/pay.js` already in queue
+   
+    app/type/commit.js
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/entity.js` already in queue
+      [ ] File `app/type/package.js` already in queue
+   
+    app/type/user.js
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/entity.js` already in queue
+      [ ] File `app/rpc.js` already in queue
+   
+    app/type/balance.js
+      [ ] File `basis/src/basis/entity.js` already in queue
+   
+    app/service.js
+      [ ] File `basis/src/basis/data.js` already in queue
+      [+] basis/src/basis/net/ajax.js (script)
+      [ ] File `app/type.js` already in queue
+   
+    app/module/auth/authWindow/authWindow.js
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [+] basis/src/basis/ui/window.js (script)
+      [ ] File `basis/src/basis/ui/tabs.js` already in queue
+      [+] basis/src/basis/ui/form.js (script)
+      [+] app/module/auth/authWindow/loginForm/widget.js (script)
+      [+] app/module/auth/authWindow/window.tmpl (template)
+   
+    app/module/auth/checkSession/checkSession.js
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] app/module/auth/checkSession/checkSession.tmpl (template)
+   
+    basis/src/basis/layout.js
+      [ ] File `basis/src/basis/ua.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+   
+    basis/src/basis/ui/tabs.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/wrapper.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/templates/tabs/Tab.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/TabGroup.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/TabControl.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/Page.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/PageControl.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/TabSheet.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/AccordionControl.tmpl (template)
+      [+] basis/src/basis/ui/templates/tabs/TabSheetControl.tmpl (template)
+   
+    app/module/userPanel.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [+] app/module/userPanel/userPanel.tmpl (template)
+   
+    app/module/balance.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [+] app/module/balance/panel.tmpl (template)
+      [+] app/module/balance/item.tmpl (template)
+   
+    app/module/paymentView.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/layout.js` already in queue
+      [+] basis/src/basis/ui/button.js (script)
+      [+] basis/src/basis/ui/popup.js (script)
+      [+] basis/src/basis/ui/calendar.js (script)
+      [+] basis/src/basis/ui/scrolltable.js (script)
+      [ ] File `basis/src/basis/ui/window.js` already in queue
+      [+] basis/src/basis/data/property.js (script)
+      [ ] File `basis/src/basis/data/dataset.js` already in queue
+      [+] basis/src/basis/data/index.js (script)
+      [ ] File `basis/src/basis/date.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [+] app/module/paymentView/view.css (style)
+      [+] app/module/paymentView/package.tmpl (template)
+      [+] app/module/paymentView/payment.tmpl (template)
+      [+] app/module/paymentView/datePicker.tmpl (template)
+      [+] app/module/paymentView/header.tmpl (template)
+   
+    app/module/packageView.js
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] app/module/packageView/view.js (script)
+      [+] app/module/packageView/view.css (style)
+   
+    app/module/commitView.js
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [+] app/module/commitView/view.css (style)
+      [+] app/module/commitView/view.js (script)
+   
+    basis/src/basis/dom/event.js
+      [ ] File `basis/src/basis/dom.js` already in queue
+   
+    basis/src/basis/template.js
+Unable to evaluate " url " in context  { __filename: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/template.js',
+  __dirname: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/',
+  namespace: 'basis.template' }
+Unable to evaluate " url " in context  { __filename: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/template.js',
+  __dirname: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/',
+  namespace: 'basis.template' }
+Unable to evaluate " url " in context  { __filename: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/template.js',
+  __dirname: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/',
+  namespace: 'basis.template' }
+Unable to evaluate " source " in context  { __filename: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/template.js',
+  __dirname: 'C:/usr/local/Apache/htdocs/apps/uranus/basis/src/basis/',
+  namespace: 'basis.template' }
+   
+    basis/src/basis/data/dataset.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+   
+    basis/src/basis/crypt.js
+   
+    basis/src/basis/net/ajax.js
+      [+] basis/src/basis/timer.js (script)
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/ua.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+   
+    basis/src/basis/ui/window.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/dom/wrapper.js` already in queue
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [+] basis/src/basis/ui/templates/window/Blocker.tmpl (template)
+      [+] basis/src/basis/ui/templates/window/Window.tmpl (template)
+      [+] basis/src/basis/ui/templates/window/TitleButton.tmpl (template)
+      [+] basis/src/basis/dragdrop.js (script)
+   
+    basis/src/basis/ui/form.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/field.js (script)
+      [+] basis/src/basis/ui/templates/form/FormContent.tmpl (template)
+      [+] basis/src/basis/ui/templates/form/Form.tmpl (template)
+   
+    app/module/auth/authWindow/loginForm/widget.js
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/dom/wrapper.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/field.js` already in queue
+      [ ] File `basis/src/basis/ui/form.js` already in queue
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [ ] File `basis/src/basis/ui/popup.js` already in queue
+      [+] app/module/auth/authWindow/loginForm/style.css (style)
+   
+    basis/src/basis/ui/button.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/templates/button/Button.tmpl (template)
+      [+] basis/src/basis/ui/templates/button/ButtonPanel.tmpl (template)
+      [+] basis/src/basis/ui/templates/button/ButtonGroup.tmpl (template)
+   
+    basis/src/basis/ui/popup.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/layout.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/templates/popup/Popup.tmpl (template)
+      [+] basis/src/basis/ui/templates/popup/Balloon.tmpl (template)
+   
+    basis/src/basis/ui/calendar.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/date.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/data/property.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [+] basis/src/basis/ui/templates/calendar/Node.tmpl (template)
+      [+] basis/src/basis/ui/templates/calendar/Section.tmpl (template)
+      [+] basis/src/basis/ui/templates/calendar/SectionMonth.tmpl (template)
+      [+] basis/src/basis/ui/templates/calendar/Calendar.tmpl (template)
+   
+    basis/src/basis/ui/scrolltable.js
+      [ ] File `basis/src/basis/timer.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/layout.js` already in queue
+      [+] basis/src/basis/ui/table.js (script)
+      [+] basis/src/basis/ui/templates/scrolltable/ScrollTable.tmpl (template)
+   
+    basis/src/basis/data/property.js
+      [ ] File `basis/src/basis/timer.js` already in queue
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+   
+    basis/src/basis/data/index.js
+      [ ] File `basis/src/basis/timer.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/data/dataset.js` already in queue
+      [ ] File `basis/src/basis/data/property.js` already in queue
+   
+    app/module/packageView/view.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/tabs.js` already in queue
+      [+] app/module/packageView/sidebar.js (script)
+      [+] app/module/packageView/paymentEditor.js (script)
+      [+] app/module/packageView/page.tmpl (template)
+      [+] app/module/packageView/content.tmpl (template)
+   
+    app/module/commitView/view.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/tabs.js` already in queue
+      [+] app/module/commitView/page.tmpl (template)
+      [+] app/module/commitView/mainPage.tmpl (template)
+      [+] app/module/commitView/content.tmpl (template)
+      [+] app/module/commitView/packageList/list.js (script)
+   
+    basis/src/basis/timer.js
+   
+    basis/src/basis/dragdrop.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/ua.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/cssom.js` already in queue
+      [ ] File `basis/src/basis/layout.js` already in queue
+   
+    basis/src/basis/ui/field.js
+      [ ] File `basis/src/basis/l10n.js` already in queue
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/dom/wrapper.js` already in queue
+      [ ] File `basis/src/basis/data/property.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/popup.js` already in queue
+      [+] basis/src/basis/ui/templates/field/Field.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Example.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Description.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/File.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Hidden.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Text.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Password.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Textarea.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Counter.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Checkbox.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Label.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/RadioGroup.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/RadioGroupItem.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/CheckGroup.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/CheckGroupItem.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Select.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/SelectItem.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/ComboboxItem.tmpl (template)
+      [+] basis/src/basis/ui/templates/field/Combobox.tmpl (template)
+   
+    basis/src/basis/ui/table.js
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/dom/wrapper.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/templates/table/HeaderPartitionNode.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/HeaderCell.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/Header.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/FooterCell.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/Footer.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/Row.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/Body.tmpl (template)
+      [+] basis/src/basis/ui/templates/table/Table.tmpl (template)
+   
+    app/module/packageView/sidebar.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [ ] File `basis/src/basis/ui/field.js` already in queue
+      [+] app/module/packageView/sidebar/accountList.js (script)
+      [+] app/module/packageView/groupEditor.js (script)
+      [+] app/module/packageView/sidebar/taskbar.tmpl (template)
+   
+    app/module/packageView/paymentEditor.js
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/label.js (script)
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [ ] File `basis/src/basis/ui/field.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [+] app/module/packageView/paymentEditor/layout.tmpl (template)
+      [+] app/module/packageView/paymentEditor/account.tmpl (template)
+   
+    app/module/commitView/packageList/list.js
+      [ ] File `basis/src/basis/dom/event.js` already in queue
+      [ ] File `basis/src/basis/data/index.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `basis/src/basis/ui/field.js` already in queue
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [+] app/module/commitView/packageList/list.tmpl (template)
+      [+] app/module/commitView/packageList/commitPanel.tmpl (template)
+      [+] app/module/commitView/packageList/package.tmpl (template)
+      [+] app/module/commitView/packageList/accountList.tmpl (template)
+      [+] app/module/commitView/packageList/account.tmpl (template)
+   
+    app/module/packageView/sidebar/accountList.js
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/data/dataset.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [ ] File `app/type.js` already in queue
+      [ ] File `app/module/packageView/groupEditor.js` already in queue
+      [+] app/module/packageView/accountEditor.js (script)
+      [+] app/module/packageView/sidebar/accountList/account.tmpl (template)
+      [+] app/module/packageView/sidebar/accountList/group.tmpl (template)
+      [+] app/module/packageView/sidebar/accountList/list.tmpl (template)
+   
+    app/module/packageView/groupEditor.js
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [ ] File `basis/src/basis/ui/form.js` already in queue
+      [ ] File `basis/src/basis/ui/field.js` already in queue
+      [ ] File `basis/src/basis/ui/window.js` already in queue
+      [+] app/module/packageView/groupEditor/style.css (style)
+      [+] app/module/packageView/groupEditor/group.tmpl (template)
+   
+    basis/src/basis/ui/label.js
+      [ ] File `basis/src/basis/event.js` already in queue
+      [ ] File `basis/src/basis/dom.js` already in queue
+      [ ] File `basis/src/basis/data.js` already in queue
+      [ ] File `basis/src/basis/dom/wrapper.js` already in queue
+      [ ] File `basis/src/basis/ui.js` already in queue
+      [+] basis/src/basis/ui/templates/label/state.tmpl (template)
+      [+] basis/src/basis/ui/templates/label/processing.tmpl (template)
+      [+] basis/src/basis/ui/templates/label/error.tmpl (template)
+      [+] basis/src/basis/ui/templates/label/count.tmpl (template)
+      [+] basis/src/basis/ui/templates/label/empty.tmpl (template)
+      [+] basis/src/basis/ui/templates/label/label.tmpl (template)
+   
+    app/module/packageView/accountEditor.js
+      [ ] File `basis/src/basis/ui/form.js` already in queue
+      [ ] File `basis/src/basis/ui/tabs.js` already in queue
+      [ ] File `basis/src/basis/ui/button.js` already in queue
+      [ ] File `basis/src/basis/ui/field.js` already in queue
+      [ ] File `basis/src/basis/ui/window.js` already in queue
+      [+] app/module/packageView/accountEditor/style.css (style)
+      [ ] File `app/module/packageView/groupEditor/group.tmpl` already in queue
+      [+] app/module/packageView/accountEditor/overlay.tmpl (template)
+      [+] app/module/packageView/accountEditor/overlayPage.tmpl (template)
+   
+ 
+
+Time: 1.029s
+
+[tmpl] Extract
+==============
+
+  app/module/layout/pageControl.tmpl
+ 
+  app/module/layout/page.tmpl
+    [+] app/module/layout/page.css (style)
+ 
+  app/module/layout/header.tmpl
+    [+] app/module/layout/header.css (style)
+ 
+  app/module/auth/authWindow/window.tmpl
+    [+] app/module/auth/authWindow/window.css (style)
+ 
+  app/module/auth/checkSession/checkSession.tmpl
+    [+] app/module/auth/checkSession/checkSession.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/Tab.tmpl
+    [+] basis/src/basis/ui/templates/tabs/Tab.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/TabGroup.tmpl
+    [+] basis/src/basis/ui/templates/tabs/TabGroup.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/TabControl.tmpl
+    [+] basis/src/basis/ui/templates/tabs/TabControl.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/Page.tmpl
+    [+] basis/src/basis/ui/templates/tabs/Page.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/PageControl.tmpl
+    [+] basis/src/basis/ui/templates/tabs/PageControl.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/TabSheet.tmpl
+    [ ] File `basis/src/basis/ui/templates/tabs/Tab.css` already in queue
+    [ ] File `basis/src/basis/ui/templates/tabs/Page.css` already in queue
+ 
+  basis/src/basis/ui/templates/tabs/AccordionControl.tmpl
+    [+] basis/src/basis/ui/templates/tabs/AccordionControl.css (style)
+ 
+  basis/src/basis/ui/templates/tabs/TabSheetControl.tmpl
+    [+] basis/src/basis/ui/templates/tabs/TabSheetControl.css (style)
+    [ ] File `basis/src/basis/ui/templates/tabs/TabControl.css` already in queue
+    [ ] File `basis/src/basis/ui/templates/tabs/PageControl.css` already in queue
+ 
+  app/module/userPanel/userPanel.tmpl
+    [+] app/module/userPanel/userPanel.css (style)
+ 
+  app/module/balance/panel.tmpl
+ 
+  app/module/balance/item.tmpl
+    [+] app/module/balance/item.css (style)
+ 
+  app/module/paymentView/package.tmpl
+    [+] app/module/paymentView/package.css (style)
+ 
+  app/module/paymentView/payment.tmpl
+    [+] basis/src/basis/ui/templates/table/Row.css (style)
+    [+] app/module/paymentView/payment.css (style)
+ 
+  app/module/paymentView/datePicker.tmpl
+    [+] app/module/paymentView/datePicker.css (style)
+ 
+  app/module/paymentView/header.tmpl
+ 
+  basis/src/basis/ui/templates/window/Blocker.tmpl
+    [+] basis/src/basis/ui/templates/window/Blocker.css (style)
+ 
+  basis/src/basis/ui/templates/window/Window.tmpl
+    [+] basis/src/basis/ui/templates/window/Window.css (style)
+ 
+  basis/src/basis/ui/templates/window/TitleButton.tmpl
+    [+] basis/src/basis/ui/templates/window/TitleButton.css (style)
+ 
+  basis/src/basis/ui/templates/form/FormContent.tmpl
+    [+] basis/src/basis/ui/templates/form/FormContent.css (style)
+ 
+  basis/src/basis/ui/templates/form/Form.tmpl
+    [ ] File `basis/src/basis/ui/templates/form/FormContent.css` already in queue
+ 
+  basis/src/basis/ui/templates/button/Button.tmpl
+    [+] basis/src/basis/ui/templates/button/Button.css (style)
+ 
+  basis/src/basis/ui/templates/button/ButtonPanel.tmpl
+ 
+  basis/src/basis/ui/templates/button/ButtonGroup.tmpl
+    [+] basis/src/basis/ui/templates/button/ButtonGroup.css (style)
+ 
+  basis/src/basis/ui/templates/popup/Popup.tmpl
+    [+] basis/src/basis/ui/templates/popup/Popup.css (style)
+ 
+  basis/src/basis/ui/templates/popup/Balloon.tmpl
+    [+] basis/src/basis/ui/templates/popup/Balloon.css (style)
+ 
+  basis/src/basis/ui/templates/calendar/Node.tmpl
+    [+] basis/src/basis/ui/templates/calendar/Node.css (style)
+ 
+  basis/src/basis/ui/templates/calendar/Section.tmpl
+    [+] basis/src/basis/ui/templates/calendar/Section.css (style)
+ 
+  basis/src/basis/ui/templates/calendar/SectionMonth.tmpl
+    [ ] File `basis/src/basis/ui/templates/calendar/Section.css` already in queue
+    [+] basis/src/basis/ui/templates/calendar/SectionMonth.css (style)
+ 
+  basis/src/basis/ui/templates/calendar/Calendar.tmpl
+    [+] basis/src/basis/ui/templates/calendar/Calendar.css (style)
+ 
+  basis/src/basis/ui/templates/scrolltable/ScrollTable.tmpl
+    [+] basis/src/basis/ui/templates/table/Table.css (style)
+    [+] basis/src/basis/ui/templates/scrolltable/ScrollTable.css (style)
+ 
+  app/module/packageView/page.tmpl
+    [+] app/module/packageView/page.css (style)
+ 
+  app/module/packageView/content.tmpl
+    [ ] File `app/module/packageView/view.css` already in queue
+ 
+  app/module/commitView/page.tmpl
+    [+] app/module/commitView/page.css (style)
+ 
+  app/module/commitView/mainPage.tmpl
+    [ ] File `app/module/commitView/page.css` already in queue
+ 
+  app/module/commitView/content.tmpl
+ 
+  basis/src/basis/ui/templates/field/Field.tmpl
+    [+] basis/src/basis/ui/templates/field/Field.css (style)
+ 
+  basis/src/basis/ui/templates/field/Example.tmpl
+ 
+  basis/src/basis/ui/templates/field/Description.tmpl
+ 
+  basis/src/basis/ui/templates/field/File.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/Hidden.tmpl
+ 
+  basis/src/basis/ui/templates/field/Text.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/Password.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/Textarea.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/Counter.tmpl
+ 
+  basis/src/basis/ui/templates/field/Checkbox.tmpl
+ 
+  basis/src/basis/ui/templates/field/Label.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/RadioGroup.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/RadioGroupItem.tmpl
+ 
+  basis/src/basis/ui/templates/field/CheckGroup.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/CheckGroupItem.tmpl
+ 
+  basis/src/basis/ui/templates/field/Select.tmpl
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/field/SelectItem.tmpl
+ 
+  basis/src/basis/ui/templates/field/ComboboxItem.tmpl
+ 
+  basis/src/basis/ui/templates/field/Combobox.tmpl
+    [+] basis/src/basis/ui/templates/field/Combobox.css (style)
+    [ ] File `basis/src/basis/ui/templates/field/Field.css` already in queue
+ 
+  basis/src/basis/ui/templates/table/HeaderPartitionNode.tmpl
+ 
+  basis/src/basis/ui/templates/table/HeaderCell.tmpl
+    [+] basis/src/basis/ui/templates/table/HeaderCell.css (style)
+ 
+  basis/src/basis/ui/templates/table/Header.tmpl
+ 
+  basis/src/basis/ui/templates/table/FooterCell.tmpl
+    [+] basis/src/basis/ui/templates/table/FooterCell.css (style)
+ 
+  basis/src/basis/ui/templates/table/Footer.tmpl
+ 
+  basis/src/basis/ui/templates/table/Row.tmpl
+    [ ] File `basis/src/basis/ui/templates/table/Row.css` already in queue
+ 
+  basis/src/basis/ui/templates/table/Body.tmpl
+    [+] basis/src/basis/ui/templates/table/Body.css (style)
+ 
+  basis/src/basis/ui/templates/table/Table.tmpl
+    [ ] File `basis/src/basis/ui/templates/table/Table.css` already in queue
+ 
+  app/module/packageView/sidebar/taskbar.tmpl
+    [+] app/module/packageView/sidebar/taskbar.css (style)
+ 
+  app/module/packageView/paymentEditor/layout.tmpl
+    [+] app/module/packageView/paymentEditor/layout.css (style)
+    [+] app/module/packageView/paymentEditor/emptyLabel.css (style)
+ 
+  app/module/packageView/paymentEditor/account.tmpl
+    [+] app/module/packageView/paymentEditor/account.css (style)
+ 
+  app/module/commitView/packageList/list.tmpl
+    [+] app/module/commitView/packageList/list.css (style)
+ 
+  app/module/commitView/packageList/commitPanel.tmpl
+    [+] app/module/commitView/packageList/commitPanel.css (style)
+ 
+  app/module/commitView/packageList/package.tmpl
+    [+] app/module/commitView/packageList/package.css (style)
+ 
+  app/module/commitView/packageList/accountList.tmpl
+    [+] app/module/commitView/packageList/accountList.css (style)
+ 
+  app/module/commitView/packageList/account.tmpl
+    [+] app/module/commitView/packageList/account.css (style)
+ 
+  app/module/packageView/sidebar/accountList/account.tmpl
+    [+] app/module/packageView/sidebar/accountList/account.css (style)
+ 
+  app/module/packageView/sidebar/accountList/group.tmpl
+    [+] app/module/packageView/sidebar/accountList/group.css (style)
+ 
+  app/module/packageView/sidebar/accountList/list.tmpl
+    [+] app/module/packageView/sidebar/accountList/list.css (style)
+ 
+  app/module/packageView/groupEditor/group.tmpl
+    [+] app/module/packageView/groupEditor/group.css (style)
+ 
+  basis/src/basis/ui/templates/label/state.tmpl
+ 
+  basis/src/basis/ui/templates/label/processing.tmpl
+ 
+  basis/src/basis/ui/templates/label/error.tmpl
+ 
+  basis/src/basis/ui/templates/label/count.tmpl
+ 
+  basis/src/basis/ui/templates/label/empty.tmpl
+ 
+  basis/src/basis/ui/templates/label/label.tmpl
+ 
+  app/module/packageView/accountEditor/overlay.tmpl
+ 
+  app/module/packageView/accountEditor/overlayPage.tmpl
+    [+] app/module/packageView/accountEditor/overlayPage.css (style)
+ 
+
+Time: 0.105s
+
+[css] Extract
+=============
+
+  Scan html files for styles
+    index.html
+      External style found: <link rel="stylesheet">
+      [+] app/css/main.css (style)
+   
+ 
+  Prepare output files
+ 
+  Process styles
+    app/module/paymentView/view.css
+   
+    app/module/packageView/view.css
+   
+    app/module/commitView/view.css
+   
+    app/module/auth/authWindow/loginForm/style.css
+   
+    app/module/packageView/groupEditor/style.css
+   
+    app/module/packageView/accountEditor/style.css
+   
+    app/module/layout/page.css
+   
+    app/module/layout/header.css
+   
+    app/module/auth/authWindow/window.css
+   
+    app/module/auth/checkSession/checkSession.css
+   
+    basis/src/basis/ui/templates/tabs/Tab.css
+   
+    basis/src/basis/ui/templates/tabs/TabGroup.css
+   
+    basis/src/basis/ui/templates/tabs/TabControl.css
+   
+    basis/src/basis/ui/templates/tabs/Page.css
+   
+    basis/src/basis/ui/templates/tabs/PageControl.css
+   
+    basis/src/basis/ui/templates/tabs/AccordionControl.css
+   
+    basis/src/basis/ui/templates/tabs/TabSheetControl.css
+   
+    app/module/userPanel/userPanel.css
+   
+    app/module/balance/item.css
+   
+    app/module/paymentView/package.css
+   
+    basis/src/basis/ui/templates/table/Row.css
+   
+    app/module/paymentView/payment.css
+   
+    app/module/paymentView/datePicker.css
+   
+    basis/src/basis/ui/templates/window/Blocker.css
+   
+    basis/src/basis/ui/templates/window/Window.css
+   
+    basis/src/basis/ui/templates/window/TitleButton.css
+   
+    basis/src/basis/ui/templates/form/FormContent.css
+   
+    basis/src/basis/ui/templates/button/Button.css
+   
+    basis/src/basis/ui/templates/button/ButtonGroup.css
+   
+    basis/src/basis/ui/templates/popup/Popup.css
+   
+    basis/src/basis/ui/templates/popup/Balloon.css
+   
+    basis/src/basis/ui/templates/calendar/Node.css
+   
+    basis/src/basis/ui/templates/calendar/Section.css
+   
+    basis/src/basis/ui/templates/calendar/SectionMonth.css
+   
+    basis/src/basis/ui/templates/calendar/Calendar.css
+   
+    basis/src/basis/ui/templates/table/Table.css
+   
+    basis/src/basis/ui/templates/scrolltable/ScrollTable.css
+   
+    app/module/packageView/page.css
+   
+    app/module/commitView/page.css
+   
+    basis/src/basis/ui/templates/field/Field.css
+   
+    basis/src/basis/ui/templates/field/Combobox.css
+   
+    basis/src/basis/ui/templates/table/HeaderCell.css
+   
+    basis/src/basis/ui/templates/table/FooterCell.css
+   
+    basis/src/basis/ui/templates/table/Body.css
+   
+    app/module/packageView/sidebar/taskbar.css
+   
+    app/module/packageView/paymentEditor/layout.css
+   
+    app/module/packageView/paymentEditor/emptyLabel.css
+   
+    app/module/packageView/paymentEditor/account.css
+   
+    app/module/commitView/packageList/list.css
+   
+    app/module/commitView/packageList/commitPanel.css
+   
+    app/module/commitView/packageList/package.css
+   
+    app/module/commitView/packageList/accountList.css
+   
+    app/module/commitView/packageList/account.css
+   
+    app/module/packageView/sidebar/accountList/account.css
+   
+    app/module/packageView/sidebar/accountList/group.css
+   
+    app/module/packageView/sidebar/accountList/list.css
+   
+    app/module/packageView/groupEditor/group.css
+   
+    app/module/packageView/accountEditor/overlayPage.css
+   
+    app/css/main.css
+   
+ 
+
+Time: 0.519s
+
+[res] Extract
+=============
+
+  Scan (template) app/module/layout/pageControl.tmpl
+ 
+  Scan (template) app/module/layout/page.tmpl
+ 
+  Scan (template) app/module/layout/header.tmpl
+ 
+  Scan (template) app/module/auth/authWindow/window.tmpl
+ 
+  Scan (template) app/module/auth/checkSession/checkSession.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/Tab.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/TabGroup.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/TabControl.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/Page.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/PageControl.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/TabSheet.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/AccordionControl.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/tabs/TabSheetControl.tmpl
+ 
+  Scan (template) app/module/userPanel/userPanel.tmpl
+ 
+  Scan (template) app/module/balance/panel.tmpl
+ 
+  Scan (template) app/module/balance/item.tmpl
+ 
+  Scan (style) app/module/paymentView/view.css
+ 
+  Scan (template) app/module/paymentView/package.tmpl
+ 
+  Scan (template) app/module/paymentView/payment.tmpl
+ 
+  Scan (template) app/module/paymentView/datePicker.tmpl
+ 
+  Scan (template) app/module/paymentView/header.tmpl
+ 
+  Scan (style) app/module/packageView/view.css
+ 
+  Scan (style) app/module/commitView/view.css
+ 
+  Scan (template) basis/src/basis/ui/templates/window/Blocker.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/window/Window.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/window/TitleButton.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/form/FormContent.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/form/Form.tmpl
+ 
+  Scan (style) app/module/auth/authWindow/loginForm/style.css
+    Found url(processing.gif)
+    [+] app/module/auth/authWindow/loginForm/processing.gif (image)
+ 
+  Scan (template) basis/src/basis/ui/templates/button/Button.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/button/ButtonPanel.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/button/ButtonGroup.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/popup/Popup.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/popup/Balloon.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/calendar/Node.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/calendar/Section.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/calendar/SectionMonth.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/calendar/Calendar.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/scrolltable/ScrollTable.tmpl
+ 
+  Scan (template) app/module/packageView/page.tmpl
+ 
+  Scan (template) app/module/packageView/content.tmpl
+ 
+  Scan (template) app/module/commitView/page.tmpl
+ 
+  Scan (template) app/module/commitView/mainPage.tmpl
+ 
+  Scan (template) app/module/commitView/content.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Field.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Example.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Description.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/File.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Hidden.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Text.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Password.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Textarea.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Counter.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Checkbox.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Label.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/RadioGroup.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/RadioGroupItem.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/CheckGroup.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/CheckGroupItem.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Select.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/SelectItem.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/ComboboxItem.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/field/Combobox.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/HeaderPartitionNode.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/HeaderCell.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/Header.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/FooterCell.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/Footer.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/Row.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/Body.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/table/Table.tmpl
+ 
+  Scan (template) app/module/packageView/sidebar/taskbar.tmpl
+ 
+  Scan (template) app/module/packageView/paymentEditor/layout.tmpl
+ 
+  Scan (template) app/module/packageView/paymentEditor/account.tmpl
+ 
+  Scan (template) app/module/commitView/packageList/list.tmpl
+ 
+  Scan (template) app/module/commitView/packageList/commitPanel.tmpl
+ 
+  Scan (template) app/module/commitView/packageList/package.tmpl
+ 
+  Scan (template) app/module/commitView/packageList/accountList.tmpl
+ 
+  Scan (template) app/module/commitView/packageList/account.tmpl
+ 
+  Scan (template) app/module/packageView/sidebar/accountList/account.tmpl
+ 
+  Scan (template) app/module/packageView/sidebar/accountList/group.tmpl
+ 
+  Scan (template) app/module/packageView/sidebar/accountList/list.tmpl
+ 
+  Scan (style) app/module/packageView/groupEditor/style.css
+ 
+  Scan (template) app/module/packageView/groupEditor/group.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/label/state.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/label/processing.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/label/error.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/label/count.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/label/empty.tmpl
+ 
+  Scan (template) basis/src/basis/ui/templates/label/label.tmpl
+ 
+  Scan (style) app/module/packageView/accountEditor/style.css
+ 
+  Scan (template) app/module/packageView/accountEditor/overlay.tmpl
+ 
+  Scan (template) app/module/packageView/accountEditor/overlayPage.tmpl
+ 
+  Scan (style) app/module/layout/page.css
+ 
+  Scan (style) app/module/layout/header.css
+ 
+  Scan (style) app/module/auth/authWindow/window.css
+ 
+  Scan (style) app/module/auth/checkSession/checkSession.css
+    Found url(processing.gif)
+    [+] app/module/auth/checkSession/processing.gif (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/Tab.css
+    Found url(res/not_active_border.gif)
+    [+] basis/src/basis/ui/templates/tabs/res/not_active_border.gif (image)
+    Found url(res/not_active_bg.gif)
+    [+] basis/src/basis/ui/templates/tabs/res/not_active_bg.gif (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/TabGroup.css
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/TabControl.css
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/Page.css
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/PageControl.css
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/AccordionControl.css
+ 
+  Scan (style) basis/src/basis/ui/templates/tabs/TabSheetControl.css
+ 
+  Scan (style) app/module/userPanel/userPanel.css
+ 
+  Scan (style) app/module/balance/item.css
+ 
+  Scan (style) app/module/paymentView/package.css
+    Found url(img/minus.gif)
+    [+] app/module/paymentView/img/minus.gif (image)
+    Found url(img/plus.gif)
+    [+] app/module/paymentView/img/plus.gif (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/table/Row.css
+    Found url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAARCAYAAADUryzEAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAA+SURBVHjaYvz///8OBgoACxCfp9SAX5Qa8JNSA34MuAHfKTXg24Ab8HXoGzDwgfh9QPMCI7A8YKLEAIAAAwCH5xVDsWrjRgAAAABJRU5ErkJggg==)
+ 
+  Scan (style) app/module/paymentView/payment.css
+ 
+  Scan (style) app/module/paymentView/datePicker.css
+    Found url(img/arrow_down.gif)
+    [+] app/module/paymentView/img/arrow_down.gif (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/window/Blocker.css
+    Found url(res/mate_white.png)
+    [+] basis/src/basis/ui/templates/window/res/mate_white.png (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/window/Window.css
+    Found url(res/corners.png)
+    [+] basis/src/basis/ui/templates/window/res/corners.png (image)
+    Found url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAA7CAYAAAAXdfjrAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAMxSURBVHja7Jq9jtQwEMdnst4cJ1FQIPHxABRQ0NCcRMVj3AtcfU9y9b3AvcXRgAQSVEhcQ0EHJS1HsjFxsKPZyUw+HCdaibM0ym7WsX/5z9jxjoMwrSDMKzZFRzhQD2fA2CFY09MhB8ORwEMAdswN4AAUKsZh+8As+8xNhEYFilvGjpqCoCgUrGJHFdIIikkw1DigBMehKFDl69NzHXcaJYY4zMYbBwx1pVIxsGA7b0igQt3AYIcUc2YuLq9+QYJyfnb6mLRfEpXCOSuNxMwrmNd2XNv92h7UUPb63Sc7t7g2XFt1mw7uoWvb93Hs+zTEEx1XouA+ePP6VXMrH77+iFLq5MXTpo0vN9/AQ2ijVHQlh9vQwfHx5ifkeQ7b7dEkqKK4ba49ef4knNoq8bfnTiNMGTzo25Ln9yar5a4pioKe2vrgDwMh9EVHJ2qKUcB/PyI2FlPYdcZbKcyLbcVMeSSJiiUqG9I2nXr2SjYw62fKXc9RjM6J2qMOTM+Dmj0LccaaB7kY2dCzt291sSdxc9PRMdbxEvcIjln2iEufhME/ahGQjffBnMVrLxiMXSiKFI1ikESxUSthMylOEFLE2KiSRbpj8f8wZoo7FnLlfLB4V+Jyrkw486dVbLADm+Dv8CKK4Z0rhVGJeHjBv/Y8drCunAA2Q6+Ia+NjbML0sG6M4cHE2Jqhv9aoxP9xVK5d7hRLBWZXVMzGKGYXEIMng6MUWwNstGKhYrUQGE/aiXCZcCej5Y7UtIJunp/334Jpuxdtlu/ZIxP9QGDXhnS6tAnRshhFA5qTh7fvPzfJXRVuRHFtELCKHMWQ0RLCzlyu1GWY84vLq+8pguv87PRlffhT229/dOYStKW3VkmaC8sY3JbYkYcM3w3ImUFgYRDcVnqAwsPcku8Fg2rMKMM4NMoTbOG3Ero5VAlMg+soxIPfCMEfcu471mHoxMB+chcVMMtiqWS2E+LMasFvGVwpnC+hP7lre+B2BKoUoNQ1vzRVlOTcDtLtvmnzmehKFGZk2niq/coKupuqMORKeseogC25wys2epB74hocQPq3CAbfLjjY9y6mLktXe1PlrwADAF52pQT/J54OAAAAAElFTkSuQmCC)
+    Found url(res/repeat-x.png)
+    [+] basis/src/basis/ui/templates/window/res/repeat-x.png (image)
+    Found url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAxCAYAAADTAynyAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAACRSURBVHja7NRLDkAwFIXheygGjWXY/yrswBZsgXgkxcTIhF80RJNOv/SetkdmJgPLrTuhQEoBR4GMAgUFcgpUFOgp0EU/AQZGCgwUmCgwE0D0N4oWiuqmDSgD70tDgKS4ACrUWwAnCtjrQ1wzEM3A/hHwCNs7CNdrJdl7Ke4Ir+6DhzM4uO5zJ9AnQ/wAsAgwAICBDl4SYx5qAAAAAElFTkSuQmCC)
+    Found url(res/repeat-y.png)
+    [+] basis/src/basis/ui/templates/window/res/repeat-y.png (image)
+    Found url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAUCAYAAACAl21KAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABDSURBVHja7MwxDoAgFATRj4iGmvtfUyIgYUhs6Sh3kteOMzOHAx4nAm5ciEh4kH8FLyoaPvQ52JJGGmmkkUarhgADAOFzCSmzwqMFAAAAAElFTkSuQmCC)
+ 
+  Scan (style) basis/src/basis/ui/templates/window/TitleButton.css
+    Found url(res/button_close.png)
+    [+] basis/src/basis/ui/templates/window/res/button_close.png (image)
+    Found url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAATCAYAAABsmQZ/AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAALLSURBVHjaxFbPS1RBHP/OvPf2R5ZEtzyFKIr0F3Tr2LEOBWGKZf7aCE+C/TiZ2SlE3FoSMyGQ8BJ1jbxEh6JDsAXpxa6SpO6uu/vem5m+3/Hta3Umitho4MN85zPf73zed+a7M8vgZ2MIHvWNbgohoz4W4M9evM7jiCEtFahAKSXQVn8jIJUKpBC7oRAl3/e3Bi+dHUJeIEISJ1G29PzV+462E8e7OlpblGpcegxXz39eW3nz7uOX0avnx5CqIgKXspRSljvbW1v80B5c2PUhlFzbLpdw5FDCytlaV2f76bcfPm2imYwyFSTKhMStwB0nHGzFsg9CcXj8IKvHl0cysLldBnC8fdxWyYfDabsw485R+jaEQ0MyQIR7ooEwAwLBYeFhFm7fHNXjiclp6BvOwELW5GzxkWhzVD+6hvZEpaxqUUumMgL66PGN8etwZ2oGbmFf42o+tnimZViqntOHgsUjQ6zZQJgQQkDv4AhM3J1BW2qMj12LbeJpnvxs8bQu5scN0b1s8UzJ6QAc14Oq70MPLjx5bxZ2CoUYNCae5snPFi8s2bs149vGBuyUqqaD60IqlcYznIWhwYtQLBbiub7ec5Cbvg/d/QNQ2N6GMDTLv7kpaXBRpkoxzoE7joFUugmezs9B/5ULuKjQyD1aim3iaZ78bPG0Ll4x5vbieZQdzMj1vP3ALeMYxLAaJO4TYX5hGXoGhmH+yTLg71uDcab9jHgErYvxSWN7fT8o0jaij9GECHWhLM7l9JjsSqUMvQN1HNpB4GO8Zz0eVE0Yoli9ThID6IaxXYOUDYnVPiKdThtcIpGw/lySnvOLQsIb4+v6er61re2k/O3d6/0hh8ui6Orq2ve6lyZ+ZehTErOLL1dQ/Bjuf6rR71qm+8wp7CqIEp1m7Wryogs5GWXPGvyWhtELE78yNRKi3vkHoqLuPVXsf/xz+CHAAAV4m0XACqzKAAAAAElFTkSuQmCC)
+ 
+  Scan (style) basis/src/basis/ui/templates/form/FormContent.css
+ 
+  Scan (style) basis/src/basis/ui/templates/button/Button.css
+    Found url(res/button_transparent_bg.png)
+    [+] basis/src/basis/ui/templates/button/res/button_transparent_bg.png (image)
+    Found url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxIDEiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPg0KPGxpbmVhckdyYWRpZW50IGlkPSJnNTYzIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPg0KPHN0b3Agc3RvcC1jb2xvcj0iI0ZGRkZGRiIgb2Zmc2V0PSIwIiBzdG9wLW9wYWNpdHk9IjAuNyIvPjxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiIG9mZnNldD0iMC41IiBzdG9wLW9wYWNpdHk9IjAuNSIvPjxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiIG9mZnNldD0iMC41IiBzdG9wLW9wYWNpdHk9IjAuMiIvPjxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIwIi8+DQo8L2xpbmVhckdyYWRpZW50Pg0KPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNnNTYzKSIgLz4NCjwvc3ZnPg==)
+ 
+  Scan (style) basis/src/basis/ui/templates/button/ButtonGroup.css
+ 
+  Scan (style) basis/src/basis/ui/templates/popup/Popup.css
+ 
+  Scan (style) basis/src/basis/ui/templates/popup/Balloon.css
+    Found url(res/corners.png)
+    [+] basis/src/basis/ui/templates/popup/res/corners.png (image)
+    Found url(res/tails.png)
+    [+] basis/src/basis/ui/templates/popup/res/tails.png (image)
+    Found url(res/repeat-x.png)
+    [+] basis/src/basis/ui/templates/popup/res/repeat-x.png (image)
+    Found url(res/repeat-y.png)
+    [+] basis/src/basis/ui/templates/popup/res/repeat-y.png (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/calendar/Node.css
+ 
+  Scan (style) basis/src/basis/ui/templates/calendar/Section.css
+ 
+  Scan (style) basis/src/basis/ui/templates/calendar/SectionMonth.css
+ 
+  Scan (style) basis/src/basis/ui/templates/calendar/Calendar.css
+ 
+  Scan (style) basis/src/basis/ui/templates/table/Table.css
+ 
+  Scan (style) basis/src/basis/ui/templates/scrolltable/ScrollTable.css
+    Found url(../table/res/bg.gif)
+    [+] basis/src/basis/ui/templates/table/res/bg.gif (image)
+    Found url(../table/res/footer_bg.gif)
+    [+] basis/src/basis/ui/templates/table/res/footer_bg.gif (image)
+ 
+  Scan (style) app/module/packageView/page.css
+ 
+  Scan (style) app/module/commitView/page.css
+ 
+  Scan (style) basis/src/basis/ui/templates/field/Field.css
+ 
+  Scan (style) basis/src/basis/ui/templates/field/Combobox.css
+    Found url(res/dropdown_bg.gif)
+    [+] basis/src/basis/ui/templates/field/res/dropdown_bg.gif (image)
+    Found url(res/dropdown_arrow.gif)
+    [+] basis/src/basis/ui/templates/field/res/dropdown_arrow.gif (image)
+    Found url(res/dropdown_gray_bg.gif)
+    [+] basis/src/basis/ui/templates/field/res/dropdown_gray_bg.gif (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/table/HeaderCell.css
+    Found url(res/bg.gif)
+    [ ] File `basis/src/basis/ui/templates/table/res/bg.gif` already in queue
+    Found url(res/hline_left.gif)
+    [+] basis/src/basis/ui/templates/table/res/hline_left.gif (image)
+    Found url(res/hline_right.gif)
+    [+] basis/src/basis/ui/templates/table/res/hline_right.gif (image)
+    Found url(res/hover_bg.gif)
+    [+] basis/src/basis/ui/templates/table/res/hover_bg.gif (image)
+    Found url(res/hover_hline.gif)
+    [+] basis/src/basis/ui/templates/table/res/hover_hline.gif (image)
+    Found url(res/hover_hline.gif)
+    [ ] File `basis/src/basis/ui/templates/table/res/hover_hline.gif` already in queue
+    Found url(res/selected_bg.gif)
+    [+] basis/src/basis/ui/templates/table/res/selected_bg.gif (image)
+    Found url(res/order_asc.gif)
+    [+] basis/src/basis/ui/templates/table/res/order_asc.gif (image)
+    Found url(res/order_desc.gif)
+    [+] basis/src/basis/ui/templates/table/res/order_desc.gif (image)
+ 
+  Scan (style) basis/src/basis/ui/templates/table/FooterCell.css
+    Found url(res/footer_bg.gif)
+    [ ] File `basis/src/basis/ui/templates/table/res/footer_bg.gif` already in queue
+ 
+  Scan (style) basis/src/basis/ui/templates/table/Body.css
+    Found url(res/minus.gif)
+    [+] basis/src/basis/ui/templates/table/res/minus.gif (image)
+    Found url(res/plus.gif)
+    [+] basis/src/basis/ui/templates/table/res/plus.gif (image)
+ 
+  Scan (style) app/module/packageView/sidebar/taskbar.css
+ 
+  Scan (style) app/module/packageView/paymentEditor/layout.css
+ 
+  Scan (style) app/module/packageView/paymentEditor/emptyLabel.css
+ 
+  Scan (style) app/module/packageView/paymentEditor/account.css
+    Found url(cross.png)
+    [+] app/module/packageView/paymentEditor/cross.png (image)
+ 
+  Scan (style) app/module/commitView/packageList/list.css
+ 
+  Scan (style) app/module/commitView/packageList/commitPanel.css
+ 
+  Scan (style) app/module/commitView/packageList/package.css
+    Found url(img/cross.png)
+    [+] app/module/commitView/packageList/img/cross.png (image)
+ 
+  Scan (style) app/module/commitView/packageList/accountList.css
+    Found url(img/minus.gif)
+    [+] app/module/commitView/packageList/img/minus.gif (image)
+    Found url(img/plus.gif)
+    [+] app/module/commitView/packageList/img/plus.gif (image)
+ 
+  Scan (style) app/module/commitView/packageList/account.css
+ 
+  Scan (style) app/module/packageView/sidebar/accountList/account.css
+    Found url(img/user.png)
+    [+] app/module/packageView/sidebar/accountList/img/user.png (image)
+    Found url(img/add.png)
+    [+] app/module/packageView/sidebar/accountList/img/add.png (image)
+    Found url(img/user_edit.png)
+    [+] app/module/packageView/sidebar/accountList/img/user_edit.png (image)
+    Found url(img/delete.png)
+    [+] app/module/packageView/sidebar/accountList/img/delete.png (image)
+ 
+  Scan (style) app/module/packageView/sidebar/accountList/group.css
+    Found url(img/add.png)
+    [ ] File `app/module/packageView/sidebar/accountList/img/add.png` already in queue
+    Found url(img/minus.gif)
+    [+] app/module/packageView/sidebar/accountList/img/minus.gif (image)
+    Found url(img/plus.gif)
+    [+] app/module/packageView/sidebar/accountList/img/plus.gif (image)
+    Found url(img/group.png)
+    [+] app/module/packageView/sidebar/accountList/img/group.png (image)
+    Found url(img/group_edit.png)
+    [+] app/module/packageView/sidebar/accountList/img/group_edit.png (image)
+    Found url(img/user_add.png)
+    [+] app/module/packageView/sidebar/accountList/img/user_add.png (image)
+    Found url(img/delete.png)
+    [ ] File `app/module/packageView/sidebar/accountList/img/delete.png` already in queue
+ 
+  Scan (style) app/module/packageView/sidebar/accountList/list.css
+ 
+  Scan (style) app/module/packageView/groupEditor/group.css
+    Found url(group.png)
+    [+] app/module/packageView/groupEditor/group.png (image)
+ 
+  Scan (style) app/module/packageView/accountEditor/overlayPage.css
+ 
+  Scan (style) app/css/main.css
+ 
+
+Time: 0.090s
+
+[l10n] Extract
+==============
+
+  Scan javascript
+    basis/src/basis.js
+   
+    [inline script]
+   
+    [inline script]
+   
+    app.js
+      [FOUND] basis.l10n.setCultureList(["ru-RU"]) in app.js
+              [OK] Set culture list ["ru-RU"]
+      [FOUND] createDictionary app -> app/l10n/
+      [FOUND] createDictionary app.label -> app/l10n/
+      [FOUND] getToken app.title
+   
+    basis/src/basis/l10n.js
+      [i] basis.l10n module found, store reference for it
+   
+    basis/src/basis/data.js
+   
+    basis/src/basis/dom.js
+   
+    basis/src/basis/ui.js
+   
+    app/type.js
+   
+    app/module/auth.js
+   
+    app/module/layout.js
+   
+    basis/src/basis/event.js
+   
+    basis/src/basis/ua.js
+   
+    basis/src/basis/dom/wrapper.js
+   
+    basis/src/basis/cssom.js
+   
+    basis/src/basis/template/html.js
+   
+    basis/src/basis/entity.js
+   
+    app/rpc.js
+   
+    basis/src/basis/date.js
+   
+    app/type/profile.js
+   
+    app/type/group.js
+   
+    app/type/account.js
+   
+    app/type/pay.js
+   
+    app/type/package.js
+   
+    app/type/commit.js
+   
+    app/type/user.js
+   
+    app/type/balance.js
+   
+    app/service.js
+   
+    app/module/auth/authWindow/authWindow.js
+      [FOUND] createDictionary module.auth.authWindow -> app/module/auth/authWindow/l10n/
+   
+    app/module/auth/checkSession/checkSession.js
+      [FOUND] createDictionary app.module.auth.checkSession -> app/module/auth/checkSession/l10n/
+   
+    basis/src/basis/layout.js
+   
+    basis/src/basis/ui/tabs.js
+   
+    app/module/userPanel.js
+   
+    app/module/balance.js
+   
+    app/module/paymentView.js
+   
+    app/module/packageView.js
+   
+    app/module/commitView.js
+   
+    basis/src/basis/dom/event.js
+   
+    basis/src/basis/template.js
+   
+    basis/src/basis/data/dataset.js
+   
+    basis/src/basis/crypt.js
+   
+    basis/src/basis/net/ajax.js
+   
+    basis/src/basis/ui/window.js
+      [FOUND] createDictionary basis.ui.window -> basis/src/basis/ui/l10n/window/
+   
+    basis/src/basis/ui/form.js
+   
+    app/module/auth/authWindow/loginForm/widget.js
+      [FOUND] createDictionary app.module.auth.loginForm -> app/module/auth/authWindow/loginForm/l10n/
+   
+    basis/src/basis/ui/button.js
+   
+    basis/src/basis/ui/popup.js
+   
+    basis/src/basis/ui/calendar.js
+      [FOUND] createDictionary basis.ui.calendar -> basis/src/basis/ui/l10n/calendar/
+      [FOUND] createDictionary basis.ui.calendar.month -> basis/src/basis/ui/l10n/calendar/
+      [FOUND] createDictionary basis.ui.calendar.monthShort -> basis/src/basis/ui/l10n/calendar/
+      [FOUND] createDictionary basis.ui.calendar.day -> basis/src/basis/ui/l10n/calendar/
+      [FOUND] createDictionary basis.ui.calendar.day2 -> basis/src/basis/ui/l10n/calendar/
+      [FOUND] createDictionary basis.ui.calendar.day3 -> basis/src/basis/ui/l10n/calendar/
+   
+    basis/src/basis/ui/scrolltable.js
+   
+    basis/src/basis/data/property.js
+   
+    basis/src/basis/data/index.js
+   
+    app/module/packageView/view.js
+   
+    app/module/commitView/view.js
+   
+    basis/src/basis/timer.js
+   
+    basis/src/basis/dragdrop.js
+   
+    basis/src/basis/ui/field.js
+      [FOUND] createDictionary basis.ui.field -> basis/src/basis/ui/l10n/field/
+      [FOUND] createDictionary basis.ui.field.validator -> basis/src/basis/ui/l10n/field/
+   
+    basis/src/basis/ui/table.js
+   
+    app/module/packageView/sidebar.js
+   
+    app/module/packageView/paymentEditor.js
+   
+    app/module/commitView/packageList/list.js
+   
+    app/module/packageView/sidebar/accountList.js
+   
+    app/module/packageView/groupEditor.js
+   
+    basis/src/basis/ui/label.js
+   
+    app/module/packageView/accountEditor.js
+   
+ 
+  Fetch dictionary files
+    app/l10n/
+      [+] app/l10n/ru-RU.json (l10n)
+   
+    app/module/auth/authWindow/l10n/
+      [+] app/module/auth/authWindow/l10n/ru-RU.json (l10n)
+   
+    app/module/auth/checkSession/l10n/
+      [+] app/module/auth/checkSession/l10n/ru-RU.json (l10n)
+   
+    basis/src/basis/ui/l10n/window/
+      [+] basis/src/basis/ui/l10n/window/ru-RU.json (l10n)
+   
+    app/module/auth/authWindow/loginForm/l10n/
+      [+] app/module/auth/authWindow/loginForm/l10n/ru-RU.json (l10n)
+   
+    basis/src/basis/ui/l10n/calendar/
+      [+] basis/src/basis/ui/l10n/calendar/ru-RU.json (l10n)
+   
+    basis/src/basis/ui/l10n/field/
+      [+] basis/src/basis/ui/l10n/field/ru-RU.json (l10n)
+   
+
+Time: 0.166s
+
+[css] Make packages
+===================
+
+  index.html
+    Create generic style
+    Inject generic file link into html
+    Fill with imports
+ 
+
+main.css
+style.css
+
+Time: 0.001s
+
+[css] Linear files
+==================
+
+  style.css
+ 
+  main.css
+ 
+
+Time: 0.000s
+
+[css] Merge packages
+====================
+
+  Merge into style.css (media: all)
+    app/css/main.css
+    [inline style]
+
+Time: 0.000s
+
+[css] Compress
+==============
+
+  Pack style.css
+
+Time: 0.432s
+
+[css] Translate
+===============
+
+  [OK] style.css
+
+Time: 0.020s
+
+[l10n] Build index
+==================
+
+  app
+  app.label
+  module.auth.authWindow
+  app.module.auth.checkSession
+  basis.ui.window
+  app.module.auth.loginForm
+  basis.ui.calendar
+  basis.ui.calendar.month
+  basis.ui.calendar.monthShort
+  basis.ui.calendar.day
+  basis.ui.calendar.day2
+  basis.ui.calendar.day3
+  basis.ui.field
+  basis.ui.field.validator
+ 
+  # Build index
+
+Time: 0.002s
+
+[l10n] Make packages
+====================
+
+  Collect culture content
+    (ru-RU) app/l10n/ru-RU.json
+   
+    (ru-RU) app/module/auth/authWindow/l10n/ru-RU.json
+   
+    (ru-RU) app/module/auth/checkSession/l10n/ru-RU.json
+   
+    (ru-RU) basis/src/basis/ui/l10n/window/ru-RU.json
+   
+    (ru-RU) app/module/auth/authWindow/loginForm/l10n/ru-RU.json
+   
+    (ru-RU) basis/src/basis/ui/l10n/calendar/ru-RU.json
+   
+    (ru-RU) basis/src/basis/ui/l10n/field/ru-RU.json
+   
+ 
+  Make packages
+    ru-RU
+      [OK] Add to resource map
+
+Time: 0.002s
+
+[l10n] Compress
+===============
+
+  Skiped.
+  Use option --l10n-pack for compression
+
+Time: 0.000s
+
+[l10n] Modify createDictionary/getToken calls
+=============================================
+
+  app.js
+    app
+    app.label
+ 
+  app/module/auth/authWindow/authWindow.js
+    module.auth.authWindow
+ 
+  app/module/auth/checkSession/checkSession.js
+    app.module.auth.checkSession
+ 
+  basis/src/basis/ui/window.js
+    basis.ui.window
+ 
+  app/module/auth/authWindow/loginForm/widget.js
+    app.module.auth.loginForm
+ 
+  basis/src/basis/ui/calendar.js
+    basis.ui.calendar
+    basis.ui.calendar.month
+    basis.ui.calendar.monthShort
+    basis.ui.calendar.day
+    basis.ui.calendar.day2
+    basis.ui.calendar.day3
+ 
+  basis/src/basis/ui/field.js
+    basis.ui.field
+    basis.ui.field.validator
+ 
+
+Time: 0.072s
+
+[tmpl] Translate
+================
+
+  app/module/layout/pageControl.tmpl
+  app/module/layout/page.tmpl
+  app/module/layout/header.tmpl
+  app/module/auth/authWindow/window.tmpl
+  app/module/auth/checkSession/checkSession.tmpl
+  basis/src/basis/ui/templates/tabs/Tab.tmpl
+  basis/src/basis/ui/templates/tabs/TabGroup.tmpl
+  basis/src/basis/ui/templates/tabs/TabControl.tmpl
+  basis/src/basis/ui/templates/tabs/Page.tmpl
+  basis/src/basis/ui/templates/tabs/PageControl.tmpl
+  basis/src/basis/ui/templates/tabs/TabSheet.tmpl
+  basis/src/basis/ui/templates/tabs/AccordionControl.tmpl
+  basis/src/basis/ui/templates/tabs/TabSheetControl.tmpl
+  app/module/userPanel/userPanel.tmpl
+  app/module/balance/panel.tmpl
+  app/module/balance/item.tmpl
+  app/module/paymentView/package.tmpl
+  app/module/paymentView/payment.tmpl
+  app/module/paymentView/datePicker.tmpl
+  app/module/paymentView/header.tmpl
+  basis/src/basis/ui/templates/window/Blocker.tmpl
+  basis/src/basis/ui/templates/window/Window.tmpl
+  basis/src/basis/ui/templates/window/TitleButton.tmpl
+  basis/src/basis/ui/templates/form/FormContent.tmpl
+  basis/src/basis/ui/templates/form/Form.tmpl
+  basis/src/basis/ui/templates/button/Button.tmpl
+  basis/src/basis/ui/templates/button/ButtonPanel.tmpl
+  basis/src/basis/ui/templates/button/ButtonGroup.tmpl
+  basis/src/basis/ui/templates/popup/Popup.tmpl
+  basis/src/basis/ui/templates/popup/Balloon.tmpl
+  basis/src/basis/ui/templates/calendar/Node.tmpl
+  basis/src/basis/ui/templates/calendar/Section.tmpl
+  basis/src/basis/ui/templates/calendar/SectionMonth.tmpl
+  basis/src/basis/ui/templates/calendar/Calendar.tmpl
+  basis/src/basis/ui/templates/scrolltable/ScrollTable.tmpl
+  app/module/packageView/page.tmpl
+  app/module/packageView/content.tmpl
+  app/module/commitView/page.tmpl
+  app/module/commitView/mainPage.tmpl
+  app/module/commitView/content.tmpl
+  basis/src/basis/ui/templates/field/Field.tmpl
+  basis/src/basis/ui/templates/field/Example.tmpl
+  basis/src/basis/ui/templates/field/Description.tmpl
+  basis/src/basis/ui/templates/field/File.tmpl
+  basis/src/basis/ui/templates/field/Hidden.tmpl
+  basis/src/basis/ui/templates/field/Text.tmpl
+  basis/src/basis/ui/templates/field/Password.tmpl
+  basis/src/basis/ui/templates/field/Textarea.tmpl
+  basis/src/basis/ui/templates/field/Counter.tmpl
+  basis/src/basis/ui/templates/field/Checkbox.tmpl
+  basis/src/basis/ui/templates/field/Label.tmpl
+  basis/src/basis/ui/templates/field/RadioGroup.tmpl
+  basis/src/basis/ui/templates/field/RadioGroupItem.tmpl
+  basis/src/basis/ui/templates/field/CheckGroup.tmpl
+  basis/src/basis/ui/templates/field/CheckGroupItem.tmpl
+  basis/src/basis/ui/templates/field/Select.tmpl
+  basis/src/basis/ui/templates/field/SelectItem.tmpl
+  basis/src/basis/ui/templates/field/ComboboxItem.tmpl
+  basis/src/basis/ui/templates/field/Combobox.tmpl
+  basis/src/basis/ui/templates/table/HeaderPartitionNode.tmpl
+  basis/src/basis/ui/templates/table/HeaderCell.tmpl
+  basis/src/basis/ui/templates/table/Header.tmpl
+  basis/src/basis/ui/templates/table/FooterCell.tmpl
+  basis/src/basis/ui/templates/table/Footer.tmpl
+  basis/src/basis/ui/templates/table/Row.tmpl
+  basis/src/basis/ui/templates/table/Body.tmpl
+  basis/src/basis/ui/templates/table/Table.tmpl
+  app/module/packageView/sidebar/taskbar.tmpl
+  app/module/packageView/paymentEditor/layout.tmpl
+  app/module/packageView/paymentEditor/account.tmpl
+  app/module/commitView/packageList/list.tmpl
+  app/module/commitView/packageList/commitPanel.tmpl
+  app/module/commitView/packageList/package.tmpl
+  app/module/commitView/packageList/accountList.tmpl
+  app/module/commitView/packageList/account.tmpl
+  app/module/packageView/sidebar/accountList/account.tmpl
+  app/module/packageView/sidebar/accountList/group.tmpl
+  app/module/packageView/sidebar/accountList/list.tmpl
+  app/module/packageView/groupEditor/group.tmpl
+  basis/src/basis/ui/templates/label/state.tmpl
+  basis/src/basis/ui/templates/label/processing.tmpl
+  basis/src/basis/ui/templates/label/error.tmpl
+  basis/src/basis/ui/templates/label/count.tmpl
+  basis/src/basis/ui/templates/label/empty.tmpl
+  basis/src/basis/ui/templates/label/label.tmpl
+  app/module/packageView/accountEditor/overlay.tmpl
+  app/module/packageView/accountEditor/overlayPage.tmpl
+
+Time: 0.007s
+
+[res] Translate
+===============
+
+
+Time: 0.000s
+
+[res] Build map
+===============
+
+
+Time: 0.001s
+
+[js] Modify basis.resource calls
+================================
+
+  [inline script]
+ 
+  app.js
+    basis.resource("app/module/layout.js") -> basis.resource("b.js")
+ 
+  basis/src/basis/data.js
+ 
+  basis/src/basis/dom.js
+ 
+  basis/src/basis/ui.js
+ 
+  app/type.js
+    basis.resource("app/type/profile.js") -> basis.resource("k.js")
+    basis.resource("app/type/group.js") -> basis.resource("l.js")
+    basis.resource("app/type/account.js") -> basis.resource("m.js")
+    basis.resource("app/type/pay.js") -> basis.resource("n.js")
+    basis.resource("app/type/package.js") -> basis.resource("o.js")
+    basis.resource("app/type/commit.js") -> basis.resource("p.js")
+    basis.resource("app/type/user.js") -> basis.resource("q.js")
+    basis.resource("app/type/balance.js") -> basis.resource("r.js")
+ 
+  app/module/auth.js
+    basis.resource("app/module/auth/authWindow/authWindow.js") -> basis.resource("t.js")
+    basis.resource("app/module/auth/checkSession/checkSession.js") -> basis.resource("u.js")
+ 
+  app/module/layout.js
+    basis.resource("app/module/userPanel.js") -> basis.resource("x.js")
+    basis.resource("app/module/balance.js") -> basis.resource("y.js")
+    basis.resource("app/module/paymentView.js") -> basis.resource("z.js")
+    basis.resource("app/module/packageView.js") -> basis.resource("10.js")
+    basis.resource("app/module/commitView.js") -> basis.resource("11.js")
+    basis.resource("app/module/layout/pageControl.tmpl") -> basis.resource("12.tmpl")
+    basis.resource("app/module/layout/page.tmpl") -> basis.resource("13.tmpl")
+    basis.resource("app/module/layout/header.tmpl") -> basis.resource("14.tmpl")
+ 
+  basis/src/basis/dom/wrapper.js
+ 
+  basis/src/basis/cssom.js
+ 
+  basis/src/basis/template/html.js
+ 
+  basis/src/basis/entity.js
+ 
+  app/rpc.js
+ 
+  app/type/profile.js
+    basis.resource("app/type/user.js") -> basis.resource("q.js")
+ 
+  app/type/group.js
+ 
+  app/type/account.js
+ 
+  app/type/pay.js
+ 
+  app/type/package.js
+    basis.resource("app/type/account.js") -> basis.resource("m.js")
+    basis.resource("app/type/pay.js") -> basis.resource("n.js")
+ 
+  app/type/commit.js
+    basis.resource("app/type/package.js") -> basis.resource("o.js")
+ 
+  app/type/user.js
+ 
+  app/type/balance.js
+ 
+  app/service.js
+ 
+  app/module/auth/authWindow/authWindow.js
+    basis.resource("app/module/auth/authWindow/loginForm/widget.js") -> basis.resource("1c.js")
+    basis.resource("app/module/auth/authWindow/window.tmpl") -> basis.resource("1d.tmpl")
+ 
+  app/module/auth/checkSession/checkSession.js
+    basis.resource("app/module/auth/checkSession/checkSession.tmpl") -> basis.resource("1e.tmpl")
+ 
+  basis/src/basis/layout.js
+ 
+  basis/src/basis/ui/tabs.js
+    basis.resource("basis/src/basis/ui/templates/tabs/Tab.tmpl") -> basis.resource("1f.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/TabGroup.tmpl") -> basis.resource("1g.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/TabControl.tmpl") -> basis.resource("1h.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/Page.tmpl") -> basis.resource("1i.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/PageControl.tmpl") -> basis.resource("1j.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/TabSheet.tmpl") -> basis.resource("1k.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/AccordionControl.tmpl") -> basis.resource("1l.tmpl")
+    basis.resource("basis/src/basis/ui/templates/tabs/TabSheetControl.tmpl") -> basis.resource("1m.tmpl")
+ 
+  app/module/userPanel.js
+    basis.resource("app/module/userPanel/userPanel.tmpl") -> basis.resource("1n.tmpl")
+ 
+  app/module/balance.js
+    basis.resource("app/module/balance/panel.tmpl") -> basis.resource("1o.tmpl")
+    basis.resource("app/module/balance/item.tmpl") -> basis.resource("1p.tmpl")
+ 
+  app/module/paymentView.js
+    basis.resource("app/module/paymentView/view.css") -> basis.resource("0.css")
+    basis.resource("app/module/paymentView/package.tmpl") -> basis.resource("1x.tmpl")
+    basis.resource("app/module/paymentView/payment.tmpl") -> basis.resource("1y.tmpl")
+    basis.resource("app/module/paymentView/datePicker.tmpl") -> basis.resource("1z.tmpl")
+    basis.resource("app/module/paymentView/header.tmpl") -> basis.resource("20.tmpl")
+ 
+  app/module/packageView.js
+    basis.resource("app/module/packageView/view.js") -> basis.resource("21.js")
+    basis.resource("app/module/packageView/view.css") -> basis.resource("0.css")
+ 
+  app/module/commitView.js
+    basis.resource("app/module/commitView/view.css") -> basis.resource("0.css")
+    basis.resource("app/module/commitView/view.js") -> basis.resource("24.js")
+ 
+  basis/src/basis/dom/event.js
+ 
+  basis/src/basis/data/dataset.js
+ 
+  basis/src/basis/net/ajax.js
+ 
+  basis/src/basis/ui/window.js
+    basis.resource("basis/src/basis/ui/templates/window/Blocker.tmpl") -> basis.resource("26.tmpl")
+    basis.resource("basis/src/basis/ui/templates/window/Window.tmpl") -> basis.resource("27.tmpl")
+    basis.resource("basis/src/basis/ui/templates/window/TitleButton.tmpl") -> basis.resource("28.tmpl")
+ 
+  basis/src/basis/ui/form.js
+    basis.resource("basis/src/basis/ui/templates/form/FormContent.tmpl") -> basis.resource("2b.tmpl")
+    basis.resource("basis/src/basis/ui/templates/form/Form.tmpl") -> basis.resource("2c.tmpl")
+ 
+  app/module/auth/authWindow/loginForm/widget.js
+    basis.resource("app/module/auth/authWindow/loginForm/style.css") -> basis.resource("0.css")
+ 
+  basis/src/basis/ui/button.js
+    basis.resource("basis/src/basis/ui/templates/button/Button.tmpl") -> basis.resource("2e.tmpl")
+    basis.resource("basis/src/basis/ui/templates/button/ButtonPanel.tmpl") -> basis.resource("2f.tmpl")
+    basis.resource("basis/src/basis/ui/templates/button/ButtonGroup.tmpl") -> basis.resource("2g.tmpl")
+ 
+  basis/src/basis/ui/popup.js
+    basis.resource("basis/src/basis/ui/templates/popup/Popup.tmpl") -> basis.resource("2h.tmpl")
+    basis.resource("basis/src/basis/ui/templates/popup/Balloon.tmpl") -> basis.resource("2i.tmpl")
+ 
+  basis/src/basis/ui/calendar.js
+    basis.resource("basis/src/basis/ui/templates/calendar/Node.tmpl") -> basis.resource("2j.tmpl")
+    basis.resource("basis/src/basis/ui/templates/calendar/Section.tmpl") -> basis.resource("2k.tmpl")
+    basis.resource("basis/src/basis/ui/templates/calendar/SectionMonth.tmpl") -> basis.resource("2l.tmpl")
+    basis.resource("basis/src/basis/ui/templates/calendar/Calendar.tmpl") -> basis.resource("2m.tmpl")
+ 
+  basis/src/basis/ui/scrolltable.js
+    basis.resource("basis/src/basis/ui/templates/scrolltable/ScrollTable.tmpl") -> basis.resource("2o.tmpl")
+ 
+  basis/src/basis/data/property.js
+ 
+  basis/src/basis/data/index.js
+ 
+  app/module/packageView/view.js
+    basis.resource("app/module/packageView/sidebar.js") -> basis.resource("2p.js")
+    basis.resource("app/module/packageView/paymentEditor.js") -> basis.resource("2q.js")
+    basis.resource("app/module/packageView/page.tmpl") -> basis.resource("2r.tmpl")
+    basis.resource("app/module/packageView/content.tmpl") -> basis.resource("2s.tmpl")
+ 
+  app/module/commitView/view.js
+    basis.resource("app/module/commitView/page.tmpl") -> basis.resource("2t.tmpl")
+    basis.resource("app/module/commitView/mainPage.tmpl") -> basis.resource("2u.tmpl")
+    basis.resource("app/module/commitView/content.tmpl") -> basis.resource("2v.tmpl")
+    basis.resource("app/module/commitView/packageList/list.js") -> basis.resource("2w.js")
+ 
+  basis/src/basis/dragdrop.js
+ 
+  basis/src/basis/ui/field.js
+    basis.resource("basis/src/basis/ui/templates/field/Field.tmpl") -> basis.resource("2x.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Example.tmpl") -> basis.resource("2y.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Description.tmpl") -> basis.resource("2z.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/File.tmpl") -> basis.resource("30.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Hidden.tmpl") -> basis.resource("31.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Text.tmpl") -> basis.resource("32.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Password.tmpl") -> basis.resource("33.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Textarea.tmpl") -> basis.resource("34.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Counter.tmpl") -> basis.resource("35.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Checkbox.tmpl") -> basis.resource("36.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Label.tmpl") -> basis.resource("37.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/RadioGroup.tmpl") -> basis.resource("38.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/RadioGroupItem.tmpl") -> basis.resource("39.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/CheckGroup.tmpl") -> basis.resource("3a.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/CheckGroupItem.tmpl") -> basis.resource("3b.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Select.tmpl") -> basis.resource("3c.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/SelectItem.tmpl") -> basis.resource("3d.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/ComboboxItem.tmpl") -> basis.resource("3e.tmpl")
+    basis.resource("basis/src/basis/ui/templates/field/Combobox.tmpl") -> basis.resource("3f.tmpl")
+ 
+  basis/src/basis/ui/table.js
+    basis.resource("basis/src/basis/ui/templates/table/HeaderPartitionNode.tmpl") -> basis.resource("3g.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/HeaderCell.tmpl") -> basis.resource("3h.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/Header.tmpl") -> basis.resource("3i.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/FooterCell.tmpl") -> basis.resource("3j.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/Footer.tmpl") -> basis.resource("3k.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/Row.tmpl") -> basis.resource("3l.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/Body.tmpl") -> basis.resource("3m.tmpl")
+    basis.resource("basis/src/basis/ui/templates/table/Table.tmpl") -> basis.resource("3n.tmpl")
+ 
+  app/module/packageView/sidebar.js
+    basis.resource("app/module/packageView/sidebar/accountList.js") -> basis.resource("3o.js")
+    basis.resource("app/module/packageView/groupEditor.js") -> basis.resource("3p.js")
+    basis.resource("app/module/packageView/sidebar/taskbar.tmpl") -> basis.resource("3q.tmpl")
+ 
+  app/module/packageView/paymentEditor.js
+    basis.resource("app/module/packageView/paymentEditor/layout.tmpl") -> basis.resource("3s.tmpl")
+    basis.resource("app/module/packageView/paymentEditor/account.tmpl") -> basis.resource("3t.tmpl")
+ 
+  app/module/commitView/packageList/list.js
+    basis.resource("app/module/commitView/packageList/list.tmpl") -> basis.resource("3u.tmpl")
+    basis.resource("app/module/commitView/packageList/commitPanel.tmpl") -> basis.resource("3v.tmpl")
+    basis.resource("app/module/commitView/packageList/package.tmpl") -> basis.resource("3w.tmpl")
+    basis.resource("app/module/commitView/packageList/accountList.tmpl") -> basis.resource("3x.tmpl")
+    basis.resource("app/module/commitView/packageList/account.tmpl") -> basis.resource("3y.tmpl")
+ 
+  app/module/packageView/sidebar/accountList.js
+    basis.resource("app/module/packageView/groupEditor.js") -> basis.resource("3p.js")
+    basis.resource("app/module/packageView/accountEditor.js") -> basis.resource("3z.js")
+    basis.resource("app/module/packageView/sidebar/accountList/account.tmpl") -> basis.resource("40.tmpl")
+    basis.resource("app/module/packageView/sidebar/accountList/group.tmpl") -> basis.resource("41.tmpl")
+    basis.resource("app/module/packageView/sidebar/accountList/list.tmpl") -> basis.resource("42.tmpl")
+ 
+  app/module/packageView/groupEditor.js
+    basis.resource("app/module/packageView/groupEditor/style.css") -> basis.resource("0.css")
+    basis.resource("app/module/packageView/groupEditor/group.tmpl") -> basis.resource("44.tmpl")
+ 
+  basis/src/basis/ui/label.js
+    basis.resource("basis/src/basis/ui/templates/label/state.tmpl") -> basis.resource("45.tmpl")
+    basis.resource("basis/src/basis/ui/templates/label/processing.tmpl") -> basis.resource("46.tmpl")
+    basis.resource("basis/src/basis/ui/templates/label/error.tmpl") -> basis.resource("47.tmpl")
+    basis.resource("basis/src/basis/ui/templates/label/count.tmpl") -> basis.resource("48.tmpl")
+    basis.resource("basis/src/basis/ui/templates/label/empty.tmpl") -> basis.resource("49.tmpl")
+    basis.resource("basis/src/basis/ui/templates/label/label.tmpl") -> basis.resource("4a.tmpl")
+ 
+  app/module/packageView/accountEditor.js
+    basis.resource("app/module/packageView/accountEditor/style.css") -> basis.resource("0.css")
+    basis.resource("app/module/packageView/groupEditor/group.tmpl") -> basis.resource("44.tmpl")
+    basis.resource("app/module/packageView/accountEditor/overlay.tmpl") -> basis.resource("4c.tmpl")
+    basis.resource("app/module/packageView/accountEditor/overlayPage.tmpl") -> basis.resource("4d.tmpl")
+ 
+
+Time: 0.097s
+
+[js] Merge
+==========
+
+
+Time: 0.000s
+
+[js] Make packages
+==================
+
+
+Time: 0.000s
+
+[js] Resolve pathes
+===================
+
+  basis/src/basis.js
+FOUND: basis
+FOUND: basis.Class
+    [+] Add export symbol basis.NODE_ENV
+    [+] Add export symbol basis.namespace
+    [+] Add export symbol basis.require
+    [+] Add export symbol basis.resource
+    [+] Add export symbol basis.ready
+    [+] Add export symbol basis.Class
+    [+] Add export symbol basis.platformFeature
+    [+] Add export symbol basis.Cleaner
+    [+] Add export symbol basis.Class.SELF
+    [+] Add export symbol basis.Class.BaseClass
+    [+] Add export symbol basis.Class.create
+    [+] Add export symbol basis.Class.isClass
+    [+] Add export symbol basis.Class.customExtendProperty
+    [+] Add export symbol basis.Class.extensibleProperty
+    [+] Add export symbol basis.Class.nestedExtendProperty
+    [+] Add export symbol basis.Class.oneFunctionProperty
+ 
+  basis/src/basis/l10n.js
+ 
+  basis/src/basis/event.js
+ 
+  basis/src/basis/data.js
+ 
+  basis/src/basis/ua.js
+ 
+  basis/src/basis/dom.js
+ 
+  basis/src/basis/dom/wrapper.js
+ 
+  basis/src/basis/dom/event.js
+ 
+  basis/src/basis/cssom.js
+ 
+  basis/src/basis/template.js
+ 
+  basis/src/basis/template/html.js
+ 
+  basis/src/basis/ui.js
+ 
+  basis/src/basis/data/dataset.js
+ 
+  basis/src/basis/entity.js
+ 
+  basis/src/basis/timer.js
+ 
+  basis/src/basis/net/ajax.js
+ 
+  app/service.js
+ 
+  app/rpc.js
+ 
+  basis/src/basis/date.js
+ 
+  app/type.js
+ 
+  app/module/auth.js
+ 
+  app.js
+ 
+  basis/src/basis/layout.js
+ 
+  basis/src/basis/ui/tabs.js
+ 
+  basis/src/basis/crypt.js
+ 
+  basis/src/basis/ui/button.js
+ 
+  basis/src/basis/dragdrop.js
+ 
+  basis/src/basis/ui/window.js
+ 
+  basis/src/basis/data/property.js
+ 
+  basis/src/basis/ui/popup.js
+ 
+  basis/src/basis/ui/field.js
+ 
+  basis/src/basis/ui/form.js
+ 
+  basis/src/basis/ui/calendar.js
+ 
+  basis/src/basis/ui/table.js
+ 
+  basis/src/basis/ui/scrolltable.js
+ 
+  basis/src/basis/data/index.js
+ 
+  basis/src/basis/ui/label.js
+ 
+  [inline script]
+ 
+  [inline script]
+ 
+  app/module/layout.js
+ 
+  app/type/profile.js
+ 
+  app/type/group.js
+ 
+  app/type/account.js
+ 
+  app/type/pay.js
+ 
+  app/type/package.js
+ 
+  app/type/commit.js
+ 
+  app/type/user.js
+ 
+  app/type/balance.js
+ 
+  app/module/auth/authWindow/authWindow.js
+ 
+  app/module/auth/checkSession/checkSession.js
+ 
+  app/module/userPanel.js
+ 
+  app/module/balance.js
+ 
+  app/module/paymentView.js
+ 
+  app/module/packageView.js
+ 
+  app/module/commitView.js
+ 
+  app/module/auth/authWindow/loginForm/widget.js
+ 
+  app/module/packageView/view.js
+ 
+  app/module/commitView/view.js
+ 
+  app/module/packageView/sidebar.js
+ 
+  app/module/packageView/paymentEditor.js
+ 
+  app/module/commitView/packageList/list.js
+ 
+  app/module/packageView/sidebar/accountList.js
+ 
+  app/module/packageView/groupEditor.js
+ 
+  app/module/packageView/accountEditor.js
+ 
+basis.Class.SELF
+basis.Class.oneFunctionProperty
+basis.Class.nestedExtendProperty
+basis.Class.extensibleProperty
+basis.Class.customExtendProperty
+basis.Class.isClass
+[CUT] basis.Class.create
+[CUT] basis.Class.BaseClass
+basis.namespace
+basis.Cleaner
+basis.platformFeature
+basis.Class
+basis.ready
+basis.resource
+[CUT] basis.require
+basis.NODE_ENV
+key count: 16 not used: 3
+
+Time: 0.225s
+
+[js] Translate
+==============
+
+  basis/src/basis.js
+  [inline script]
+  [inline script]
+  app.js
+  basis/src/basis/l10n.js
+  basis/src/basis/data.js
+  basis/src/basis/dom.js
+  basis/src/basis/ui.js
+  app/type.js
+  app/module/auth.js
+  app/module/layout.js
+  basis/src/basis/event.js
+  basis/src/basis/ua.js
+  basis/src/basis/dom/wrapper.js
+  basis/src/basis/cssom.js
+  basis/src/basis/template/html.js
+  basis/src/basis/entity.js
+  app/rpc.js
+  basis/src/basis/date.js
+  app/type/profile.js
+  app/type/group.js
+  app/type/account.js
+  app/type/pay.js
+  app/type/package.js
+  app/type/commit.js
+  app/type/user.js
+  app/type/balance.js
+  app/service.js
+  app/module/auth/authWindow/authWindow.js
+  app/module/auth/checkSession/checkSession.js
+  basis/src/basis/layout.js
+  basis/src/basis/ui/tabs.js
+  app/module/userPanel.js
+  app/module/balance.js
+  app/module/paymentView.js
+  app/module/packageView.js
+  app/module/commitView.js
+  basis/src/basis/dom/event.js
+  basis/src/basis/template.js
+  basis/src/basis/data/dataset.js
+  basis/src/basis/crypt.js
+  basis/src/basis/net/ajax.js
+  basis/src/basis/ui/window.js
+  basis/src/basis/ui/form.js
+  app/module/auth/authWindow/loginForm/widget.js
+  basis/src/basis/ui/button.js
+  basis/src/basis/ui/popup.js
+  basis/src/basis/ui/calendar.js
+  basis/src/basis/ui/scrolltable.js
+  basis/src/basis/data/property.js
+  basis/src/basis/data/index.js
+  app/module/packageView/view.js
+  app/module/commitView/view.js
+  basis/src/basis/timer.js
+  basis/src/basis/dragdrop.js
+  basis/src/basis/ui/field.js
+  basis/src/basis/ui/table.js
+  app/module/packageView/sidebar.js
+  app/module/packageView/paymentEditor.js
+  app/module/commitView/packageList/list.js
+  app/module/packageView/sidebar/accountList.js
+  app/module/packageView/groupEditor.js
+  basis/src/basis/ui/label.js
+  app/module/packageView/accountEditor.js
+
+Time: 0.222s
+
+[js] Build packages
+===================
+
+  Build resource map
+    Stat:
+      [script] 49829 bytes in 25 resource(s)
+      [template] 35117 bytes in 87 resource(s)
+      [unknown] 2 bytes in 1 resource(s)
+      [json] 1985 bytes in 1 resource(s)
+ 
+  Package script:
+  basis/src/basis/l10n.js
+  basis/src/basis/event.js
+  basis/src/basis/data.js
+  basis/src/basis/ua.js
+  basis/src/basis/dom.js
+  basis/src/basis/dom/wrapper.js
+  basis/src/basis/dom/event.js
+  basis/src/basis/cssom.js
+  basis/src/basis/template.js
+  basis/src/basis/template/html.js
+  basis/src/basis/ui.js
+  basis/src/basis/data/dataset.js
+  basis/src/basis/entity.js
+  basis/src/basis/timer.js
+  basis/src/basis/net/ajax.js
+  app/service.js
+  app/rpc.js
+  basis/src/basis/date.js
+  app/type.js
+  app/module/auth.js
+  app.js
+  basis/src/basis/layout.js
+  basis/src/basis/ui/tabs.js
+  basis/src/basis/crypt.js
+  basis/src/basis/ui/button.js
+  basis/src/basis/dragdrop.js
+  basis/src/basis/ui/window.js
+  basis/src/basis/data/property.js
+  basis/src/basis/ui/popup.js
+  basis/src/basis/ui/field.js
+  basis/src/basis/ui/form.js
+  basis/src/basis/ui/calendar.js
+  basis/src/basis/ui/table.js
+  basis/src/basis/ui/scrolltable.js
+  basis/src/basis/data/index.js
+  basis/src/basis/ui/label.js
+
+Time: 0.286s
+
+[js] Modify <script> entry in html file
+=======================================
+
+  [inline script]
+  [inline script]
+  [inline script]
+
+Time: 0.005s
+
+[html] Translate
+================
+
+  index.html
+
+Time: 0.003s
+
+[fs] Write output files
+=======================
+
+  index.html -> index.html
+  app/css/main.css -> style.css
+  app/module/auth/authWindow/loginForm/processing.gif -> res/0dGASnUfjZpz3UBAPrweQw.gif
+  basis/src/basis/ui/templates/tabs/res/not_active_border.gif -> res/pICTr4riInegzDa_RtUd7g.gif
+  basis/src/basis/ui/templates/tabs/res/not_active_bg.gif -> res/aVf6PpkmYsYBUGDd8Gt8Zg.gif
+  app/module/paymentView/img/minus.gif -> res/VKHDA4BbC8BP8CSJuA1GWg.gif
+  app/module/paymentView/img/plus.gif -> res/H0wAklX5yZNxqdM-M6GPCg.gif
+  app/module/paymentView/img/arrow_down.gif -> res/wVU93zlbnSZ_xzPd5o9X8g.gif
+  basis/src/basis/ui/templates/window/res/mate_white.png -> res/62qtpBvCTL3BeuwAE18xDQ.png
+  basis/src/basis/ui/templates/window/res/corners.png -> res/oojNG5rNWS8zi9l6jCEryw.png
+  basis/src/basis/ui/templates/window/res/repeat-x.png -> res/bTfBR6L_JH_U3bwR05QSzw.png
+  basis/src/basis/ui/templates/window/res/repeat-y.png -> res/pX47AP_gfrBC-BenFpKvFg.png
+  basis/src/basis/ui/templates/window/res/button_close.png -> res/G--NQebHaDIwx44wI1hQyw.png
+  basis/src/basis/ui/templates/button/res/button_transparent_bg.png -> res/qsgtXpwSoFvP0_Q2Zz9Meg.png
+  basis/src/basis/ui/templates/popup/res/corners.png -> res/2AzjmFdicecYwGJOM8G5og.png
+  basis/src/basis/ui/templates/popup/res/tails.png -> res/wtZxYVL0mVkGH0ghtG5o4Q.png
+  basis/src/basis/ui/templates/popup/res/repeat-x.png -> res/toijhn4EWeOUtADvVexg3A.png
+  basis/src/basis/ui/templates/popup/res/repeat-y.png -> res/0MmOmHJRr5H2q7F2eZa8vQ.png
+  basis/src/basis/ui/templates/table/res/bg.gif -> res/a7Z4TvISehJ7o2dBHveNiw.gif
+  basis/src/basis/ui/templates/table/res/footer_bg.gif -> res/ptPVxF4kN5367fMR8A2nMQ.gif
+  basis/src/basis/ui/templates/field/res/dropdown_bg.gif -> res/1qx6RYPmXIMLXHKFNnShBA.gif
+  basis/src/basis/ui/templates/field/res/dropdown_arrow.gif -> res/E14z7c0R87RMDRGvuxihJg.gif
+  basis/src/basis/ui/templates/field/res/dropdown_gray_bg.gif -> res/kihQLTVnSi7QJCkq493aSw.gif
+  basis/src/basis/ui/templates/table/res/hline_left.gif -> res/aj0ItnXyB8doUy4T45teww.gif
+  basis/src/basis/ui/templates/table/res/hline_right.gif -> res/UZvfRWOs1PaLUVHN50AcCA.gif
+  basis/src/basis/ui/templates/table/res/hover_bg.gif -> res/8cNwTbMlEDZPnWJIa8kgZg.gif
+  basis/src/basis/ui/templates/table/res/hover_hline.gif -> res/LIPgRWaiV_venE4sTYUVPQ.gif
+  basis/src/basis/ui/templates/table/res/selected_bg.gif -> res/S9vHNKABoFkvjMSGBYVPYw.gif
+  basis/src/basis/ui/templates/table/res/order_asc.gif -> res/OeBD2v0iYCWHTDp4QrsngA.gif
+  basis/src/basis/ui/templates/table/res/order_desc.gif -> res/9z5SY0vR36K4PJ1aQG8BZg.gif
+  app/module/packageView/paymentEditor/cross.png -> res/Tl9_FUZRIxMjMiiQgUYmkQ.png
+  app/module/packageView/sidebar/accountList/img/user.png -> res/8oOtQgUg-cEqq1YAKApegQ.png
+  app/module/packageView/sidebar/accountList/img/add.png -> res/7NsaRE8dPPILW7ThAEev5Q.png
+  app/module/packageView/sidebar/accountList/img/user_edit.png -> res/coTbnUkfi0Un0JiStmuKJg.png
+  app/module/packageView/sidebar/accountList/img/group.png -> res/RD1nwxAbd1GJ-cYQzLqcHQ.png
+  app/module/packageView/sidebar/accountList/img/group_edit.png -> res/ngoR76nTOAaH22xaex7GFA.png
+  app/module/packageView/sidebar/accountList/img/user_add.png -> res/J3MfmNOK2d0XY_zsSA2EPQ.png
+  [inline script] -> script.js
+
+Time: 0.006s
+
+Build stat
+==========
+
+  File stat:
+    html: 1
+    script: 65
+    template: 87
+    style: 60
+    image: 45
+    l10n: 7
+    json: 1
+    unknown: 1
+ 
+  Timing:
+       10  [html] Extract
+     1029  [js] Extract
+      105  [tmpl] Extract
+      519  [css] Extract
+       90  [res] Extract
+      166  [l10n] Extract
+        1  [css] Make packages
+        0  [css] Linear files
+        0  [css] Merge packages
+      432  [css] Compress
+       20  [css] Translate
+        2  [l10n] Build index
+        2  [l10n] Make packages
+        0  [l10n] Compress
+       72  [l10n] Modify createDictionary/getToken calls
+        7  [tmpl] Translate
+        0  [res] Translate
+        1  [res] Build map
+       97  [js] Modify basis.resource calls
+        0  [js] Merge
+        0  [js] Make packages
+      225  [js] Resolve pathes
+      222  [js] Translate
+      286  [js] Build packages
+        5  [js] Modify <script> entry in html file
+        3  [html] Translate
+        6  [fs] Write output files
+ 
+  Build done in 3.453s
