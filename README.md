@@ -4,14 +4,14 @@ Developer tools for [basis.js](https://github.com/lahmatiy/basisjs) framework.
 
 ### Requirements
 
-* [nodeJS](http://github.com/ry/node) (0.8.0 or later)
+* [node.js](http://nodejs.org/) (0.8.0 or later)
 * [npm](http://github.com/isaacs/npm)
 
 ### Install
 
 * With [npm](http://github.com/isaacs/npm)
 
-        $ npm install basis-devtools
+        $ npm install basisjs-tools
 
 After that `basis` should be available in command line.
 

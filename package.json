@@ -1,9 +1,9 @@
 {
-  "name": "basis-devtools",
+  "name": "basisjs-tools",
   "title": "Basis developer tools",
   "version": "0.0.24",
-  "homepage": "https://github.com/lahmatiy/basis-devtools",
-  "description": "Developer tools for basis framework",
+  "homepage": "https://github.com/lahmatiy/basisjs-tools",
+  "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
   "licenses": [
     {
@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lahmatiy/basis-devtools.git"
+    "url": "https://github.com/lahmatiy/basisjs-tools.git"
   },
   "main": "./lib/api",
   "bin": {
