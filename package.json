@@ -1,7 +1,7 @@
 {
   "name": "basisjs-tools",
   "title": "Basis developer tools",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "homepage": "https://github.com/lahmatiy/basisjs-tools",
   "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
