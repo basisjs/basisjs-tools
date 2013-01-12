@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/lahmatiy/basis-devtools.png)](http://travis-ci.org/lahmatiy/basis-devtools)
 Developer tools for [basis.js](https://github.com/lahmatiy/basisjs) framework.
 
 ## Getting Started
