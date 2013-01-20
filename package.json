@@ -1,7 +1,7 @@
 {
   "name": "basisjs-tools",
   "title": "Basis developer tools",
-  "version": "0.0.34",
+  "version": "0.0.37",
   "homepage": "https://github.com/lahmatiy/basisjs-tools",
   "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
@@ -40,6 +40,7 @@
     "socket.io": "~0.9.9",
     "mime": "~1.2.6",
     "jsdom-nocontextifiy": "~0.2.10",
-    "node-zip": "0.0.2"
+    "node-zip": "0.0.2",
+    "http-proxy": "0.8.7"
   }
 }
