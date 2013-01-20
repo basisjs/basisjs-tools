@@ -1,0 +1,3 @@
+[submodule "lib/server/appcp"]
+	path = lib/server/appcp
+	url = https://github.com/wuzyk/app-control-panel.git
