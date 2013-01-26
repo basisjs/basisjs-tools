@@ -7,6 +7,7 @@ var configPath;
 
 defineCommand('build');
 defineCommand('server');
+defineCommand('create', '', { noConfig: true });
 
 commander.name = 'basis';
 commander
@@ -77,14 +78,17 @@ function searchConfig(){
   console.log('Config file basis.config not found');
 }
 
-function defineCommand(name, module){
+function defineCommand(name, module, options){
   if (!module)
     module = '../lib/' + name;
 
+  if (!options)
+    options = {};
+
   commander.on(name, function(a, b){
     var config;
-
-    if (this.config)
+    
+    if (!options.noConfig && this.config)
       config = this.configFile ? fetchConfig(this.configFile) : searchConfig();
 
     config = (config && config[name]) || {};

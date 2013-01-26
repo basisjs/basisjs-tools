@@ -1,0 +1,16 @@
+
+  .exampleModule-item
+  {
+    background: #F0F0F0;
+    margin: 0;
+  }
+  .exampleModule-item_selected
+  {
+  	background: gold;
+  }
+
+  .exampleModule-item .age
+  {
+    color: #888;
+    font-style: italic;
+  }
