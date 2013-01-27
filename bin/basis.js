@@ -25,6 +25,11 @@ commander
 
 // check arguments
 var args = process.argv;
+if (args[2] == 'completion')
+{
+  require('./completion').call();
+}
+
 if (args.length < 3)
 {
   console.warn('Command required, use -h or --help to get help');
