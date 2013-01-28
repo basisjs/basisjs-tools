@@ -13,11 +13,11 @@ module.exports = function(){
   var args = argv.slice(3);
   var index = --process.env.COMP_CWORD;
   var action = args[0];
-  var actions = require('../lib/api.js');
+  var actions = {};//require('../lib/api.js');
   
   if (index === 0)
   {
-    console.log(Object.keys(actions).filter(function(a){
+    console.log(['create', 'build', 'server'].filter(function(a){
       return a.substr(0, action.length) == action;
     }).join('\n'));
   }
