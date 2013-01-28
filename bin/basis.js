@@ -7,7 +7,7 @@ var configPath;
 
 defineCommand('build');
 defineCommand('server');
-defineCommand('create', '', { noConfig: true });
+defineCommand('create');
 
 commander.name = 'basis';
 commander
@@ -69,7 +69,7 @@ function fetchConfig(filename){
   return result;
 }
 
-function searchConfig(){
+function searchConfig(notRequired){
   var curpath = process.cwd().split(path.sep);
   while (curpath.length)
   {
@@ -80,7 +80,8 @@ function searchConfig(){
 
     curpath.pop();
   }
-  console.log('Config file basis.config not found');
+  if (!notRequired)
+    console.warn('Config file basis.config not found');
 }
 
 function defineCommand(name, module, options){
@@ -94,7 +95,7 @@ function defineCommand(name, module, options){
     var config;
     
     if (!options.noConfig && this.config)
-      config = this.configFile ? fetchConfig(this.configFile) : searchConfig();
+      config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
 
     config = (config && config[name]) || {};
     config._configPath = configPath;

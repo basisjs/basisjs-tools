@@ -1,0 +1,6 @@
+{
+  "{=name}": {
+    "title": "{=appTitle}",
+    "greeting": "Hello world!"
+  }
+}
