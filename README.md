@@ -1,4 +1,4 @@
-Developer tools for [basis.js](https://github.com/lahmatiy/basisjs) framework.
+Developer tools for [basis.js](https://github.com/basisjs/basisjs) framework.
 
 ## Getting Started
 
