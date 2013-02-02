@@ -1,6 +1,6 @@
 {
   "{=name}": {
     "title": "{=appTitle}",
-    "greeting": "Hello world!"
+    "greeting": "Congrat, your app is working!"
   }
 }
