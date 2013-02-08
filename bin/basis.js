@@ -8,6 +8,9 @@ var configPath;
 defineCommand('build');
 defineCommand('server');
 defineCommand('create');
+defineCommand('here', null, {
+  noConfig: true
+});
 
 commander.name = 'basis';
 commander

@@ -17,7 +17,7 @@ module.exports = function(){
   
   if (index === 0)
   {
-    console.log(['create', 'build', 'server'].filter(function(a){
+    console.log(['create', 'build', 'server', 'here'].filter(function(a){
       return a.substr(0, action.length) == action;
     }).join('\n'));
   }
