@@ -7,6 +7,7 @@ var configPath;
 
 defineCommand('build');
 defineCommand('server');
+defineCommand('extract', '../lib/extractor');
 defineCommand('create');
 defineCommand('here', null, {
   noConfig: true
