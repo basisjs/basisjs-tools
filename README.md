@@ -9,13 +9,30 @@ Developer tools for [basis.js](https://github.com/basisjs/basisjs) framework.
 
 ### Install
 
-* With [npm](http://github.com/isaacs/npm)
+On Windows (with administrative access):
 
-        $ npm install basisjs-tools
+        $ npm install -g basisjs-tools
+        
+NOTE: Make sure `path/to/nodejs/node_modules/.bin` is presented in PATH.
+        
+On Mac OS:
+
+        $ sudo npm install -g basisjs-tools
 
 After that `basis` should be available in command line.
 
-NOTE: If you are on Windows make sure `path/to/nodejs/node_modules/.bin` is presented in PATH
+### Shell completion
+
+To make completions for basisjs-tools available in your bash, run following command (ensure that you have bash-completion installed, first). Run this
+
+        $ basis completion > /path/to/etc/bash_completion.d/basis
+
+and restart bash.
+
+If you aren't using bash-completion, you can add basis completion to your .bashrc and reload:
+
+        $ basis completion >> ~/.bashrc
+        $ source ~/.bashrc
 
 ## Common
 
@@ -38,7 +55,7 @@ Example of `basis.config` at `/path/to/config`:
 ```json
   {
     "build": {
-      "file": "app.html",
+      "file": "index.html",
       "output": "build"
     },
     "server": {
@@ -55,11 +72,19 @@ Use `basis --help` for more help.
 
 Basis works with many various paths, and often it is relative paths. There are two general rules for relative path resolving.
 
-* if path defined in config file (`basis.config`) it resolves to config file directory
+* path defined in config file (`basis.config`) resolves to config file directory
 
-* if path defined in command line it resolves to current working directory
+* path defined in command line resolves to current working directory
 
 ## Tools
+
+### Create
+
+Create command helps generate code. As example, to create default application file structure, run command:
+
+        $ basis create app myapp
+        
+That command creating directory `myapp` and other directories and files by default template.
 
 ### Server
 
