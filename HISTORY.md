@@ -1,3 +1,7 @@
+## 1.1.2 (october 24, 2013)
+
+* hot fix for basis.js 0.9 apps
+
 ## 1.1.1 (october 24, 2013)
 
 * rework processing of autoload
