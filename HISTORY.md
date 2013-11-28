@@ -1,3 +1,8 @@
+## 1.1.4 (November 28, 2013)
+
+* add support for local version of basis.require in javascript resources
+* fix stat handler in extractor
+
 ## 1.1.3 (November 19, 2013)
 
 * fix basis.resource resolving
