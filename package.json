@@ -6,20 +6,11 @@
   "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
   "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
-    },
-    {
-      "type": "GPL",
-      "url": "http://www.opensource.org/licenses/GPL-2.0"
-    }
+    { "type": "MIT", "url": "http://www.opensource.org/licenses/MIT" },
+    { "type": "GPL", "url": "http://www.opensource.org/licenses/GPL-2.0" }
   ],
-  "contributors": [ 
-    {
-      "name": "Ratsev Vladimir",
-      "email": "wuzykk@gmail.com"
-    } 
+  "contributors": [
+    "Ratsev Vladimir <wuzykk@gmail.com>"
   ],
   "repository": {
     "type": "git",
@@ -40,6 +31,8 @@
     "socket.io": "0.9.16",
     "mime": "1.2.11",
     "node-zip": "1.0.1",
-    "http-proxy": "0.10.3"
-  }
+    "http-proxy": "0.10.3",
+    "bower": "~1.2.8"
+  },
+  "preferGlobal": true
 }

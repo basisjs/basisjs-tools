@@ -1,6 +1,8 @@
 {
-  "{=name}": {
-    "title": "{=appTitle}",
+  "en-US": {
+    "greeting": "Congrat, your app is working!"
+  },
+  "ru-RU": {
     "greeting": "Поздравляем, ваше приложение работает!"
   }
 }

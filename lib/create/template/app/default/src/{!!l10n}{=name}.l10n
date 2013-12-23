@@ -1,0 +1,8 @@
+{
+  "en-US": {
+    "title": "{=appTitle}"
+  },
+  "ru-RU": {
+    "title": "{=appTitle}"
+  }
+}
