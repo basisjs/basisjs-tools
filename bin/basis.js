@@ -9,6 +9,7 @@ defineCommand('build');
 defineCommand('server');
 defineCommand('extract', '../lib/extractor');
 defineCommand('create');
+defineCommand('l10n');
 defineCommand('here', null, {
   noConfig: true
 });
