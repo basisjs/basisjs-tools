@@ -3,6 +3,7 @@
 var path = require('path');
 var fs = require('fs');
 var commander = require('commander');
+var updateNotifier = require('update-notifier');
 var configPath;
 
 defineCommand('build');
@@ -27,12 +28,19 @@ commander
     process.exit();
   });
 
+// Check for newer version of basisjs-tools
+var notifier = updateNotifier({
+  packagePath: '../package.json'
+});
+
+if (notifier.update)
+  notifier.notify();
+
+
 // check arguments
 var args = process.argv;
 if (args[2] == 'completion')
-{
   require('./completion').call();
-}
 
 if (args.length < 3)
 {

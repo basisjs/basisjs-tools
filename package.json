@@ -32,7 +32,8 @@
     "mime": "1.2.11",
     "node-zip": "1.0.1",
     "http-proxy": "0.10.3",
-    "bower": "~1.2.8"
+    "bower": "~1.2.8",
+    "update-notifier": "~0.1.7"
   },
   "preferGlobal": true
 }
