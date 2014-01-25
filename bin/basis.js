@@ -22,7 +22,7 @@ commander
     '-v, --version'
   )
   .option('-n, --no-config', 'don\'t use basis.config')
-  .option('-c, --config-file <filename>', 'set config filename (if not set search for basis.config from current folder up to top)')
+  .option('-c, --config-file <filename>', 'path to config filename (search for basis.config from current folder and up if missed)')
   .on('*', function(args){
     console.warn('Unknown command', args[0]);
     process.exit();
@@ -103,15 +103,23 @@ function defineCommand(name, module, options){
   if (!options)
     options = {};
 
-  commander.on(name, function(a, b){
-    var config;
-    
-    if (!options.noConfig && this.config)
-      config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
-
-    config = (config && config[name]) || {};
-    config._configPath = configPath;
+  var command = commander
+    .command(name)
+    .action(function(a, b){
+      var config;
       
-    require(module).command([name, ''].concat(a, b), config);
-  });
+      if (!options.noConfig && this.config)
+        config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
+
+      config = (config && config[name]) || {};
+      config._configPath = configPath;
+        
+      require(module)
+        .command(
+          [name, ''].concat(Array.prototype.slice.call(arguments, 0, arguments.length - 1)),
+          config
+        );
+    });
+
+  require(module + '/options.js').apply(command);
 }
