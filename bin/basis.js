@@ -10,9 +10,6 @@ defineCommand('build');
 defineCommand('server');
 defineCommand('extract', '../lib/extractor');
 defineCommand('create');
-defineCommand('here', null, {
-  noConfig: true
-});
 
 commander.name = 'basis';
 commander
