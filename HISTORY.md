@@ -1,3 +1,33 @@
+## 1.2.0 (January 28, 2014)
+
+Create
+
+  - NEW: init `git` repo in app folder on app create by default
+  - NEW: use `bower` to install `basis.js`
+  - NEW: `app` could be created in current and existence directories now
+  - FIX: path resolving issues
+  - update templates for new `basis.js` version
+
+Server
+
+  - FIX: `getFileGraph` filename resolving doesn't ignore search part in url
+  - FIX: make server more stable for non-function callbacks in socket commands
+  - prevent browsers to cache any files by default 
+  - rework files sync `client.js` (`__dev_sync__.js`) to not depend on basis.js
+
+Extract/build
+
+  - FIX: image resources in `<link>` tag is not resolving
+  - FIX: inline `javascript` translation when no pack mode
+  - FIX: `injectToHead tries` inject node before `<body>` if possible when no `<head>` tag
+  - FIX: internal `html` resources didn't parse to ast
+
+Project
+
+  - NEW: use `update-notifier` package to notify about new version of `basisjs-tools` is out
+  - FIX: some fixes for `commander`, output available command list and description in help
+  - remove `here` command
+
 ## 1.1.4 (November 28, 2013)
 
 * add support for local version of basis.require in javascript resources
