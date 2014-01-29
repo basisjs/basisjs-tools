@@ -15,7 +15,7 @@ module.exports = function(){
   var action = args[0];
   var actions = {};//require('../lib/api.js');
   
-  if (index === 0)
+  if (index == 0)
   {
     console.log(['create', 'build', 'extract', 'server'].filter(function(a){
       return a.substr(0, action.length) == action;

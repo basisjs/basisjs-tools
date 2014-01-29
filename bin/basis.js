@@ -2,7 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
-var commander = require('commander');
+var commander = require('../lib/cli');
 var updateNotifier = require('update-notifier');
 var configPath;
 
@@ -15,15 +15,14 @@ commander.name = 'basis';
 commander
   // fetch version
   .version(
-    require('../package.json').version,
-    '-v, --version'
+    require('../package.json').version
   )
   .option('-n, --no-config', 'don\'t use basis.config')
   .option('-c, --config-file <filename>', 'path to config filename (search for basis.config from current folder and up if missed)')
-  .on('*', function(args){
-    console.warn('Unknown command', args[0]);
-    process.exit();
-  });
+  // .on('*', function(args){
+  //   console.warn('Unknown command', args[0]);
+  //   process.exit();
+  // });
 
 // Check for newer version of basisjs-tools
 var notifier = updateNotifier({
@@ -46,7 +45,7 @@ if (args.length < 3)
 }
 
 // parse arguments
-commander.parse(args);
+commander.process();
 
 //
 // helpers
@@ -102,8 +101,13 @@ function defineCommand(name, module, options){
 
   var command = commander
     .command(name)
+    .init(function(){
+      require(module + '/options.js').apply(this);
+    })
     .action(function(a, b){
       var config;
+      console.log(a, b);
+      process.exit();
       
       if (!options.noConfig && this.config)
         config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
@@ -117,6 +121,4 @@ function defineCommand(name, module, options){
           config
         );
     });
-
-  require(module + '/options.js').apply(command);
 }
