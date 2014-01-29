@@ -100,23 +100,15 @@ function defineCommand(name, module, options){
   if (!options)
     options = {};
 
-  var command = commander
-    .command(name)
-    .action(function(a, b){
-      var config;
-      
-      if (!options.noConfig && this.config)
-        config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
+  commander.on(name, function(a, b){
+    var config;
+    
+    if (!options.noConfig && this.config)
+      config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
 
-      config = (config && config[name]) || {};
-      config._configPath = configPath;
-        
-      require(module)
-        .command(
-          [name, ''].concat(Array.prototype.slice.call(arguments, 0, arguments.length - 1)),
-          config
-        );
-    });
+    config = (config && config[name]) || {};
+    config._configPath = configPath;
 
-  require(module + '/options.js').apply(command);
+    require(module).command([name, ''].concat(a, b), config);
+  });
 }
