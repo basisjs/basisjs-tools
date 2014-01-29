@@ -1,51 +1,58 @@
 #!/usr/bin/env node
 
+var configPath;
 var path = require('path');
 var fs = require('fs');
-var commander = require('../lib/cli');
-var updateNotifier = require('update-notifier');
-var configPath;
+
+// ==============================
+// Check for newer version of basisjs-tools
+var notifier = require('update-notifier')({
+  packagePath: '../package.json'
+});
+
+if (notifier.update)
+  notifier.notify();
+// ==============================
+
+var cli = require('../lib/cli').error(function(error){
+  console.error('Error:', error);
+  process.exit(1);
+});
+var program = cli
+  .create('basis')
+  .version(require('../package.json').version)
+  .option('-n, --no-config', 'Don\'t use basis.config')
+  .option('-c, --config-file <filename>', 'Specify path to config filename')
+  .action(function(){
+    program.showHelp();
+  });
 
 defineCommand('build');
 defineCommand('server');
 defineCommand('extract', '../lib/extractor');
 defineCommand('create');
 
-commander.name = 'basis';
-commander
-  // fetch version
-  .version(
-    require('../package.json').version
-  )
-  .option('-n, --no-config', 'don\'t use basis.config')
-  .option('-c, --config-file <filename>', 'path to config filename (search for basis.config from current folder and up if missed)')
-  // .on('*', function(args){
-  //   console.warn('Unknown command', args[0]);
-  //   process.exit();
-  // });
-
-// Check for newer version of basisjs-tools
-var notifier = updateNotifier({
-  packagePath: '../package.json'
-});
-
-if (notifier.update)
-  notifier.notify();
+// reg completion command
+program
+  .command('completion', 'Output completion script for *nix systems')
+  .action(function(){
+    require('./completion').call();
+    process.exit();
+  });
 
 
 // check arguments
-var args = process.argv;
-if (args[2] == 'completion')
-  require('./completion').call();
+//if (args[2] == 'completion')
+//  require('./completion').call();
 
-if (args.length < 3)
+if (process.argv.length < 3)
 {
-  console.warn('Command required, use -h or --help to get help');
-  process.exit();
+  //program.showHelp();
+  //process.exit();
 }
 
 // parse arguments
-commander.process();
+program.parse();
 
 //
 // helpers
@@ -56,19 +63,19 @@ function fetchConfig(filename){
   var result;
 
   filename = path.resolve(filename);
-  console.log('Use config: ', filename);
+  console.log('Use config: ', filename + '\n');
 
   try {
     fileContent = fs.readFileSync(filename, 'utf-8');
   } catch(e) {
-    console.warn('Config read error: ' + e);
+    console.error('Config read error: ' + e);
     process.exit();
   }
 
   try {
     result = JSON.parse(fileContent);
   } catch(e) {
-    console.warn('Config parse error: ' + e);
+    console.error('Config parse error: ' + e);
     process.exit();
   }
 
@@ -79,6 +86,7 @@ function fetchConfig(filename){
 
 function searchConfig(notRequired){
   var curpath = process.cwd().split(path.sep);
+
   while (curpath.length)
   {
     var cfgFile = curpath.join(path.sep) + path.sep + 'basis.config';
@@ -88,37 +96,35 @@ function searchConfig(notRequired){
 
     curpath.pop();
   }
+
   if (!notRequired)
-    console.warn('Config file basis.config not found');
+    console.error('Config file basis.config not found');
 }
 
-function defineCommand(name, module, options){
+function defineCommand(name, module, cfg){
   if (!module)
     module = '../lib/' + name;
 
-  if (!options)
-    options = {};
+  if (!cfg)
+    cfg = {};
 
-  var command = commander
-    .command(name)
+  var moduleOptions = require(module + '/options.js');
+  moduleOptions
+    .createCommand(program)
     .init(function(){
-      require(module + '/options.js').apply(this);
-    })
-    .action(function(a, b){
+      var options = program.values;
       var config;
-      console.log(a, b);
-      process.exit();
-      
-      if (!options.noConfig && this.config)
-        config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
 
-      config = (config && config[name]) || {};
+      if (!cfg.noConfig && options.config)
+        config = options.configFile ? fetchConfig(options.configFile) : searchConfig(name == 'create');
+
+      config = (config && config[this.name]) || {};
       config._configPath = configPath;
-        
-      require(module)
-        .command(
-          [name, ''].concat(Array.prototype.slice.call(arguments, 0, arguments.length - 1)),
-          config
-        );
+
+      moduleOptions.applyConfig(this, config);
+    })
+    .action(function(){
+      // module lazy load
+      require(module).commandAction(this);
     });
 }

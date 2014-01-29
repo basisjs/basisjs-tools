@@ -6,8 +6,14 @@
   "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
   "licenses": [
-    { "type": "MIT", "url": "http://www.opensource.org/licenses/MIT" },
-    { "type": "GPL", "url": "http://www.opensource.org/licenses/GPL-2.0" }
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/MIT"
+    },
+    {
+      "type": "GPL",
+      "url": "http://www.opensource.org/licenses/GPL-2.0"
+    }
   ],
   "contributors": [
     "Roman Dvornov <rdvornov@gmail.com>",
@@ -36,5 +42,11 @@
     "bower": "~1.2.8",
     "update-notifier": "~0.1.7"
   },
-  "preferGlobal": true
+  "preferGlobal": true,
+  "devDependencies": {
+    "mocha": "~1.17.1"
+  },
+  "scripts": {
+    "test": "mocha tests/cli -R spec"
+  }
 }
