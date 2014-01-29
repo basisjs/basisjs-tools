@@ -1,3 +1,7 @@
+## 1.2.1 (January 29, 2014)
+
+- FIX: fix regression that options in config can't be overwritten by command line
+
 ## 1.2.0 (January 28, 2014)
 
 Create
