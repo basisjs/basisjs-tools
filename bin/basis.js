@@ -36,7 +36,8 @@ defineCommand('create');
 
 // reg completion command
 program
-  .command('completion', 'Output completion script for *nix systems')
+  .command('completion')
+    .description('Output completion script for *nix systems')
     .action(function(command, args){
       require('./completion')(program, args);
     });
@@ -117,7 +118,7 @@ function defineCommand(name, module, cfg){
       var config;
 
       if (!cfg.noConfig && options.config)
-        config = options.configFile ? fetchConfig(options.configFile) : searchConfig(name == 'create');
+        config = options.configFile ? fetchConfig(options.configFile) : searchConfig(this.name == 'create');
 
       config = (config && config[this.name]) || {};
       config._configPath = configPath;
