@@ -2,8 +2,6 @@
 #
 # basis command completion script
 #
-# (c) Mikhail Davydov
-# (c) Isaac Z. Schlueter
 # Original file https://github.com/isaacs/npm/blob/master/lib/utils/completion.sh
 #
 # Installation: basis completion >> ~/.bashrc  (or ~/.zshrc)

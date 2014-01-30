@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-
+global.start = new Date;
 var configPath;
 var path = require('path');
 var fs = require('fs');
+
+//fs.writeFileSync('complete.log', process.argv.join('\n'));
 
 // ==============================
 // Check for newer version of basisjs-tools
@@ -35,10 +37,9 @@ defineCommand('create');
 // reg completion command
 program
   .command('completion', 'Output completion script for *nix systems')
-  .action(function(){
-    require('./completion').call();
-    process.exit();
-  });
+    .action(function(command, args){
+      require('./completion')(program, args);
+    });
 
 
 // check arguments
@@ -84,7 +85,7 @@ function fetchConfig(filename){
   return result;
 }
 
-function searchConfig(notRequired){
+function searchConfig(optional){
   var curpath = process.cwd().split(path.sep);
 
   while (curpath.length)
@@ -97,8 +98,8 @@ function searchConfig(notRequired){
     curpath.pop();
   }
 
-  if (!notRequired)
-    console.error('Config file basis.config not found');
+  if (!optional)
+    console.error('Config file basis.config required but not found');
 }
 
 function defineCommand(name, module, cfg){
