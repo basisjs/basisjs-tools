@@ -1,19 +1,17 @@
 #!/usr/bin/env node
-global.start = new Date;
-var configPath;
+
 var path = require('path');
 var fs = require('fs');
 
-//fs.writeFileSync('complete.log', process.argv.join('\n'));
-
 // ==============================
 // Check for newer version of basisjs-tools
-var notifier = require('update-notifier')({
-  packagePath: '../package.json'
-});
+global.start = new Date;
+// var notifier = require('update-notifier')({
+//   packagePath: '../package.json'
+// });
 
-if (notifier.update)
-  notifier.notify();
+// if (notifier.update)
+//   notifier.notify();
 // ==============================
 
 var cli = require('../lib/cli').error(function(error){
@@ -27,6 +25,17 @@ var program = cli
   .option('-c, --config-file <filename>', 'Specify path to config filename')
   .action(function(){
     program.showHelp();
+    
+    var options = this.values;
+
+    if (options.config)
+    {
+      var config = options.configFile
+        ? fetchConfig(options.configFile)
+        : searchConfig();
+      this.config = config.data;
+      this.configFile = config.path;
+    }
   });
 
 defineCommand('build');
@@ -38,20 +47,9 @@ defineCommand('create');
 program
   .command('completion')
     .description('Output completion script for *nix systems')
-    .action(function(command, args){
+    .action(function(args){
       require('./completion')(program, args);
     });
-
-
-// check arguments
-//if (args[2] == 'completion')
-//  require('./completion').call();
-
-if (process.argv.length < 3)
-{
-  //program.showHelp();
-  //process.exit();
-}
 
 // parse arguments
 program.parse();
@@ -62,7 +60,7 @@ program.parse();
 
 function fetchConfig(filename){
   var fileContent;
-  var result;
+  var data;
 
   filename = path.resolve(filename);
   console.log('Use config: ', filename + '\n');
@@ -75,15 +73,16 @@ function fetchConfig(filename){
   }
 
   try {
-    result = JSON.parse(fileContent);
+    data = JSON.parse(fileContent);
   } catch(e) {
     console.error('Config parse error: ' + e);
     process.exit();
   }
 
-  configPath = path.dirname(filename);
-
-  return result;
+  return {
+    path: path.dirname(filename),
+    data: data
+  };
 }
 
 function searchConfig(optional){
@@ -98,35 +97,29 @@ function searchConfig(optional){
 
     curpath.pop();
   }
-
-  if (!optional)
-    console.error('Config file basis.config required but not found');
 }
 
-function defineCommand(name, module, cfg){
+function defineCommand(name, module){
   if (!module)
     module = '../lib/' + name;
-
-  if (!cfg)
-    cfg = {};
 
   var moduleOptions = require(module + '/options.js');
   moduleOptions
     .createCommand(program)
     .init(function(){
-      var options = program.values;
-      var config;
+      var config = this.parent.config;
 
-      if (!cfg.noConfig && options.config)
-        config = options.configFile ? fetchConfig(options.configFile) : searchConfig(this.name == 'create');
+      if (config)
+      {
 
-      config = (config && config[this.name]) || {};
-      config._configPath = configPath;
+        var data = config[this.name] || {};
+        data._configPath = this.parent.configFile;
 
-      moduleOptions.applyConfig(this, config);
+        moduleOptions.applyConfig(this, data);
+      }
     })
     .action(function(){
       // module lazy load
-      require(module).commandAction(this);
+      require(module).commandAction.call(this);
     });
 }
