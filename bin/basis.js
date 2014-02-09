@@ -2,10 +2,13 @@
 
 var path = require('path');
 var fs = require('fs');
+var cli = require('../lib/cli');
+
+var silent = false;
+var time = new Date;
 
 // ==============================
 // Check for newer version of basisjs-tools
-global.start = new Date;
 // var notifier = require('update-notifier')({
 //   packagePath: '../package.json'
 // });
@@ -14,45 +17,6 @@ global.start = new Date;
 //   notifier.notify();
 // ==============================
 
-var cli = require('../lib/cli').error(function(error){
-  console.error('Error:', error);
-  process.exit(1);
-});
-var program = cli
-  .create('basis')
-  .version(require('../package.json').version)
-  .option('-n, --no-config', 'Don\'t use basis.config')
-  .option('-c, --config-file <filename>', 'Specify path to config filename')
-  .action(function(){
-    program.showHelp();
-    
-    var options = this.values;
-
-    if (options.config)
-    {
-      var config = options.configFile
-        ? fetchConfig(options.configFile)
-        : searchConfig();
-      this.config = config.data;
-      this.configFile = config.path;
-    }
-  });
-
-defineCommand('build');
-defineCommand('server');
-defineCommand('extract', '../lib/extractor');
-defineCommand('create');
-
-// reg completion command
-program
-  .command('completion')
-    .description('Output completion script for *nix systems')
-    .action(function(args){
-      require('./completion')(program, args);
-    });
-
-// parse arguments
-program.parse();
 
 //
 // helpers
@@ -63,20 +27,24 @@ function fetchConfig(filename){
   var data;
 
   filename = path.resolve(filename);
-  console.log('Use config: ', filename + '\n');
+
+  if (!silent)
+    console.log('Use config: ', filename + '\n');
 
   try {
     fileContent = fs.readFileSync(filename, 'utf-8');
   } catch(e) {
-    console.error('Config read error: ' + e);
-    process.exit();
+    if (!silent)
+      console.error('Config read error: ' + e);
+    process.exit(1);
   }
 
   try {
     data = JSON.parse(fileContent);
   } catch(e) {
-    console.error('Config parse error: ' + e);
-    process.exit();
+    if (!silent)
+      console.error('Config parse error: ' + e);
+    process.exit(1);
   }
 
   return {
@@ -99,27 +67,53 @@ function searchConfig(optional){
   }
 }
 
-function defineCommand(name, module){
-  if (!module)
-    module = '../lib/' + name;
+//
+// main part
+//
 
-  var moduleOptions = require(module + '/options.js');
-  moduleOptions
-    .createCommand(program)
-    .init(function(){
-      var config = this.parent.config;
+console.log(time - new Date);
+var program = cli.create('basis')
+  .version(require('../package.json').version)
+  .option('-n, --no-config', 'Don\'t use basis.config')
+  .option('-c, --config-file <filename>', 'Specify path to config filename')
+  .delegate(function(nextCommand){
+    var options = this.values;
+    if (options.config && nextCommand.name != 'completion')
+    {
+      var config = options.configFile
+        ? fetchConfig(options.configFile)
+        : searchConfig();
 
-      if (config)
-      {
+      nextCommand.config = config.data;
+      nextCommand.configFile = config.path;
+    }
+  })
+  .action(function(){
+    this.showHelp();
+  });
 
-        var data = config[this.name] || {};
-        data._configPath = this.parent.configFile;
+console.log(time - new Date);
+program.command(require('../lib/extractor/command.js'));
+console.log(time - new Date);
+program.command(require('../lib/build/command.js'));
+console.log(time - new Date);
+program.command(require('../lib/server/command.js'));
+console.log(time - new Date);
+program.command(require('../lib/create/command.js'));
+console.log(time - new Date);
 
-        moduleOptions.applyConfig(this, data);
-      }
-    })
-    .action(function(){
-      // module lazy load
-      require(module).commandAction.call(this);
-    });
-}
+// reg completion command
+program.command('completion')
+  .description('Output completion script for *nix systems')
+  .action(function(args, literalArgs){
+    silent = true;
+    require('./completion')(program, literalArgs);
+  });
+
+// parse arguments
+//try {
+  program.run();
+//} catch(e) {
+//  console.error('Error:', e.message || e);
+//  process.exit(1);
+//}
