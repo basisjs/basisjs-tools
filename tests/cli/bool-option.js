@@ -28,7 +28,7 @@ describe('boolean options', function(){
       command
         .option('--bool');
 
-      command.parse(['--bool']);
+      command.run(['--bool']);
       assert(command.values.bool === true);
     });
 
@@ -37,30 +37,29 @@ describe('boolean options', function(){
         .option('--bool');
 
       assert.throws(function(){
-        command.parse(['--no-bool']);
+        command.run(['--no-bool']);
       });
     });
 
-    it('action should receive true', function(){
+    it('process function should receive true', function(){
       var actionValue;
       command
         .option('--bool', 'description', function(value){
           actionValue = value;
         });
 
-      command.parse(['--bool']);
+      command.run(['--bool']);
 
       assert(actionValue === true);
     });
 
-    it('action result should be ignored', function(){
-      var actionValue;
+    it('process function result should be ignored', function(){
       command
         .option('--bool', 'description', function(value){
-          actionValue = value;
+          return false;
         });
 
-      command.parse(['--bool']);
+      command.run(['--bool']);
 
       assert(command.values.bool === true);
     });
@@ -87,7 +86,7 @@ describe('boolean options', function(){
       command
         .option('--no-bool');
 
-      command.parse(['--no-bool']);
+      command.run(['--no-bool']);
       assert(command.values.bool === false);
     });
 
@@ -96,30 +95,29 @@ describe('boolean options', function(){
         .option('--no-bool');
 
       assert.throws(function(){
-        command.parse(['--bool']);
+        command.run(['--bool']);
       });
     });
 
-    it('action should receive false', function(){
+    it('process function should receive false', function(){
       var actionValue;
       command
         .option('--no-bool', 'description', function(value){
           actionValue = value;
         });
 
-      command.parse(['--no-bool']);
+      command.run(['--no-bool']);
 
       assert(actionValue === false);
     });
 
-    it('action result should be ignored', function(){
-      var actionValue;
+    it('process function result should be ignored', function(){
       command
         .option('--no-bool', 'description', function(value){
-          actionValue = value;
+          return true;
         });
 
-      command.parse(['--no-bool']);
+      command.run(['--no-bool']);
 
       assert(command.values.bool === false);
     });

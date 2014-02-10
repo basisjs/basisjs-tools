@@ -5,7 +5,6 @@ var fs = require('fs');
 var cli = require('../lib/cli');
 
 var silent = false;
-var time = new Date;
 
 // ==============================
 // Check for newer version of basisjs-tools
@@ -67,11 +66,11 @@ function searchConfig(optional){
   }
 }
 
+
 //
 // main part
 //
 
-console.log(time - new Date);
 var program = cli.create('basis')
   .version(require('../package.json').version)
   .option('-n, --no-config', 'Don\'t use basis.config')
@@ -84,23 +83,21 @@ var program = cli.create('basis')
         ? fetchConfig(options.configFile)
         : searchConfig();
 
-      nextCommand.config = config.data;
-      nextCommand.configFile = config.path;
+      if (config)
+      {
+        nextCommand.config = config.data;
+        nextCommand.configFile = config.path;
+      }
     }
   })
   .action(function(){
     this.showHelp();
   });
 
-console.log(time - new Date);
 program.command(require('../lib/extractor/command.js'));
-console.log(time - new Date);
 program.command(require('../lib/build/command.js'));
-console.log(time - new Date);
 program.command(require('../lib/server/command.js'));
-console.log(time - new Date);
 program.command(require('../lib/create/command.js'));
-console.log(time - new Date);
 
 // reg completion command
 program.command('completion')

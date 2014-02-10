@@ -47,7 +47,7 @@ describe('one arg options', function(){
             ok = true;
           });
 
-      command.parse(['--option', '1', 'test']);
+      command.run(['--option', '1', 'test']);
       assert(command.values.option === '1');
       assert(ok === true);
     });
@@ -61,7 +61,7 @@ describe('one arg options', function(){
             ok = false;
           });
 
-      command.parse(['--option', 'test']);
+      command.run(['--option', 'test']);
       assert(command.values.option === 'test');
       assert(ok === true);
     });
@@ -71,7 +71,7 @@ describe('one arg options', function(){
         .option('--option <arg>', 'description');
 
       assert.throws(function(){
-        command.parse(['--option']);
+        command.run(['--option']);
       });
     });
 
@@ -81,7 +81,7 @@ describe('one arg options', function(){
         .option('--option <arg>', 'description');
 
       assert.throws(function(){
-        command.parse(['--option', '--test']);
+        command.run(['--option', '--test']);
       });
     });
 
@@ -133,7 +133,7 @@ describe('one arg options', function(){
             ok = true;
           });
 
-      command.parse(['--option', '1', 'test']);
+      command.run(['--option', '1', 'test']);
       assert(command.values.option === '1');
       assert(ok === true);
     });
@@ -147,7 +147,7 @@ describe('one arg options', function(){
             ok = false;
           });
 
-      command.parse(['--option', 'test']);
+      command.run(['--option', 'test']);
       assert(command.values.option === 'test');
       assert(ok === true);
     });
@@ -157,7 +157,7 @@ describe('one arg options', function(){
         .option('--option [arg]', 'description');
 
       assert.doesNotThrow(function(){
-        command.parse(['--option']);
+        command.run(['--option']);
       });
     });
 
@@ -167,7 +167,7 @@ describe('one arg options', function(){
         .option('--option [arg]', 'description');
 
       assert.doesNotThrow(function(){
-        command.parse(['--option', '--test']);
+        command.run(['--option', '--test']);
       });
     });
 
