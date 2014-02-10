@@ -2,7 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
-var cli = require('../lib/cli');
+var cli = require('clap');
 
 var silent = false;
 
@@ -108,10 +108,10 @@ program.command('completion')
   });
 
 // parse arguments
-try {
+//try {
   program.run();
-} catch(e) {
-  if (!silent)
-    console.error(e.message || e);
-  process.exit(1);
-}
+// } catch(e) {
+//   if (!silent)
+//     console.error(e.message || e);
+//   process.exit(1);
+// }
