@@ -2,51 +2,20 @@
 
 var path = require('path');
 var fs = require('fs');
-var commander = require('commander');
-var updateNotifier = require('update-notifier');
-var configPath;
+var cli = require('clap');
 
-defineCommand('build');
-defineCommand('server');
-defineCommand('extract', '../lib/extractor');
-defineCommand('create');
+var silent = false;
 
-commander.name = 'basis';
-commander
-  // fetch version
-  .version(
-    require('../package.json').version,
-    '-v, --version'
-  )
-  .option('-n, --no-config', 'don\'t use basis.config')
-  .option('-c, --config-file <filename>', 'path to config filename (search for basis.config from current folder and up if missed)')
-  .on('*', function(args){
-    console.warn('Unknown command', args[0]);
-    process.exit();
-  });
-
+// ==============================
 // Check for newer version of basisjs-tools
-var notifier = updateNotifier({
-  packagePath: '../package.json'
-});
+// var notifier = require('update-notifier')({
+//   packagePath: '../package.json'
+// });
 
-if (notifier.update)
-  notifier.notify();
+// if (notifier.update)
+//   notifier.notify();
+// ==============================
 
-
-// check arguments
-var args = process.argv;
-if (args[2] == 'completion')
-  require('./completion').call();
-
-if (args.length < 3)
-{
-  console.warn('Command required, use -h or --help to get help');
-  process.exit();
-}
-
-// parse arguments
-commander.parse(args);
 
 //
 // helpers
@@ -54,32 +23,38 @@ commander.parse(args);
 
 function fetchConfig(filename){
   var fileContent;
-  var result;
+  var data;
 
   filename = path.resolve(filename);
-  console.log('Use config: ', filename);
+
+  if (!silent)
+    console.log('Use config: ', filename + '\n');
 
   try {
     fileContent = fs.readFileSync(filename, 'utf-8');
   } catch(e) {
-    console.warn('Config read error: ' + e);
-    process.exit();
+    if (!silent)
+      console.error('Config read error: ' + e);
+    process.exit(1);
   }
 
   try {
-    result = JSON.parse(fileContent);
+    data = JSON.parse(fileContent);
   } catch(e) {
-    console.warn('Config parse error: ' + e);
-    process.exit();
+    if (!silent)
+      console.error('Config parse error: ' + e);
+    process.exit(1);
   }
 
-  configPath = path.dirname(filename);
-
-  return result;
+  return {
+    path: path.dirname(filename),
+    data: data
+  };
 }
 
-function searchConfig(notRequired){
+function searchConfig(optional){
   var curpath = process.cwd().split(path.sep);
+
   while (curpath.length)
   {
     var cfgFile = curpath.join(path.sep) + path.sep + 'basis.config';
@@ -89,26 +64,54 @@ function searchConfig(notRequired){
 
     curpath.pop();
   }
-  if (!notRequired)
-    console.warn('Config file basis.config not found');
 }
 
-function defineCommand(name, module, options){
-  if (!module)
-    module = '../lib/' + name;
 
-  if (!options)
-    options = {};
+//
+// main part
+//
 
-  commander.on(name, function(a, b){
-    var config;
-    
-    if (!options.noConfig && this.config)
-      config = this.configFile ? fetchConfig(this.configFile) : searchConfig(name == 'create');
+var program = cli.create('basis')
+  .version(require('../package.json').version)
+  .option('-n, --no-config', 'Don\'t use basis.config')
+  .option('-c, --config-file <filename>', 'Specify path to config filename')
+  .delegate(function(nextCommand){
+    var options = this.values;
+    if (options.config && nextCommand.name != 'completion')
+    {
+      var config = options.configFile
+        ? fetchConfig(options.configFile)
+        : searchConfig();
 
-    config = (config && config[name]) || {};
-    config._configPath = configPath;
-
-    require(module).command([name, ''].concat(a, b), config);
+      if (config)
+      {
+        nextCommand.config = config.data;
+        nextCommand.configFile = config.path;
+      }
+    }
+  })
+  .action(function(){
+    this.showHelp();
   });
-}
+
+program.command(require('../lib/extractor/command.js'));
+program.command(require('../lib/build/command.js'));
+program.command(require('../lib/server/command.js'));
+program.command(require('../lib/create/command.js'));
+
+// reg completion command
+program.command('completion')
+  .description('Output completion script for *nix systems')
+  .action(function(args, literalArgs){
+    silent = true;
+    require('./completion')(program, literalArgs);
+  });
+
+// parse arguments
+//try {
+  program.run();
+// } catch(e) {
+//   if (!silent)
+//     console.error(e.message || e);
+//   process.exit(1);
+// }
