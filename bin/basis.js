@@ -108,9 +108,10 @@ program.command('completion')
   });
 
 // parse arguments
-//try {
+try {
   program.run();
-//} catch(e) {
-//  console.error('Error:', e.message || e);
-//  process.exit(1);
-//}
+} catch(e) {
+  if (!silent)
+    console.error(e.message || e);
+  process.exit(1);
+}
