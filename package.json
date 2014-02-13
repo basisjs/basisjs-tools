@@ -40,7 +40,8 @@
     "node-zip": "1.0.1",
     "http-proxy": "0.10.3",
     "bower": "~1.2.8",
-    "update-notifier": "~0.1.7"
+    "update-notifier": "~0.1.7",
+    "chalk": "~0.4.0"
   },
   "preferGlobal": true,
   "devDependencies": {

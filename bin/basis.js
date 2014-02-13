@@ -27,9 +27,6 @@ function fetchConfig(filename){
 
   filename = path.resolve(filename);
 
-  if (!silent)
-    console.log('Use config: ', filename + '\n');
-
   try {
     fileContent = fs.readFileSync(filename, 'utf-8');
   } catch(e) {
@@ -47,6 +44,7 @@ function fetchConfig(filename){
   }
 
   return {
+    filename: filename,
     path: path.dirname(filename),
     data: data
   };
@@ -86,7 +84,8 @@ var program = cli.create('basis')
       if (config)
       {
         nextCommand.config = config.data;
-        nextCommand.configFile = config.path;
+        nextCommand.configFile = config.filename;
+        nextCommand.configPath = config.path;
       }
     }
   })
