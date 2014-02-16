@@ -8,12 +8,12 @@ var silent = false;
 
 // ==============================
 // Check for newer version of basisjs-tools
-// var notifier = require('update-notifier')({
-//   packagePath: '../package.json'
-// });
+var notifier = require('update-notifier')({
+  packagePath: '../package.json'
+});
 
-// if (notifier.update)
-//   notifier.notify();
+if (notifier.update)
+  notifier.notify();
 // ==============================
 
 
