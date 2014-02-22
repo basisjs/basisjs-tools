@@ -1,3 +1,44 @@
+## 1.3.0 (February 22, 2014)
+
+Common
+
+  - brand new module `clap` as command line argument parser (refactoring of commands, remove `commander` module as dependency)
+  - add `jscs` config, base code style cleanup
+  - rename `bin/basis.js` to `bin/basis`
+
+Server
+
+  - rework server file changes watcher (more stable and robust now)
+  - reduce output messages (use `--verbose` flag for more messages)
+  - colorize output messages (suppress by `--no-color` option)
+  - use cache for `__basis_resources__` gzip
+  - rename `__basis_resources__.js` to `/basisjs-tools/resourceCache.js`
+  - rename `__devsync__.js` to `/basisjs-tools/syncFiles.js`
+  - client/server handshake doesn't depend on `basis.js` anymore
+  - new socket command `openFile` to open file in external editor
+  - remove deprecated things, remove appcp client and server, clean requires
+  - various improvements
+
+Build
+
+  - reduce output messages (use `--verbose` flag for more messages)
+  - colorize output messages in non-verbose mode (suppress by `--no-color` option)
+  - new `--css-inline-image` option to inline css images
+  - new `--warnings` option to show warning list in summary
+  - show matched `js` expression on extract in verbose mode
+  - add build label `<meta>` to index file
+  - copy unknown options in `basis-config` to build as is
+  - add `./` prefix to relinked filenames for `basis.resource`, `basis.require` and `basis.l10n.dictionary`
+  - remove `js/merge` handler as not working for now
+  - FIX: relative `require` filename resolving
+  - FIX: js file translate in some cases
+  - FIX: left part resolving in assign expressions
+  - FIX: asset `html` files output path
+  - FIX: template extractor on `MacOS`
+  - FIX: `l10n` pack for `basis.l10n` version 2
+  - FIX: `l10n` dictionary filename resolving
+  - FIX: various path related bugs
+
 ## 1.2.1 (January 29, 2014)
 
 - FIX: fix regression that options in config can't be overwritten by command line
