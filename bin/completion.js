@@ -4,7 +4,7 @@ module.exports = function(command, args){
   if (!args.length)
   {
     if (process.platform === 'win32')
-      throw new Error('npm completion not supported on windows');
+      throw new Error('command completion not supported on windows');
 
     console.log(fs.readFileSync(__dirname + '/completion.sh', 'utf8'));
     process.exit(0);
