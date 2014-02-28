@@ -1,3 +1,23 @@
+## 1.3.1 (February 28, 2014)
+
+Common
+
+  - update dependancy lib versions
+  - small `server `message output improvements 
+  - fix command argument processing for `build`, `create` and `extract`
+
+Build & extract
+
+  - `style` attributes in templates are now processing
+  - output fatal error for more than one `<link>` with same filename
+  - name main `basis.js` file as `script.js` if present
+  - add `require` and `resource` arguments to module wrapper as 3rd party libraries could test for `require` is present
+  - FIX: don't warn on `<script>` with external url
+  - FIX: `style` attributes processing (fetch resources, pack and so on)
+  - FIX: don't merge `<style>`/`<link>` with `id` attribute
+  - FIX: don't lose id attribute on replaced `<link>`
+  - FIX: avoid warning in build app for `_theme_css_` include
+
 ## 1.3.0 (February 22, 2014)
 
 Common
