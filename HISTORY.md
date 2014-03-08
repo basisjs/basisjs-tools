@@ -1,3 +1,8 @@
+## 1.3.2 (March 8, 2014)
+
+- fix absolute path resolving in `extractor` for `basis.resource` and `basis.require`
+- some fixes in `server` message output
+
 ## 1.3.1 (February 28, 2014)
 
 Common
