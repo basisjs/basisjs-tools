@@ -1,3 +1,8 @@
+## 1.3.3 (March 16, 2014)
+
+- fix relative path resolving in `extractor` for `basis.require`
+- fix `basis.js` installing by `create app` when app name specified
+
 ## 1.3.2 (March 8, 2014)
 
 - fix absolute path resolving in `extractor` for `basis.resource` and `basis.require`
