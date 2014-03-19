@@ -1,3 +1,16 @@
+## 1.3.4 (March 19, 2014)
+
+Extractor
+
+  - FIX: when `basis.require` invoke for namespace it didn't reference to `module.exports`
+  - FIX: scope reference resolving
+  - FIX: crash on warning when template source is not a `basis.js` resource  
+
+Server
+
+  - NEW: support for `http` -> `https` proxy
+  - disable `x-forwarded` headers for proxy by default (some servers worry about it and some redirect requests)
+
 ## 1.3.3 (March 16, 2014)
 
 - fix relative path resolving in `extractor` for `basis.require`
