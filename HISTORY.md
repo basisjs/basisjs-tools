@@ -1,3 +1,8 @@
+## 1.3.5 (March 21, 2014)
+
+- server shows 'port already in use' warning and other errors now, but not silently exit
+- fix `module.exports` values resolving on extract
+
 ## 1.3.4 (March 19, 2014)
 
 Extractor
