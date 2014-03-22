@@ -1,3 +1,7 @@
+## 1.3.6 (March 22, 2014)
+
+- fix path resolving by `server` when `basisjs-tools` and app located on different drives (issue #12)
+
 ## 1.3.5 (March 21, 2014)
 
 - server shows 'port already in use' warning and other errors now, but not silently exit
