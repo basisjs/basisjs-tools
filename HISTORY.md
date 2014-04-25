@@ -1,3 +1,11 @@
+## 1.3.7 (April 25, 2014)
+
+- build: make `--css-inline-image` works for style attributes
+- server: fix `createFile` command
+- server: show proxy errors in log and correct error message in response
+- server: fix `UNABLE_TO_VERIFY_LEAF_SIGNATURE` issue on proxy requests
+
+
 ## 1.3.6 (March 22, 2014)
 
 - fix path resolving by `server` when `basisjs-tools` and app located on different drives (issue #12)
