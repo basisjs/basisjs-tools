@@ -1,3 +1,7 @@
+## 1.3.8 (April 27, 2014)
+
+- server: fix crash on proxy error handling
+
 ## 1.3.7 (April 25, 2014)
 
 - build: make `--css-inline-image` works for style attributes
