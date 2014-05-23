@@ -1,3 +1,8 @@
+## 1.3.9 (May 23, 2014)
+
+- server: add support for preprocessors
+- extractor: add support for virtual resources
+
 ## 1.3.8 (April 27, 2014)
 
 - server: fix crash on proxy error handling
