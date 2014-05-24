@@ -1,3 +1,9 @@
+## 1.3.10 (May 24, 2014)
+
+- extractor: fix nested templates issue
+- extractor: temporary solution for preprocessors to process file content on extract
+- fix preprocessor relative paths resolving to config location
+
 ## 1.3.9 (May 23, 2014)
 
 - server: add support for preprocessors
