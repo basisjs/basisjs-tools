@@ -3,7 +3,9 @@
 var path = require('path');
 var fs = require('fs');
 var cli = require('clap');
+var ConfigStore = require('../lib/config-store');
 
+var globalConfig = new ConfigStore('basis');
 var silent = false;
 
 // ==============================
@@ -87,6 +89,8 @@ var program = cli.create('basis')
         nextCommand.configFile = config.filename;
         nextCommand.configPath = config.path;
       }
+
+      nextCommand.globalConfig = globalConfig;
     }
   })
   .action(function(){
@@ -105,6 +109,23 @@ program.command('completion')
     silent = true;
     require('./completion')(program, literalArgs);
   });
+
+program.command('config', '<name> [value]')
+  .description('Global configuration')
+  .action(function(args){
+    var name = args[0];
+    if (args.length == 1)
+    {
+      // read
+      console.log('Config value for ' + name + ' is ' + JSON.stringify(globalConfig.get(name)));
+    }
+    else
+    {
+      // write
+      console.log('Set value `' + JSON.stringify(args[1]) + '` for `' + name + '`')
+      globalConfig.set(name, args[1]);
+    }
+  })
 
 // parse arguments
 //try {
