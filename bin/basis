@@ -3,6 +3,7 @@
 var path = require('path');
 var fs = require('fs');
 var cli = require('clap');
+var chalk = require('chalk');
 var ConfigStore = require('../lib/config-store');
 
 var globalConfig = new ConfigStore('basis');
@@ -113,6 +114,12 @@ program.command('completion')
 program.command('config', '<name> [value]')
   .description('Global configuration')
   .action(function(args){
+    if (args.length == 0)
+    {
+      console.log(JSON.stringify(globalConfig.values, null, 2));
+      return;
+    }
+
     var name = args[0];
     if (args.length == 1)
     {
@@ -122,10 +129,10 @@ program.command('config', '<name> [value]')
     else
     {
       // write
-      console.log('Set value `' + JSON.stringify(args[1]) + '` for `' + name + '`')
+      console.log('Set value ' + chalk.green(JSON.stringify(args[1])) + ' for ' + chalk.green(name));
       globalConfig.set(name, args[1]);
     }
-  })
+  });
 
 // parse arguments
 //try {
