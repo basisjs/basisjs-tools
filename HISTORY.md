@@ -1,3 +1,12 @@
+## 1.3.11 (June 26, 2014)
+
+- update dependancies versions 
+- implement global config storage and `config` command
+- create: update templates 
+- create: use create.templates option in config to specify optional paths for templates
+- server: tweak init output
+- server: don't load socket.io through XHR, but using `<script>` (faster load, less noise in console)
+
 ## 1.3.10 (May 24, 2014)
 
 - extractor: fix nested templates issue
