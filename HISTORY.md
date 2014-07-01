@@ -1,3 +1,7 @@
+## 1.3.13 (Jule 1, 2014)
+
+- server: fix issue with `fileSync.js` on Mac OS
+
 ## 1.3.12 (Jule 1, 2014)
 
 - server: fix `socket.io` issue when using with `require.js` using
