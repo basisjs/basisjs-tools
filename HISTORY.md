@@ -1,3 +1,9 @@
+## 1.3.12 (Jule 1, 2014)
+
+- server: fix `socket.io` issue when using with `require.js` using
+- server: inject `socket.io` client in `fileSync.js`
+- add support for `basis.js` 1.3.0 config in `extract` and `build`
+
 ## 1.3.11 (June 26, 2014)
 
 - update dependancies versions 
