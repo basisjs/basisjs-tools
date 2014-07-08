@@ -1,8 +1,16 @@
-## 1.3.13 (Jule 1, 2014)
+## 1.3.14 (July 8, 2014)
+
+- build & extract: set up env for `basis.js` (uses since `1.3.0`)
+- server: show error message instead of exception when `socket.io` lib is not defined
+- server: unify client/server communication on sync init (`ready`/`knownFiles` -> `handshake`)
+- server: new option `--inspect` to include inspecting script
+- server: fix internal redirects when no host in destination
+
+## 1.3.13 (July 1, 2014)
 
 - server: fix issue with `fileSync.js` on Mac OS
 
-## 1.3.12 (Jule 1, 2014)
+## 1.3.12 (July 1, 2014)
 
 - server: fix `socket.io` issue when using with `require.js` using
 - server: inject `socket.io` client in `fileSync.js`
