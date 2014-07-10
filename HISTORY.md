@@ -1,3 +1,8 @@
+## 1.3.15 (July 10, 2014)
+
+- build: fix build regression for `basis.js` prior `1.3.0` (added in `1.3.12`)
+- build: fix build for `basis.js` 1.3.0 with modules that create a sandbox (for example `basis.devpanel`)
+
 ## 1.3.14 (July 8, 2014)
 
 - build & extract: set up env for `basis.js` (uses since `1.3.0`)
