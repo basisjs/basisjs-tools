@@ -135,10 +135,15 @@ program.command('config', '<name> [value]')
   });
 
 // parse arguments
-//try {
+try {
   program.run();
-// } catch(e) {
-//   if (!silent)
-//     console.error(e.message || e);
-//   process.exit(1);
-// }
+} catch(e) {
+  if (!silent)
+  {
+    if (e instanceof cli.Error)
+      console.error(e.message || e);
+    else
+      throw e;
+  }
+  process.exit(1);
+}
