@@ -1,3 +1,0 @@
-[submodule "lib/server/appcp"]
-	path = lib/server/appcp
-	url = https://github.com/basisjs/app-control-panel.git
