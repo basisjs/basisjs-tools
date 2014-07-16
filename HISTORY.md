@@ -1,3 +1,12 @@
+## 1.3.16 (July 16, 2014)
+
+- build: output version and commit (for non-release versions) of `basisjs-tools` and `basis.js` if possible
+- build: fix resolving expressions with `__dirname` in `basis.js` modules
+- build: robust `--js-pack` handler, if `google-closure-compiler` command is not enabled, use `uglify-js`
+- build: show extra info in non-TTY mode (i.e. file output)
+- extract: pass correct `sourceOrigin` to `basis.template.makeDeclaration` but not just `true`
+- better cli errors output
+
 ## 1.3.15 (July 10, 2014)
 
 - build: fix build regression for `basis.js` prior `1.3.0` (added in `1.3.12`)
