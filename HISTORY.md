@@ -1,3 +1,9 @@
+## 1.3.17 (July 23, 2014)
+
+- build & extract: fix `basisjsBaseURI`
+- extract: fix l10n dictionary path resolve for `basis.js` prior `1.0`
+- cleanup in repo root, remove GPL license
+
 ## 1.3.16 (July 16, 2014)
 
 - build: output version and commit (for non-release versions) of `basisjs-tools` and `basis.js` if possible
