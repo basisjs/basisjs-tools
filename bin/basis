@@ -21,12 +21,10 @@ if (ConfigStore.exists('basis'))
 
 // ==============================
 // Check for newer version of basisjs-tools
-var notifier = require('update-notifier')({
-  packagePath: '../package.json'
-});
-
-if (notifier.update)
-  notifier.notify();
+require('update-notifier')({
+  packageName: packageInfo.name,
+  packageVersion: packageInfo.version
+}).notify({ defer: false });
 // ==============================
 
 
