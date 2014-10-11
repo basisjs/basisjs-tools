@@ -1,3 +1,15 @@
+## 1.3.18 (October 12, 2014)
+
+- server: load injected scripts `async` and `defer`
+- server: don't notify client about server internal files changes
+- server: don't use `basis.js` implicit namespace extensions in client script (avoid warnings in `1.4+`)
+- build: exit with code `8` when fatal error (instead of `0`)
+- build: remove `--js-resolve-path` option as not working for now
+- build: fix `--target output-graph`
+- create: fix `app.js` in app template
+- change global config name `basis` -> `basisjs-tools` and migration (file path changed as well)
+- bump deps
+
 ## 1.3.17 (July 23, 2014)
 
 - build & extract: fix `basisjsBaseURI`
