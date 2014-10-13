@@ -106,7 +106,7 @@ var program = cli.create('basis')
     this.showHelp();
   });
 
-program.command(require('../lib/extractor/command.js'));
+program.command(require('../lib/extract/command.js'));
 program.command(require('../lib/build/command.js'));
 program.command(require('../lib/server/command.js'));
 program.command(require('../lib/create/command.js'));
