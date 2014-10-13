@@ -11,11 +11,11 @@ Developer tools for [basis.js](https://github.com/basisjs/basisjs) framework.
 
 ### Install
 
-On Windows (with administrative access):
+On Windows (with administrator rights):
 
         $ npm install -g basisjs-tools
         
-NOTE: Make sure `path/to/nodejs/node_modules/.bin` is presented in PATH.
+> Make sure `path/to/nodejs/node_modules/.bin` is presented in PATH.
         
 On Mac OS:
 
@@ -25,16 +25,12 @@ After that `basis` should be available in command line.
 
 ### Shell completion
 
-To make completions for basisjs-tools available in your bash, run following command (ensure that you have bash-completion installed, first). Run this
+Completion command that is based on, and works similarly to the [npm completion](https://npmjs.org/doc/completion.html). It is not available for Windows users.
 
-        $ basis completion > /path/to/etc/bash_completion.d/basis
+This command will output a Bash / ZSH script to put into your `~/.bashrc`, `~/.bash_profile`, or `~/.zshrc` file.
 
-and restart bash.
-
-If you aren't using bash-completion, you can add basis completion to your .bashrc and reload:
-
-        $ basis completion >> ~/.bashrc
-        $ source ~/.bashrc
+        $ basis completion >> ~/.bash_profile
+        $ source ~/.bashrc_profile
 
 ## Common
 
@@ -70,13 +66,12 @@ With this `basis.config` no difference at what directory you run `basis build` -
 
 Use `basis --help` for more help.
 
-### Relative path solving
+### Relative path resolving
 
 Basis works with many various paths, and often it is relative paths. There are two general rules for relative path resolving.
 
-* path defined in config file (`basis.config`) resolves to config file directory
-
-* path defined in command line resolves to current working directory
+- path defined in config file (`basis.config`) resolves to config file directory
+- path defined in command line resolves to current working directory
 
 ## Tools
 
@@ -118,4 +113,4 @@ Optionally builder may merge, optimize, pack etc. Use `--help` option to get mor
 
 ## License
 
-Dual licensed under the MIT or GPL Version 2 licenses.
+Licensed under the MIT License.
