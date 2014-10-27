@@ -17,17 +17,25 @@ var getConfig = (function(){
 
   build.build = function(config){
     config_ = config;
-    configFile_ = this.configFile || null;
-    console.log(this.configFile);
+    configFile_ = this.context.configFile || null;
   };
 
   return function(argv, cwd, raw){
+    // set new cwd
+    var PWD = process.env.PWD;
     process.chdir(cwd || CWD);
+    process.env.PWD = cwd || CWD;
+
+    // run command
     program.run(argv);
+
+    // restore pwd
+    process.env.PWD = PWD;
     process.chdir(CWD);
 
+    // return config info as result
     return {
-      file: configFile_,
+      filename: configFile_,
       options: raw ? config_ : buildCommand.norm(config_)
     };
   };
@@ -48,7 +56,7 @@ describe('paths', function(){
     var cwd = CWD;
     var config = getConfig(['build']);
 
-    assert.equal(config.file, null);
+    assert.equal(config.filename, null);
     assert.equal(config.options.base, CWD);
     assert.equal(config.options.file, CWD + 'index.html');
     assert.equal(config.options.output, CWD + 'build' + path.sep);
@@ -62,7 +70,7 @@ describe('paths', function(){
     var cwd = path.resolve(__dirname, 'env/basic');
     var config = getConfig(['build'], cwd, true);
 
-    assert.equal(config.file, path.resolve(cwd, 'basis.config'));
+    assert.equal(config.filename, path.resolve(cwd, 'basis.config'));
     assert.equal(config.options.base, path.resolve(cwd, 'foo') + path.sep);
     assert.equal(config.options.file, path.resolve(cwd, 'foo/bar'));
     assert.equal(config.options.output, path.resolve(cwd, 'foo/baz') + path.sep);
@@ -72,7 +80,7 @@ describe('paths', function(){
   //   var cwd = path.resolve(__dirname, 'env/basic/nested');
   //   var config = getConfig(['build'], cwd);
 
-  //   assert.equal(config.file, path.resolve(cwd, '../basis.config'));
+  //   assert.equal(config.filename, path.resolve(cwd, '../basis.config'));
   //   assert.equal(config.options.base, path.resolve(cwd, '../foo') + path.sep);
   //   assert.equal(config.options.file, path.resolve(cwd, '../foo/bar'));
   //   assert.equal(config.options.output, path.resolve(cwd, '../foo/baz') + path.sep);
@@ -84,18 +92,28 @@ describe('paths', function(){
       var cwd = CWD;
       var config = getConfig(['build']);
 
-      assert.equal(config.file, null);
-      assert.equal(config.options.output, path.resovle(CWD, 'build') + path.sep);
+      assert.equal(config.filename, null);
+      assert.equal(config.options.output, path.resolve(CWD, 'build') + path.sep);
     });
 
     //          config     cli
     // output    baz        -
-    it('values from config with cwd equals config path', function(){
+    it('values from config with cwd equals to config path', function(){
       var cwd = path.resolve(__dirname, 'env/basic');
       var config = getConfig(['build'], cwd);
 
-      assert.equal(config.file, path.resolve(cwd, 'basis.config'));
+      assert.equal(config.filename, path.resolve(cwd, 'basis.config'));
       assert.equal(config.options.output, path.resolve(cwd, 'baz') + path.sep);
+    });
+
+    //          config     cli
+    // output    baz        -
+    it('value from command line should override config', function(){
+      var cwd = path.resolve(__dirname, 'env/basic');
+      var config = getConfig(['build', '--output', 'booo'], cwd);
+
+      assert.equal(config.filename, path.resolve(cwd, 'basis.config'));
+      assert.equal(config.options.output, path.resolve(cwd, 'booo') + path.sep);
     });
   });
 });
