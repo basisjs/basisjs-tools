@@ -1,3 +1,19 @@
+## 1.3.19 (November 12, 2014)
+
+- build: fix hash-digest for style files in theme map
+- build: add read files content digest to build `<meta>`
+- build: fetch commit when `basisjs-tools` installed not by version tag
+- build: provide real config for `basis.js` 1.4
+- build: require `basis.js` only once (in `processBasisFile.js`)
+- build: support for local `asset` function and new resolving algorithm for `basis.asset` (for basis.js 1.4)
+- build: better error output on `js` compress
+- extract: fix issue with template files in the input graph
+- extract: fix template comparison (`isolate` issue)
+- extract: use basis core to resolve paths for `basis.js` 1.4
+- extract: fix `css` info collection for `anim:` bindings
+- cli: resolve `basis.config` relative to `process.env.PWD` when possible
+- cli and module refactoring
+
 ## 1.3.18 (October 12, 2014)
 
 - server: load injected scripts `async` and `defer`
