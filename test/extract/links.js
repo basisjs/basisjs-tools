@@ -124,7 +124,7 @@ describe('extract file graph', function(){
 
     it('cwd is upward index.html location', function(){
       var baseURI = envPath;
-      process.chdir(baseURI);
+      process.env.PWD = baseURI;
 
       var flow = program.run(['extract', '--target', 'none', '--silent']);
       var warnings = checkFileGraph(flow, files, envPath);
@@ -134,7 +134,7 @@ describe('extract file graph', function(){
 
     it('cwd is index.html location', function(){
       var baseURI = envPath + '/app';
-      process.chdir(baseURI);
+      process.env.PWD = baseURI;
 
       var flow = program.run(['extract', '--target', 'none', '--silent']);
       var warnings = checkFileGraph(flow, files, envPath);
@@ -144,7 +144,7 @@ describe('extract file graph', function(){
 
     it('cwd is nested index.html dir', function(){
       var baseURI = envPath + '/app/src';
-      process.chdir(baseURI);
+      process.env.PWD = baseURI;
 
       var flow = program.run(['extract', '--target', 'none', '--silent']);
       var warnings = checkFileGraph(flow, files, envPath);
@@ -162,7 +162,7 @@ describe('extract file graph', function(){
 
     it('cwd is upward index.html location', function(){
       var baseURI = envPath;
-      process.chdir(baseURI);
+      process.env.PWD = baseURI;
 
       var flow = program.run(['extract', '--target', 'none', '--silent']);
       var warnings = checkFileGraph(flow, files, envPath);
@@ -172,7 +172,7 @@ describe('extract file graph', function(){
 
     it('cwd is index.html location', function(){
       var baseURI = envPath + '/app';
-      process.chdir(baseURI);
+      process.env.PWD = baseURI;
 
       var flow = program.run(['extract', '--target', 'none', '--silent']);
       var warnings = checkFileGraph(flow, files, envPath);
@@ -182,7 +182,7 @@ describe('extract file graph', function(){
 
     it('cwd is nested index.html dir', function(){
       var baseURI = envPath + '/app/src';
-      process.chdir(baseURI);
+      process.env.PWD = baseURI;
 
       var flow = program.run(['extract', '--target', 'none', '--silent']);
       var warnings = checkFileGraph(flow, files, envPath);
