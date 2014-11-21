@@ -126,6 +126,36 @@ function checkFileGraph(flow, expected, baseURI){
   return false;
 }
 
+describe('common', function(){
+  var envPath = __dirname + '/env/common';
+
+  it('default base', function(){
+    var baseURI = envPath + '/tools';
+    process.env.PWD = baseURI;
+
+    var flow = program.run(['extract', '--target', 'none', '--silent']);
+    var warnings = checkFileGraph(flow, [
+      'app/foo.html',
+      'lib/script.js'
+    ], envPath);
+
+    assert(warnings === false, warnings);
+  });
+
+  it('override base and file', function(){
+    var baseURI = envPath + '/tools';
+    process.env.PWD = baseURI;
+
+    var flow = program.run(['extract', '-f', '../app/bar.html', '-b', '..', '--target', 'none', '--silent']);
+    var warnings = checkFileGraph(flow, [
+      'app/bar.html',
+      'lib/script.js'
+    ], envPath);
+
+    assert(warnings === false, warnings);
+  });
+});
+
 describe('extract file graph', function(){
   //
   // basis.js 1.3
