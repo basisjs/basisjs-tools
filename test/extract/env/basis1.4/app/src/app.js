@@ -31,7 +31,23 @@ asset('ns:asset.json');
 
 l10n.dictionary('ns:dictionary.l10n');
 
-// // should not produce new filenames
+// unknown ns
+require('unknownns');
+basis.require('unknownns.basisrequire');
+require('unknownns.require');
+
+basis.require('unknownns:ns-basisrequire.js');
+require('unknownns:ns-require.js');
+
+basis.resource('unknownns:basisresource.js');
+resource('unknownns:resource.js');
+
+basis.asset('unknownns:basis-asset.json');
+asset('unknownns:asset.json');
+
+l10n.dictionary('unknownns:dictionary.l10n');
+
+// should not produce new filenames
 basis.require('ns:../ns-basisrequire.js');
 require('ns:../ns-require.js');
 basis.resource('ns:../basisresource.js');

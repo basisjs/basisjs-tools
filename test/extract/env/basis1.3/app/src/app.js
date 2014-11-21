@@ -18,5 +18,10 @@ require('ns');
 basis.require('ns.basisrequire');
 require('ns.require');
 
+// unknown ns
+require('unknownns');
+basis.require('unknownns.basisrequire');
+require('unknownns.require');
+
 // templates
 resource('./template/rel.tmpl');

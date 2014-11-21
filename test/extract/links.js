@@ -58,6 +58,10 @@ var files_1_3 = [
   'app/ns/basisrequire.js',
   'app/ns/require.js',
   'app/ns/index.js',
+
+  'app/unknownns/basisrequire.js',
+  'app/unknownns/require.js',
+  'app/unknownns.js'
 ];
 var files_1_4 = [
   'app/src/template/ns.tmpl',
@@ -76,7 +80,15 @@ var files_1_4 = [
   'app/ns/b-l10n.l10n',
   'app/ns/dictionary.l10n',
   'app/ns/ns-basisrequire.js',
-  'app/ns/style.css'
+  'app/ns/style.css',
+
+  'app/unknownns/basis-asset.json',
+  'app/unknownns/asset.json',
+  'app/unknownns/basisresource.js',
+  'app/unknownns/ns-require.js',
+  'app/unknownns/resource.js',
+  'app/unknownns/dictionary.l10n',
+  'app/unknownns/ns-basisrequire.js'
 ];
 
 function fileWarnings(flow){
