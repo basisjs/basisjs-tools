@@ -97,7 +97,7 @@ function fileWarnings(flow){
   });
 }
 
-function checkFileGraph(flow, expected, baseURI){
+function assertFileGraph(flow, expected, baseURI){
   if (!flow)
     return 'no extract result';
 
@@ -117,7 +117,7 @@ function checkFileGraph(flow, expected, baseURI){
   });
 
   if (missedFiles.length || extraFiles.length || flow.files.warns.length)
-    return (
+    assert(false,
       (missedFiles.length ? '\nmissed files: ' + missedFiles.join(', ') : '') +
       (extraFiles.length ? '\nextra files: ' + extraFiles.join(', ') : '') +
       (flow.files.warns.length ? '\nwarnings:\n  ' + fileWarnings(flow).join('\n  ') : '')
@@ -126,37 +126,44 @@ function checkFileGraph(flow, expected, baseURI){
   return false;
 }
 
-describe('common', function(){
-  var envPath = __dirname + '/env/common';
-
-  it('default base', function(){
-    var baseURI = envPath + '/tools';
-    process.env.PWD = baseURI;
-
-    var flow = program.run(['extract', '--target', 'none', '--silent']);
-    var warnings = checkFileGraph(flow, [
-      'app/foo.html',
-      'lib/script.js'
-    ], envPath);
-
-    assert(warnings === false, warnings);
+function assertExtract(baseURI, path, args, files){
+  process.env.PWD = baseURI + path;
+  return program.run(args.concat('--target', 'none', '--silent')).then(function(flow){
+    assertFileGraph(flow, files, baseURI);
   });
+};
 
-  it('override base and file', function(){
-    var baseURI = envPath + '/tools';
-    process.env.PWD = baseURI;
-
-    var flow = program.run(['extract', '-f', '../app/bar.html', '-b', '..', '--target', 'none', '--silent']);
-    var warnings = checkFileGraph(flow, [
-      'app/bar.html',
-      'lib/script.js'
-    ], envPath);
-
-    assert(warnings === false, warnings);
-  });
-});
 
 describe('extract file graph', function(){
+  //
+  // common
+  //
+  describe('common', function(){
+    var envPath = __dirname + '/env/common';
+
+    it('default base', function(){
+      return assertExtract(
+        envPath, '/tools',
+        ['extract'],
+        [
+          'app/foo.html',
+          'lib/script.js'
+        ]
+      );
+    });
+
+    it('override base and file', function(){
+      return assertExtract(
+        envPath, '/tools',
+        ['extract', '-f', '../app/bar.html', '-b', '..'],
+        [
+          'app/bar.html',
+          'lib/script.js'
+        ]
+      );
+    });
+  });
+
   //
   // basis.js 1.3
   //
@@ -165,33 +172,27 @@ describe('extract file graph', function(){
     var files = files_1_3;
 
     it('cwd is upward index.html location', function(){
-      var baseURI = envPath;
-      process.env.PWD = baseURI;
-
-      var flow = program.run(['extract', '--target', 'none', '--silent']);
-      var warnings = checkFileGraph(flow, files, envPath);
-
-      assert(warnings === false, warnings);
+      return assertExtract(
+        envPath, '',
+        ['extract'],
+        files
+      );
     });
 
     it('cwd is index.html location', function(){
-      var baseURI = envPath + '/app';
-      process.env.PWD = baseURI;
-
-      var flow = program.run(['extract', '--target', 'none', '--silent']);
-      var warnings = checkFileGraph(flow, files, envPath);
-
-      assert(warnings === false, warnings);
+      return assertExtract(
+        envPath, '/app',
+        ['extract'],
+        files
+      );
     });
 
     it('cwd is nested index.html dir', function(){
-      var baseURI = envPath + '/app/src';
-      process.env.PWD = baseURI;
-
-      var flow = program.run(['extract', '--target', 'none', '--silent']);
-      var warnings = checkFileGraph(flow, files, envPath);
-
-      assert(warnings === false, warnings);
+      return assertExtract(
+        envPath, '/app/src',
+        ['extract'],
+        files
+      );
     });
   });
 
@@ -203,33 +204,27 @@ describe('extract file graph', function(){
     var files = files_1_3.concat(files_1_4);
 
     it('cwd is upward index.html location', function(){
-      var baseURI = envPath;
-      process.env.PWD = baseURI;
-
-      var flow = program.run(['extract', '--target', 'none', '--silent']);
-      var warnings = checkFileGraph(flow, files, envPath);
-
-      assert(warnings === false, warnings);
+      return assertExtract(
+        envPath, '',
+        ['extract'],
+        files
+      );
     });
 
     it('cwd is index.html location', function(){
-      var baseURI = envPath + '/app';
-      process.env.PWD = baseURI;
-
-      var flow = program.run(['extract', '--target', 'none', '--silent']);
-      var warnings = checkFileGraph(flow, files, envPath);
-
-      assert(warnings === false, warnings);
+      return assertExtract(
+        envPath, '/app',
+        ['extract'],
+        files
+      );
     });
 
     it('cwd is nested index.html dir', function(){
-      var baseURI = envPath + '/app/src';
-      process.env.PWD = baseURI;
-
-      var flow = program.run(['extract', '--target', 'none', '--silent']);
-      var warnings = checkFileGraph(flow, files, envPath);
-
-      assert(warnings === false, warnings);
+      return assertExtract(
+        envPath, '/app/src',
+        ['extract'],
+        files
+      );
     });
   });
 });

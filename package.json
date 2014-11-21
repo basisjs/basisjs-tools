@@ -40,7 +40,8 @@
     "update-notifier": "0.2.2",
     "chalk": "0.5.1",
     "osenv": "0.1.0",
-    "mkdirp": "0.5.0"
+    "mkdirp": "0.5.0",
+    "es6-promise-polyfill": "1.0.0"
   },
   "devDependencies": {
     "mocha": "2.0.1"
