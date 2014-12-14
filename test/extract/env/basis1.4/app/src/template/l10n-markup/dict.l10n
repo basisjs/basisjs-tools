@@ -1,0 +1,9 @@
+{
+  "_meta": {
+    "location": "l10n-markup/dict.l10n",
+    "type": { "content": "markup" }
+  },
+  "en-US": {
+    "content": "<b:style src=\"./dict.css\"/>"
+  }
+}

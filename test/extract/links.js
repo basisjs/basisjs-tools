@@ -64,6 +64,11 @@ var files_1_3 = [
   'app/unknownns.js'
 ];
 var files_1_4 = [
+  'app/lib/basis/template/const.js',
+  'app/lib/basis/template/declaration.js',
+  'app/lib/basis/template/isolateCss.js',
+  'app/lib/basis/template/tokenize.js',
+
   'app/src/template/ns.tmpl',
   'app/src/asset.js',
 
@@ -88,7 +93,14 @@ var files_1_4 = [
   'app/unknownns/ns-require.js',
   'app/unknownns/resource.js',
   'app/unknownns/dictionary.l10n',
-  'app/unknownns/ns-basisrequire.js'
+  'app/unknownns/ns-basisrequire.js',
+
+  'app/src/template/l10n-markup/dict.css',
+  //'app/src/template/l10n-markup/template.tmpl',
+  'app/src/template/l10n-markup/template.css',
+  'app/src/template/l10n-markup/dict.l10n',
+  'app/src/template/l10n-markup/style-import.css',
+  'app/src/template/l10n-markup/style.css'
 ];
 
 function fileWarnings(flow){
@@ -128,9 +140,10 @@ function assertFileGraph(flow, expected, baseURI){
 
 function assertExtract(baseURI, path, args, files){
   process.env.PWD = baseURI + path;
-  return program.run(args.concat('--target', 'none', '--silent')).then(function(flow){
-    assertFileGraph(flow, files, baseURI);
-  });
+  return program.run(args.concat('--target', 'none', '--silent'))
+    .then(function(flow){
+      assertFileGraph(flow, files, baseURI);
+    });
 };
 
 
