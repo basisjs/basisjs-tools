@@ -1,3 +1,7 @@
+## 1.3.20 (February 3, 2015)
+
+- build: hot fix for [broken `htmlparser2` issue](https://github.com/cheeriojs/dom-serializer/issues/19)
+
 ## 1.3.19 (November 12, 2014)
 
 - build: fix hash-digest for style files in theme map
