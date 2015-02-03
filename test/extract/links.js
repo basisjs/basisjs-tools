@@ -45,6 +45,8 @@ var files_1_3 = [
   'app/src/explicit.l10n',
   'app/src/implicit.l10n',
   'app/src/app.l10n',
+  'app/src/app/require.js',
+  'app/src/app/basisrequire.js',
 
   'app/src/template/rel.tmpl',
   'app/src/template/rel.css',

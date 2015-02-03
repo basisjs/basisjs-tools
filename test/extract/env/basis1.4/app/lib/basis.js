@@ -347,225 +347,142 @@
   * @return {function(object)} Returns function that resolve some path in object and can use modificator for value transformation.
   */
   var getter = (function(){
-    var ID = 'basisGetterId' + genUID() + '_';
-    var modificatorSeed = 1;
-    var simplePath = /^[a-z$_][a-z$_0-9]*(\.[a-z$_][a-z$_0-9]*)*$/i;
-
-    var getterMap = [];
+    var GETTER_ID_PREFIX = 'basisGetterId' + genUID() + '_';
+    var GETTER_ID = GETTER_ID_PREFIX + 'root';
+    var ID = GETTER_ID_PREFIX;
+    var SOURCE = GETTER_ID_PREFIX + 'base';
+    var PARENT = GETTER_ID_PREFIX + 'parent';
+    var getterSeed = 1;
     var pathCache = {};
-    var modCache = {};
 
-    function buildFunction(path){
-      if (simplePath.test(path))
+    function as(path){
+      var self = this;
+      var wrapper;
+      var result;
+      var id;
+
+      if (typeof path == 'function' || typeof path == 'string')
       {
-        var parts = path.split('.');
-        var foo = parts[0];
-        var bar = parts[1];
-        var baz = parts[2];
-        var fn;
+        wrapper = resolveFunction(path, self[ID]);
+        id = GETTER_ID_PREFIX + wrapper[ID];
 
-        // This approach helps produce function that could be
-        // optimized (inlined) by js engine. In most cases path contains
-        // from 1 to 3 parts and we don't use a loop in those cases.
-        switch (parts.length)
-        {
-          case 1:
-            fn = function(object){
-              return object != null ? object[foo] : object;
-            };
-            break;
-          case 2:
-            fn = function(object){
-              return object != null ? object[foo][bar] : object;
-            };
-            break;
-          case 3:
-            fn = function(object){
-              return object != null ? object[foo][bar][baz] : object;
-            };
-            break;
-          default:
-            fn = function(object){
-              if (object != null)
-              {
-                object = object[foo][bar][baz];
-                for (var i = 3, key; key = parts[i]; i++)
-                  object = object[key];
-              }
+        if (hasOwnProperty.call(self, id))
+          return self[id];
 
-              return object;
-            };
-        }
+        // recover original function, reduce functions call stack
+        if (typeof wrapper[SOURCE] == 'function')
+          wrapper = wrapper[SOURCE];
 
-        // verbose function code in dev mode
-        /** @cut */ fn = Function('parts', 'return ' + fn.toString()
-        /** @cut */   .replace(/(foo|bar|baz)/g, function(m, w){
-        /** @cut */      return '"' + parts[w == 'foo' ? 0 : (w == 'bar' ? 1 : 2)] + '"';
-        /** @cut */    })
-        /** @cut */   .replace(/\[\"([^"]+)\"\]/g, '.$1'))(parts);
+        result = function(value){
+          return wrapper(self(value));
+        };
+      }
+      else
+      {
+        // theat non-function/non-string values as maps
+        var map = path;
 
-        return fn;
+        if (!map)
+          return nullGetter;
+
+        result = function(value){
+          return map[self(value)];
+        };
       }
 
-      // for cases when path isn't a property name chain
+      /** @cut */ result[PARENT] = self;
+      result[ID] = getterSeed++;
+      result[SOURCE] = path;
+      result.__extend__ = getter;
+      result.as = as;
+
+      // cache function/string getters only
+      if (id)
+        self[id] = result;
+
+      return result;
+    }
+
+    function buildFunction(path){
       return new Function('object', 'return object != null ? object.' + path + ' : object');
     }
 
-    var getterFn = function(path, modificator){
-      var func;
+    function resolveFunction(value, id){
+      var fn = value;
       var result;
-      var getterId;
 
-      // return nullGetter if no path or nullGetter passed
-      if (!path || path === nullGetter)
+      if (value && typeof value == 'string')
+      {
+        if (hasOwnProperty.call(pathCache, value))
+          return pathCache[value];
+
+        fn = pathCache[value] = buildFunction(value);
+      }
+
+      if (typeof fn != 'function')
+      {
+        /** @cut */ basis.dev.warn('path for root getter should be function or non-empty string');
         return nullGetter;
-
-      // resolve getter by path
-      if (typeof path == 'function')
-      {
-        getterId = path[ID];
-
-        // path is function
-        if (getterId)
-        {
-          // this function used for getter before
-          func = getterMap[Math.abs(getterId) - 1];
-        }
-        else
-        {
-          // this function never used for getter before, wrap and cache it
-
-          // wrap function to prevent function properties rewrite
-          func = function(object){
-            return path(object);
-          };
-          func.base = path;
-          func.__extend__ = getter;
-
-          // add to cache
-          getterId = getterMap.push(func);
-          path[ID] = -getterId;
-          func[ID] = getterId;
-        }
-      }
-      else
-      {
-        // thread path as string, search in cache
-        func = pathCache[path];
-
-        if (func)
-        {
-          // resolve getter id
-          getterId = func[ID];
-        }
-        else
-        {
-          // create getter function
-          func = buildFunction(path);
-          func.base = path;
-          func.__extend__ = getter;
-
-          // add to cache
-          getterId = getterMap.push(func);
-          func[ID] = getterId;
-          pathCache[path] = func;
-        }
       }
 
-      // resolve getter with modificator
-      var modType = modificator != null && typeof modificator;
+      // if function is getter return it
+      if (fn.__extend__ === getter)
+        return fn;
 
-      // if no modificator, return func
-      if (!modType)
-        return func;
+      // check function cache for getter
+      if (hasOwnProperty.call(fn, id))
+        return fn[id];
 
-      var modList = modCache[getterId];
-      var modId;
-
-      // resolve modificator id if possible
-      if (modType == 'string')
-        modId = modType + modificator;
-      else
-        if (modType == 'function')
-          modId = modificator.basisModId_;
-        else
-          if (modType != 'object')
-          {
-            // only string, function and objects are support as modificator
-            /** @cut */ consoleMethods.warn('basis.getter: wrong modificator type, modificator not used, path: ', path, ', modificator:', modificator);
-
-            return func;
-          }
-
-      // try fetch getter from cache
-      if (modId && modList && modList[modId])
-        return modList[modId];
-
-      // recover original function, reduce functions call deep
-      if (typeof func.base == 'function')
-        func = func.base;
-
-      switch (modType)
-      {
-        case 'string':
-          result = function(object){
-            return stringFunctions.format(modificator, func(object));
+      // if no function, create new getter (function wrapper)
+      result = fn[id] = fn !== value
+        ? fn  // don't wrap getter from string
+        : function(value){
+            return fn(value);
           };
-          break;
 
-        case 'function':
-          if (!modId)
-          {
-            // mark function with modificator id
-            modId = modType + modificatorSeed++;
-            modificator.basisModId_ = modId;
-          }
-
-          result = function(object){
-            return modificator(func(object));
-          };
-          break;
-
-        default: //case 'object':
-          result = function(object){
-            return modificator[func(object)];
-          };
-      }
-
-      result.base = func.base || func;
+      result[ID] = getterSeed++;
+      result[SOURCE] = value;
       result.__extend__ = getter;
+      result.as = as;
 
-      // NOTE: Only object modificators has no modId. Therefore getters with object
-      // modificator are not caching. It avoid storing (by closure) object that
-      // can't be collected by GC.
-      if (modId)
+      return result;
+    }
+
+    function getter(path, value){
+      var result = path && path !== nullGetter
+        ? resolveFunction(path, GETTER_ID)
+        : nullGetter;
+
+      // backward capability
+      if (value || value === '')
       {
-        if (!modList)
-        {
-          // create new modificator list if it not exists yet
-          modList = {};
-          modCache[getterId] = modList;
-        }
+        /** @cut basis.js 1.4 */ basis.dev.warn('second argument for getter is deprecated, use `as` method of getter instead');
 
-        // cache getter with modificator
-        modList[modId] = result;
-        result.mod = modificator;
+        if (typeof value == 'string')
+          value = stringFunctions.formatter(value);
 
-        // cache new getter
-        result[ID] = getterMap.push(result);
+        return result.as(value);
       }
 
       return result;
-    };
+    }
 
-    getterFn.ID = ID;
+    getter.ID = ID;
+    getter.SOURCE = SOURCE;
+    getter.PARENT = PARENT;
 
-    return getterFn;
+    return getter;
   })();
 
-  var nullGetter = extend(function(){}, {
-    __extend__: getter
-  });
+  var nullGetter = (function(){
+    var nullGetter = function(){};
+    nullGetter[getter.ID] = getter.ID + 'nullGetter';
+    nullGetter.__extend__ = getter,
+    nullGetter.as = function(){
+      return nullGetter;
+    };
+    return nullGetter;
+  })();
 
 
  /**
@@ -703,10 +620,9 @@
   if (!setImmediate)
   {
     (function(){
-      var MESSAGE_NAME = 'basisjs.setImmediate';
       var runTask = (function(){
         var taskById = {};
-        var taskId = 1;
+        var taskId = 0;
 
         // emulate setImmediate
         setImmediate = function(fn/*, ..args */){
@@ -727,19 +643,19 @@
         };
 
         // emulate clearImmediate
-        clearImmediate = function(id){
-          delete taskById[id];
+        clearImmediate = function(taskId){
+          delete taskById[taskId];
         };
 
         //
         // return result function for task run
         //
-        return function(id){
-          var task = taskById[id];
+        return function(taskId){
+          var task = taskById[taskId];
 
           if (task)
           {
-            delete taskById[id];
+            delete taskById[taskId];
             task.fn.apply(undefined, task.args);
           }
 
@@ -768,58 +684,64 @@
       }
       else
       {
-        if (global.MessageChannel)
-        {
-          var channel = new global.MessageChannel();
+        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
+        // where `global.postMessage` means something completely different and can't be used for this purpose.
+        var postMessageSupported = global.postMessage && !global.importScripts;
 
-          channel.port1.onmessage = function(event){
-            var taskId = event.data;
-            runTask(taskId);
+        // IE8 has postMessage implementation, but it is synchronous and can't be used.
+        if (postMessageSupported)
+        {
+          var oldOnMessage = global.onmessage;
+          global.onmessage = function(){
+            postMessageSupported = false;
+          };
+          global.postMessage('', '*');
+          global.onmessage = oldOnMessage;
+        }
+
+        if (postMessageSupported)
+        {
+          // postMessage scheme
+          var taskIdByMessage = {};
+          var setImmediateHandler = function(event){
+            if (event && event.source == global)
+            {
+              var data = event.data;
+              if (hasOwnProperty.call(taskIdByMessage, data))
+              {
+                var taskId = taskIdByMessage[data];
+                delete taskIdByMessage[data];
+                runTask(taskId);
+              }
+            }
           };
 
+          if (global.addEventListener)
+            global.addEventListener('message', setImmediateHandler, true);
+          else
+            global.attachEvent('onmessage', setImmediateHandler);
+
+          // Make `global` post a message to itself with the handle and identifying prefix, thus asynchronously
+          // invoking our onGlobalMessage listener above.
           addToQueue = function(taskId){
-            channel.port2.postMessage(taskId);
+            var message = genUID(32);
+            taskIdByMessage[message] = taskId;
+            global.postMessage(message, '*');
           };
         }
         else
         {
-          // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-          // where `global.postMessage` means something completely different and can't be used for this purpose.
-          var postMessageSupported = global.postMessage && !global.importScripts;
-
-          // IE8 has postMessage implementation, but it is synchronous and can't be used.
-          if (postMessageSupported)
+          //
+          if (global.MessageChannel)
           {
-            var oldOnMessage = global.onmessage;
-            global.onmessage = function(){
-              postMessageSupported = false;
-            };
-            global.postMessage('', '*');
-            global.onmessage = oldOnMessage;
-          }
+            var channel = new global.MessageChannel();
 
-          if (postMessageSupported)
-          {
-            // postMessage scheme
-            var setImmediateHandler = function(event){
-              if (event && event.source == global)
-              {
-                var taskId = String(event.data).split(MESSAGE_NAME)[1];
-
-                if (taskId)
-                  runTask(taskId);
-              }
+            channel.port1.onmessage = function(event){
+              runTask(event.data);
             };
 
-            if (global.addEventListener)
-              global.addEventListener('message', setImmediateHandler, true);
-            else
-              global.attachEvent('onmessage', setImmediateHandler);
-
-            // Make `global` post a message to itself with the handle and identifying prefix, thus asynchronously
-            // invoking our onGlobalMessage listener above.
             addToQueue = function(taskId){
-              global.postMessage(MESSAGE_NAME + taskId, '*');
+              channel.port2.postMessage(taskId);
             };
           }
           else
@@ -876,18 +798,15 @@
     var processing = false;
     var timer;
 
-    function process(){
-      // if any timer - reset it
-      if (timer)
-        timer = clearImmediate(timer);
-
+    // run process queue function only if any task
+    // as try/finally doesn't optimize
+    function processQueue(){
       try {
-        var item;
-
         // mark queue as processing to avoid concurrency
         processing = true;
 
         // process queue
+        var item;
         while (item = queue.shift())
           item.fn.call(item.context);
       } finally {
@@ -899,6 +818,16 @@
         if (queue.length)
           timer = setImmediate(process);
       }
+    }
+
+    function process(){
+      // if any timer - reset it
+      if (timer)
+        timer = clearImmediate(timer);
+
+      // process queue only if any task
+      if (queue.length)
+        processQueue();
     }
 
    /**
@@ -1215,7 +1144,7 @@
       if (NODE_ENV)
       {
         // node.js env
-        basisFilename = __filename.replace(/\\/g, '/');  // on Windows path contains backslashes
+        basisFilename = process.basisjsFilename || __filename.replace(/\\/g, '/');  // on Windows path contains backslashes
 
         /** @cut */ if (process.basisjsConfig)
         /** @cut */ {
@@ -1738,12 +1667,17 @@
     var nestedExtendProperty = function(extension){
       return customExtendProperty(extension, function(result, extension){
         for (var key in extension)
-        {
-          var value = result[key];
-          result[key] = value && value.__extend__
-            ? value.__extend__(extension[key])
-            : extensibleProperty(extension[key]);
-        }
+          if (hasOwnProperty.call(extension, key))
+          {
+            var value = result[key];
+            var newValue = extension[key];
+            if (newValue)
+              result[key] = value && value.__extend__
+                ? value.__extend__(newValue)
+                : extensibleProperty(newValue);
+            else
+              result[key] = null;
+          }
       }, 'nestedExtendProperty');
     };
 
@@ -1769,7 +1703,7 @@
           /** @cut */ result.__extend__ = create;
 
           for (var key in keys)
-            if (keys[key])
+            if (hasOwnProperty.call(keys, key) && keys[key])
               result[key] = fn;
         }
 
@@ -2357,7 +2291,7 @@
         if (!namespace)
         {
           var implicitNamespace = true;
-          var resolvedFilename = (pathUtils.dirname(filename) + '/' + pathUtils.basename(filename, pathUtils.extname(filename)));
+          var resolvedFilename = (pathUtils.dirname(filename) + '/' + pathUtils.basename(filename, pathUtils.extname(filename))).replace(/^\/\//, '/');
 
           for (var ns in nsRootPath)
           {
@@ -2382,13 +2316,13 @@
         /** @cut */ if (requires)
         /** @cut */   arrayFunctions.add(requires, namespace);
 
-        if (!namespaces[namespace])
+        var ns = getNamespace(namespace);
+        if (!ns.inited)
         {
-          var ns = getNamespace(namespace);
-
           /** @cut */ var savedRequires = requires;
           /** @cut */ requires = [];
 
+          ns.inited = true;
           ns.exports = runScriptInContext({
             path: ns.path,
             exports: ns.exports
@@ -2421,7 +2355,7 @@
           /** @cut */ requires = savedRequires;
         }
 
-        return namespaces[namespace].exports;
+        return ns.exports;
       }, {
         permanent: true
       }),
@@ -2631,8 +2565,9 @@
     var rootNs = getRootNamespace(path[0]);
     var cursor = rootNs;
 
-    for (var i = 1, name; name = path[i]; i++)
+    for (var i = 1; i < path.length; i++)
     {
+      var name = path[i];
       var nspath = path.slice(0, i + 1).join('.');
 
       if (!hasOwnProperty.call(rootNs.namespaces_, nspath))
@@ -3014,6 +2949,7 @@
 
   var ESCAPE_FOR_REGEXP = /([\/\\\(\)\[\]\?\{\}\|\*\+\-\.\^\$])/g;
   var FORMAT_REGEXP = /\{([a-z\d_]+)(?::([\.0])(\d+)|:(\?))?\}/gi;
+  var stringFormatCache = {};
 
   complete(String, {
     toLowerCase: function(value){
@@ -3093,6 +3029,27 @@
           return value;
         }
       );
+    },
+    formatter: function(formatString){
+      formatString = String(formatString);
+
+      if (hasOwnProperty.call(stringFormatCache, formatString))
+        return stringFormatCache[formatString];
+
+      var formatter = function(value){
+        return stringFunctions.format(formatString, value);
+      };
+
+      // verbose dev
+      /** @cut */ var escapsedFormatString = '"' + formatString.replace(/"/g, '\\"') + '"';
+      /** @cut */ formatter = new Function('stringFunctions', 'return ' + formatter.toString().replace('formatString', escapsedFormatString))(stringFunctions);
+      /** @cut */ formatter.toString = function(){
+      /** @cut */   return 'basis.string.formatter(' + escapsedFormatString + ')';
+      /** @cut */ };
+
+      stringFormatCache[formatString] = formatter;
+
+      return formatter;
     },
     capitalize: function(this_){
       return this_.charAt(0).toUpperCase() + this_.substr(1).toLowerCase();
@@ -3323,6 +3280,29 @@
     };
   })();
 
+ /**
+  * Add handler on sandbox teardown.
+  * @param {function()} callback
+  * @param {*=} context
+  */
+  var teardown = (function(callback, context){
+    if ('addEventListener' in global)
+      return function(callback, context){
+        global.addEventListener('unload', function(event){
+          callback.call(context || null, event || global.event);
+        }, false);
+      };
+
+    if ('attachEvent' in global)
+      return function(callback, context){
+        global.attachEvent('onunload', function(event){
+          callback.call(context || null, event || global.event);
+        });
+      };
+
+    return $undef;
+  })();
+
 
  /**
   * Document interface for safe add/remove nodes to/from head and body.
@@ -3463,19 +3443,17 @@
             object[prop] = null;
         }
       }
-      objects.length = 0;
+      objects = [];
     }
 
-    if ('attachEvent' in global)
-      global.attachEvent('onunload', destroy);
-    else
-      if ('addEventListener' in global)
-        global.addEventListener('unload', destroy, false);
-      else
-        return {
-          add: $undef,
-          remove: $undef
-        };
+    // returns interfaces that does nothing if unload is not supported
+    if (teardown === $undef)
+      return {
+        add: $undef,
+        remove: $undef
+      };
+
+    teardown(destroy);
 
     var result = {
       add: function(object){
@@ -3693,16 +3671,19 @@
     Token: Token,
     DeferredToken: DeferredToken,
 
+    // life cycle functions
+    ready: ready,
+    teardown: teardown,
+    cleaner: cleaner,
+
     // util functions
     genUID: genUID,
     getter: getter,
-    ready: ready,
-
-    cleaner: cleaner,
     console: consoleMethods,
     path: pathUtils,
     doc: documentInterface,
 
+    // types utils
     object: {
       extend: extend,
       complete: complete,

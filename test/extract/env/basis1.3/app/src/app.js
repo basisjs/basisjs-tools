@@ -1,6 +1,9 @@
 var l10n = require('basis.l10n');
 var template = require('basis.template');
 
+basis.require('app.basisrequire');
+require('app.require');
+
 basis.require('./root/require.js');
 basis.resource('./root/resource.js');
 basis.asset('./root/asset.js');
