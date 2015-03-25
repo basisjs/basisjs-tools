@@ -54,7 +54,7 @@ function assertFileGraph(flow, expected, baseURI){
 }
 
 
-describe.only('template fallback', function(){
+describe('template fallback', function(){
   var flowPromise;
 
   before(function(){
