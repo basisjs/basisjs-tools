@@ -42,6 +42,8 @@
   var global = Function('return this')();
   var NODE_ENV = global !== context ? global : false;
   var document = global.document;
+  var location = global.location;
+  var process = global.process;
   var toString = Object.prototype.toString;
   var hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -50,6 +52,14 @@
   // of global things.
   // TODO: to do this stuff right
   global = context;
+
+  // const
+  var FACTORY = {};
+  var PROXY = {};
+
+  // dev verbose names for object const
+  /** @cut */ FACTORY = new (devVerboseName('basis.FACTORY', {}, function(){}));
+  /** @cut */ PROXY = new (devVerboseName('basis.PROXY', {}, function(){}));
 
 
  /**
@@ -81,7 +91,7 @@
   * @param {*} value
   * @param {string} warning Warning messsage
   */
-  var warnPropertyAccess = (function(object, name, value, warning){
+  var warnPropertyAccess = (function(){
     /** @cut */ // show warnings only in dev mode
     /** @cut */ try {
     /** @cut */   if (Object.defineProperty)
@@ -555,6 +565,23 @@
   }
 
  /**
+  * Make factory function from getter.
+  * @param {function(value)|string} fn Base for getter.
+  * @return {function(value)} Factory function.
+  */
+  function factory(fn){
+    if (typeof fn != 'function')
+      fn = getter(fn);
+
+    var result = function(value){
+      return fn(value);
+    };
+    result.factory = FACTORY;
+
+    return result;
+  }
+
+ /**
   * Generates name for function and registrates it in global scope.
   * @param {function()} fn Function that should available in global scope.
   * @param {boolean} permanent If false callback will be removed after fiest invoke.
@@ -564,12 +591,25 @@
     var name = 'basisjsCallback' + genUID();
 
     global[name] = permanent ? fn : function(){
-      delete global[name];
+      try {
+        // IE8 and lower can't delete from global
+        delete global[name];
+      } catch(e) {
+        global[name] = undefined;
+      }
+
       fn.apply(this, arguments);
     };
 
     return name;
   }
+
+ /**
+  * dev mode only
+  */
+  /** @cut */ function devVerboseName(name, args, fn){
+  /** @cut */   return new Function(keys(args), 'return {"' + name + '": ' + fn + '\n}["' + name + '"]').apply(null, values(args));
+  /** @cut */ }
 
 
   // ============================================
@@ -577,6 +617,7 @@
   //
 
   var consoleMethods = (function(){
+    var console = global.console;
     var methods = {
       log: $undef,
       info: $undef,
@@ -584,7 +625,7 @@
       error: $undef
     };
 
-    if (typeof console != 'undefined')
+    if (console)
       iterate(methods, function(methodName){
         methods[methodName] = 'bind' in Function.prototype && typeof console[methodName] == 'function'
           ? Function.prototype.bind.call(console[methodName], console)
@@ -866,7 +907,71 @@
         process();
     };
 
+   /**
+    * Returns schedule instance. Object queue for which scheduleFn should be apply asap.
+    * @return
+    */
+    asap.schedule = (function(scheduleFn){
+      var queue = {};
+      var scheduled = false;
+
+      function process(){
+        // set timer to make sure all objects be processed
+        // it helps avoid try/catch and process all objects even if any exception
+        var etimer = setImmediate(process);
+
+        // reset scheduled flag, make possible set new asap for objects added during queue processing
+        scheduled = false;
+
+        // process objects
+        for (var id in queue)
+        {
+          var object = queue[id];
+          delete queue[id];
+          scheduleFn(object);
+        }
+
+        // if no exceptions we will be here, reset emergency timer
+        clearImmediate(etimer);
+
+        // reset queue to keep it fast, but if no new task scheduled during queue processing
+        if (!scheduled)
+          queue = {};
+      }
+
+      return {
+        add: function(object){
+          queue[object.basisObjectId] = object;
+          if (!scheduled)
+            scheduled = basis.asap(process);
+        },
+        remove: function(object){
+          delete queue[object.basisObjectId];
+        }
+      };
+    });
+
     return asap;
+  })();
+
+
+  //
+  // Code frame
+  //
+  var codeFrame = (function(){
+    var count = 0;
+    var info = {
+      id: count,
+      start: function(){
+        info.id = count++;
+      },
+      finish: function(){
+        asap.process();
+        info.id = 'unknown';
+      }
+    };
+
+    return info;
   })();
 
 
@@ -1038,11 +1143,10 @@
       *   basis.path.resolve('foo', 'bar/baz/', '../gif/image.gif');
       *   // if current location is /demo, it returns '/demo/foo/bar/gif/image.gif'
       *
-      * @param {..string=} from
-      * @param {string} to
+      * @param {...string=} paths
       * @return {string}
       */
-      resolve: function(from, to){
+      resolve: function(){
         var args = arrayFrom(arguments).reverse();
         var path = [];
         var absoluteFound = false;
@@ -1144,7 +1248,7 @@
       if (NODE_ENV)
       {
         // node.js env
-        basisFilename = process.basisjsFilename || __filename.replace(/\\/g, '/');  // on Windows path contains backslashes
+        basisFilename = process.basisjsFilename;
 
         /** @cut */ if (process.basisjsConfig)
         /** @cut */ {
@@ -1201,7 +1305,7 @@
   *
   * Other options copy into basis.config as is.
   */
-  function processConfig(config, verbose){
+  function processConfig(config){
     // make a copy of config
     config = slice(config);
 
@@ -1408,14 +1512,6 @@
       return cursor === superClass;
     }
 
-   /**
-    * dev mode only
-    */
-    function devVerboseName(name, args, fn){
-      return new Function(keys(args), 'return {"' + name + '": ' + fn + '\n}["' + name + '"]').apply(null, values(args));
-    }
-
-
     // test is toString property enumerable
     var TOSTRING_BUG = (function(){
       for (var key in { toString: 1 })
@@ -1427,10 +1523,10 @@
    /**
     * Class constructor.
     * @param {function()} SuperClass Class that new one inherits of.
-    * @param {...object} extensions Objects that extends new class prototype.
+    * @param {...(object|function())} extensions Objects that extends new class prototype.
     * @return {function()} A new class.
     */
-    function createClass(SuperClass, extensions){
+    function createClass(SuperClass){
       var classId = classSeed++;
 
       if (typeof SuperClass != 'function')
@@ -1625,10 +1721,9 @@
    /**
     * @param {object} extension
     * @param {function()=} fn
-    * @param {string} devName Dev only
     * @return {object}
     */
-    var customExtendProperty = function(extension, fn, devName){
+    var customExtendProperty = function(extension, fn){
       return {
         __extend__: function(extension){
           if (!extension)
@@ -1638,7 +1733,7 @@
             return extension;
 
           var Base = function(){};
-          /** @cut verbose name in dev */ Base = devVerboseName(devName || 'customExtendProperty', {}, Base);
+          /** @cut verbose name in dev */ Base = devVerboseName(arguments[2] || 'customExtendProperty', {}, Base);
           Base.prototype = this;
 
           var result = new Base;
@@ -1925,32 +2020,9 @@
   // Deferred token
   //
 
-  var awaitToApply = (function(){
-    var tokens = {};
-    var timer;
-
-    function applyTokens(){
-      var list = tokens;
-
-      // reset list & timer
-      tokens = {};
-      timer = null;
-
-      // call apply method for all tokens in the list
-      for (var key in list)
-        list[key].apply();
-    }
-
-    return function(token){
-      if (token.basisObjectId in tokens)
-        return;
-
-      tokens[token.basisObjectId] = token;
-
-      if (!timer)
-        setImmediate(applyTokens);
-    };
-  })();
+  var deferredTokenApplyQueue = asap.schedule(function(token){
+    token.apply();
+  });
 
  /**
   * @class
@@ -1966,7 +2038,7 @@
       if (this.value !== value)
       {
         this.value = value;
-        awaitToApply(this);
+        deferredTokenApplyQueue.add(this);
       }
     },
 
@@ -2019,7 +2091,7 @@
       }
   }
 
-  var resolveResourceUri = function(url, baseURI, clr){
+  var resolveResourceUri = function(url, baseURI){
     var rootNS = url.match(/^([a-zA-Z0-9\_\-]+):/);
 
     if (rootNS)
@@ -2037,7 +2109,10 @@
     }
 
     /** @cut */ if (!/^(\.\/|\.\.|\/)/.test(url))
+    /** @cut */ {
+    /** @cut */   var clr = arguments[2];
     /** @cut */   consoleMethods.warn('Bad usage: ' + (clr ? clr.replace('{url}', url) : url) + '.\nFilenames should starts with `./`, `..` or `/`. Otherwise it will treats as special reference in next minor release.');
+    /** @cut */ }
 
     return url;
   };
@@ -2049,7 +2124,7 @@
 
       if (!NODE_ENV)
       {
-        var req = new XMLHttpRequest();
+        var req = new global.XMLHttpRequest();
         req.open('GET', url, false);
         // set if-modified-since header since begining prevents cache using;
         // otherwise browser could never ask server for new file content
@@ -2089,7 +2164,7 @@
     var isVirtual = arguments.length > 1;
     var resolved = false;
     var wrapped = false;
-    /** @cut */ var wrappedContent;
+    var wrappedContent;
 
     if (isVirtual)
       resourceUrl += '#virtual';
@@ -2229,12 +2304,12 @@
  /**
   * @name resource
   */
-  var getResource = function(url){
+  var getResource = function(url, baseURI){
     var resource = resources[url];
 
     if (!resource)
     {
-      var resolvedUrl = resolveResourceUri(url, null, 'basis.resource(\'{url}\')');
+      var resolvedUrl = resolveResourceUri(url, baseURI, 'basis.resource(\'{url}\')');
 
       resource = resources[resolvedUrl] || createResource(resolvedUrl);
       resources[url] = resource;
@@ -2369,7 +2444,7 @@
         return cssResource;
       },
 
-      '.json': function processJsonResourceContent(content, url){
+      '.json': function processJsonResourceContent(content){
         if (typeof content == 'object')
           return content;
 
@@ -2378,6 +2453,7 @@
           content = String(content);
           result = basis.json.parse(content);
         } catch(e) {
+          /** @cut */ var url = arguments[1];
           /** @cut */ consoleMethods.warn('basis.resource: Can\'t parse JSON from ' + url, { url: url, content: content });
         }
         return result || null;
@@ -2426,7 +2502,7 @@
   }
 
   var runScriptInContext = function(context, sourceURL, sourceCode){
-    var baseURL = pathUtils.dirname(sourceURL) + '/';
+    var baseURL = pathUtils.dirname(sourceURL);
     var compiledSourceCode = sourceCode;
 
     if (!context.exports)
@@ -2451,10 +2527,10 @@
         sourceURL,
         baseURL,
         function(path){
-          return getResource(resolveResourceUri(path, baseURL, 'resource(\'{url}\')'));
+          return getResource(path, baseURL);
         },
-        function(path, base){
-          return requireNamespace(path, base || baseURL);
+        function(path){
+          return requireNamespace(path, baseURL);
         },
         function(path){
           return resolveResourceUri(path, baseURL, 'asset(\'{url}\')');
@@ -2602,27 +2678,26 @@
 
 
  /**
-  * @param {string} filename
-  * @param {string} dirname
+  * @param {string} path
+  * @param {string} baseURI
   * @name require
   */
-  var requireNamespace = function(filename, dirname){
-    if (!/[^a-z0-9_\.]/i.test(filename) && pathUtils.extname(filename) != '.js')
+  var requireNamespace = function(path, baseURI){
+    if (!/[^a-z0-9_\.]/i.test(path) && pathUtils.extname(path) != '.js')
     {
       // namespace, like 'foo.bar.baz'
-      filename = resolveNSFilename(filename);
-    }
-    else
-    {
-      // regular filename
-      filename = resolveResourceUri(filename, dirname, 'require(\'{url}\')');
+      path = resolveNSFilename(path);
+      baseURI = null;
     }
 
-    return getResource(filename).fetch();
+    return getResource(path, baseURI).fetch();
   };
   /** @cut */ requireNamespace.displayName = 'basis.require';
 
-
+ /**
+  * @param {string} filename
+  * @param {function} patchFn
+  */
   function patch(filename, patchFn){
     if (!/[^a-z0-9_\.]/i.test(filename) && pathUtils.extname(filename) != '.js')
     {
@@ -3084,7 +3159,7 @@
     var nativeStringSplit = String.prototype.split;
     String.prototype.split = function(pattern, count){
       if (!pattern || pattern instanceof RegExp == false || pattern.source == '')
-        return nativeStringSplit.apply(this, arguments);
+        return nativeStringSplit.call(this, pattern, count);
 
       var result = [];
       var pos = 0;
@@ -3224,7 +3299,7 @@
       asap.process();
     }
 
-    function fireHandlers(e){
+    function fireHandlers(){
       if (!eventFired++)
         processReadyHandler();
     }
@@ -3285,7 +3360,7 @@
   * @param {function()} callback
   * @param {*=} context
   */
-  var teardown = (function(callback, context){
+  var teardown = (function(){
     if ('addEventListener' in global)
       return function(callback, context){
         global.addEventListener('unload', function(event){
@@ -3419,8 +3494,8 @@
   var cleaner = (function(){
     var objects = [];
 
-    function destroy(log){
-      /** @cut */ var logDestroy = log && typeof log == 'boolean';
+    function destroy(){
+      /** @cut */ var logDestroy = arguments[0] === true;
       result.globalDestroy = true;
       result.add = $undef;
       result.remove = $undef;
@@ -3667,11 +3742,14 @@
     asap: asap,
 
     // classes
+    FACTORY: FACTORY,
+    PROXY: PROXY,
     Class: Class,
     Token: Token,
     DeferredToken: DeferredToken,
 
-    // life cycle functions
+    // life cycle
+    codeFrame: codeFrame,
     ready: ready,
     teardown: teardown,
     cleaner: cleaner,
@@ -3715,6 +3793,7 @@
       getter: getter,
       nullGetter: nullGetter,
       wrapper: wrapper,
+      factory: factory,
 
       // callbacks
       lazyInit: lazyInit,

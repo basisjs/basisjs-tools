@@ -70,6 +70,8 @@ var files_1_4 = [
   'app/lib/basis/template/declaration.js',
   'app/lib/basis/template/isolateCss.js',
   'app/lib/basis/template/tokenize.js',
+  'app/lib/basis/template/theme.js',
+  'app/lib/basis/template/store.js',
 
   'app/src/template/ns.tmpl',
   'app/src/asset.js',
