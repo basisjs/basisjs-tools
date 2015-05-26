@@ -2105,14 +2105,14 @@
     }
     else
     {
+      /** @cut */ if (!/^(\.\/|\.\.|\/)/.test(url))
+      /** @cut */ {
+      /** @cut */   var clr = arguments[2];
+      /** @cut */   consoleMethods.warn('Bad usage: ' + (clr ? clr.replace('{url}', url) : url) + '.\nFilenames should starts with `./`, `..` or `/`. Otherwise it may treats as special reference in next releases.');
+      /** @cut */ }
+
       url = pathUtils.resolve(baseURI, url);
     }
-
-    /** @cut */ if (!/^(\.\/|\.\.|\/)/.test(url))
-    /** @cut */ {
-    /** @cut */   var clr = arguments[2];
-    /** @cut */   consoleMethods.warn('Bad usage: ' + (clr ? clr.replace('{url}', url) : url) + '.\nFilenames should starts with `./`, `..` or `/`. Otherwise it will treats as special reference in next minor release.');
-    /** @cut */ }
 
     return url;
   };
