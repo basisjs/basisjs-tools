@@ -189,14 +189,15 @@ var makeDeclaration = (function(){
     /** @cut */   }, {});
     /** @cut */ }
 
-    /** @cut */ function addBindingInfo(name, type, value){
-    /** @cut */   if (!hasOwnProperty.call(template.bindings, name))
-    /** @cut */     template.bindings[name] = {};
+    /** @cut */ function addStateInfo(name, type, value){
+    /** @cut */   if (!hasOwnProperty.call(template.states, name))
+    /** @cut */     template.states[name] = {};
     /** @cut */
-    /** @cut */   var info = template.bindings[name];
+    /** @cut */   var info = template.states[name];
+    /** @cut */   var isArray = Array.isArray(value);
     /** @cut */
-    /** @cut */   if (!hasOwnProperty.call(info, type) || !Array.isArray(value))
-    /** @cut */     info[type] = value;
+    /** @cut */   if (!hasOwnProperty.call(info, type) || !isArray)
+    /** @cut */     info[type] = isArray ? basis.array(value) : value;
     /** @cut */   else
     /** @cut */     addUnique(info[type], value);
     /** @cut */ }
@@ -779,7 +780,7 @@ var makeDeclaration = (function(){
                         elAttrs['default'] == 'true' ? 1 : 0
                       ];
 
-                      /** @cut */ addBindingInfo(bindingName, 'bool', true);
+                      /** @cut */ addStateInfo(bindingName, 'bool', true);
 
                       break;
 
@@ -812,7 +813,7 @@ var makeDeclaration = (function(){
                         values
                       ];
 
-                      /** @cut */ addBindingInfo(bindingName, 'enum', values);
+                      /** @cut */ addStateInfo(bindingName, 'enum', values);
 
                       break;
 
@@ -1568,7 +1569,7 @@ var makeDeclaration = (function(){
     };
 
     /** @cut */ result.removals = [];
-    /** @cut */ result.bindings = {};
+    /** @cut */ result.states = {};
 
     // normalize dictionary ext name
     if (options.dictURI)

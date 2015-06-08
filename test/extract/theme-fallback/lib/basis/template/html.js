@@ -43,37 +43,50 @@
   //
   // l10n
   //
-  var l10nTemplates = {};
+  var l10nTemplate = {};
+  var l10nTemplateSource = {};
 
   function getSourceFromL10nToken(token){
     var dict = token.dictionary;
-    var url = dict.resource ? dict.resource.url : '';
-    var id = token.name + '@' + url;
+    var url = dict.resource ? dict.resource.url : 'dictionary' + dict.basisObjectId;
+    var name = token.getName();
+    var id = name + '@' + url;
+    var result = l10nTemplateSource[id];
     var sourceWrapper;
-    var result = token.as(function(value){
-      if (token.getType() == 'markup')
-      {
-        if (value != this.value)
-          if (sourceWrapper)
+
+    if (!result)
+    {
+      var sourceToken = dict.token(name);
+      result = l10nTemplateSource[id] = sourceToken.as(function(value){
+        if (sourceToken.getType() == 'markup')
+        {
+          var parentType = sourceToken.getParentType();
+          if (typeof value == 'string' && (parentType == 'plural' || parentType == 'plural-markup'))
+            // TODO: add this replacement to builder
+            value = value.replace(/\{#\}/g, '{__templateContext}');
+
+          if (value != this.value)
+            if (sourceWrapper)
+            {
+              sourceWrapper.detach(sourceToken, sourceToken.apply);
+              sourceWrapper = null;
+            }
+
+          if (value && String(value).substr(0, 5) == 'path:')
           {
-            sourceWrapper.detach(token, token.apply);
-            sourceWrapper = null;
+            sourceWrapper = getSourceByPath(value.substr(5));
+            sourceWrapper.attach(sourceToken, sourceToken.apply);
           }
 
-        if (value && String(value).substr(0, 5) == 'path:')
-        {
-          sourceWrapper = getSourceByPath(value.substr(5));
-          sourceWrapper.attach(token, token.apply);
+          return sourceWrapper ? sourceWrapper.bindingBridge.get(sourceWrapper) : value;
         }
 
-        return sourceWrapper ? sourceWrapper.bindingBridge.get(sourceWrapper) : value;
-      }
+        return this.value;
+      });
 
-      return this.value;
-    });
-
-    result.id = '{l10n:' + id + '}';
-    result.url = url + ':' + token.name;
+      result.id = '{l10n:' + id + '}';
+      result.url = url + ':' + name;
+    }
 
     return result;
   }
@@ -85,14 +98,12 @@
     if (!token)
       return null;
 
-    var id = token.basisObjectId;
-    var htmlTemplate = l10nTemplates[id];
+    var templateSource = getSourceFromL10nToken(token);
+    var id = templateSource.id;
+    var htmlTemplate = l10nTemplate[id];
 
     if (!htmlTemplate)
-    {
-      htmlTemplate = l10nTemplates[id] = new HtmlTemplate(getSourceFromL10nToken(token));
-      htmlTemplate.protoOnly = true;
-    }
+      htmlTemplate = l10nTemplate[id] = new HtmlTemplate(templateSource);
 
     return htmlTemplate;
   }
@@ -331,21 +342,26 @@
       {
         if (bridge)
         {
+          var isMarkup = isMarkupToken(value);
+          var template;
+
+          if (isMarkup)
+            template = getL10nHtmlTemplate(value);
+
           if (!oldAttach ||
-              value !== oldAttach.value ||
-              (!oldAttach.tmpl && isMarkupToken(value)))
+              oldAttach.value !== value ||
+              oldAttach.template !== template)
           {
             if (oldAttach)
             {
               if (oldAttach.tmpl)
-                getL10nHtmlTemplate(oldAttach.value).clearInstance(oldAttach.tmpl);
+                oldAttach.template.clearInstance(oldAttach.tmpl);
 
               oldAttach.value.bindingBridge.detach(oldAttach.value, updateAttach, oldAttach);
             }
 
-            if (isMarkupToken(value))
+            if (template)
             {
-              var template = getL10nHtmlTemplate(value);
               var context = this.context;
               var bindings = this.bindings;
               var bindingInterface = this.bindingInterface;
@@ -363,6 +379,7 @@
             var newAttach = this.attaches[bindingName] = {
               name: bindingName,
               value: value,
+              template: template,
               tmpl: tmpl,
               set: this.tmpl.set
             };
@@ -373,7 +390,10 @@
             tmpl = value && isMarkupToken(value) ? oldAttach.tmpl : null;
 
           if (tmpl)
+          {
+            tmpl.set('__templateContext', value.value);
             return tmpl.parent;
+          }
 
           value = bridge.get(value);
         }
@@ -382,7 +402,7 @@
           if (oldAttach)
           {
             if (oldAttach.tmpl)
-              getL10nHtmlTemplate(oldAttach.value).clearInstance(oldAttach.tmpl);
+              oldAttach.template.clearInstance(oldAttach.tmpl);
 
             oldAttach.value.bindingBridge.detach(oldAttach.value, updateAttach, oldAttach);
             this.attaches[bindingName] = null;
@@ -439,9 +459,12 @@
       var bindingCache = {};
 
      /**
-      * @param {object} bindings
+      * @param {object} instance
+      * @param {function(name, value)} set
       */
-      return function getBinding(bindings, obj, set, bindingInterface){
+      return function getBinding(instance, set){
+        var bindings = instance.bindings;
+
         if (!bindings)
           return {};
 
@@ -494,13 +517,13 @@
         }
 
         if (set)
-          result.sync.call(set, obj);
+          result.sync.call(set, instance.context);
 
-        if (!bindingInterface)
+        if (!instance.bindingInterface)
           return;
 
         if (result.handler)
-          bindingInterface.attach(obj, result.handler, set);
+          instance.bindingInterface.attach(instance.context, result.handler, set);
 
         return result.handler;
       };
@@ -515,14 +538,13 @@
       bind_attrClass: bind_attrClass,
       bind_attrStyle: bind_attrStyle,
       resolve: resolveValue,
-      l10nToken: getL10nToken,
-      createBindingFunction: createBindingFunction
+      l10nToken: getL10nToken
     };
 
     return function(tokens, instances){
       var fn = getFunctions(tokens, true, this.source.url, tokens.source_, !CLONE_NORMALIZATION_TEXT_BUG);
       var hasL10n = fn.createL10nSync;
-      var createInstance;
+      var initInstance;
       var l10nProtoSync;
       var l10nMap = {};
       var l10nLinks = [];
@@ -530,7 +552,7 @@
       var seed = 0;
       var proto = {
         cloneNode: function(){
-          if (!protoOnly && seed == 1)
+          if (seed == 1)
             return buildDOM(tokens);
 
           proto = buildDOM(tokens);
@@ -544,11 +566,6 @@
           return proto.cloneNode(true);
         }
       };
-
-      // temporary solution as l10n markup token templates aren't work
-      // with no proto cloning (tests fail with exception)
-      // TODO: investigate case and remove this flag
-      var protoOnly = this.protoOnly;
 
       var createDOM = function(){
         return proto.cloneNode(true);
@@ -595,24 +612,29 @@
         });
       }
 
-      createInstance = fn.createInstance(
-        this.templateId, instances, createDOM, tools,
-        l10nMap, CLONE_NORMALIZATION_TEXT_BUG
+      initInstance = fn.createInstanceFactory(
+        this.templateId, createDOM, tools,
+        l10nMap, l10nMarkupTokens,
+        createBindingFunction(fn.keys),
+        CLONE_NORMALIZATION_TEXT_BUG
       );
 
       return {
         createInstance: function(obj, onAction, onRebuild, bindings, bindingInterface){
           var instanceId = seed++;
-          var instance = createInstance(
-            instanceId, obj, onAction, onRebuild,
-            bindings, bindingInterface,
-            hasL10n && !instanceId && !protoOnly ? initL10n : null
-          );
+          var instance = {
+            context: obj,
+            action: onAction,
+            rebuild: onRebuild,
+            handler: null,
+            bindings: bindings,
+            bindingInterface: bindingInterface,
+            attaches: null,
+            compute: null,
+            tmpl: null
+          };
 
-          if (hasL10n && l10nMarkupTokens.length)
-            for (var i = 0, l10nToken; l10nToken = l10nMarkupTokens[i]; i++)
-              instance.tmpl.set(l10nToken.path, l10nToken.token);
-
+          initInstance(instanceId, instance, !instanceId ? initL10n : null);
           instances[instanceId] = instance;
 
           return instance.tmpl;
@@ -626,6 +648,13 @@
             // detach handler if any
             if (instance.handler)
               instance.bindingInterface.detach(instance.context, instance.handler, instance.tmpl.set);
+
+            if (instance.compute)
+            {
+              for (var i = 0; i < instance.compute.length; i++)
+                instance.compute[i].destroy();
+              instance.compute = null;
+            }
 
             // detach attaches
             for (var key in instance.attaches)

@@ -21,25 +21,31 @@
   };
 
 
-  // get own object keys
-  function ownKeys(object){
-    var result = [];
-
-    for (var key in object)
-      if (hasOwnProperty.call(object, key))
-        result.push(key);
-
-    return result;
-  }
-
   //
   // Token
   //
 
   var tokenIndex = [];
   var tokenComputeFn = {};
-  var tokenComputes = {};
-  var updateToken = basis.Token.prototype.set;
+  var basisTokenPrototypeSet = basis.Token.prototype.set;
+  var tokenType = {
+    'default': true,
+    'plural': true,
+    'markup': true,
+    'plural-markup': true,
+    'enum-markup': true
+  };
+  var nestedType = {
+    'default': 'default',
+    'plural': 'default',
+    'markup': 'default',
+    'plural-markup': 'markup',
+    'enum-markup': 'markup'
+  };
+  var isPluralType = {
+    'plural': true,
+    'plural-markup': true
+  };
 
 
  /**
@@ -49,20 +55,58 @@
     className: namespace + '.ComputeToken',
 
    /**
+    * @type {basis.l10n.Dictionary}
+    */
+    dictionary: null,
+
+   /**
+    * @type {basis.l10n.Token}
+    */
+    token: null,
+
+   /**
+    * @type {string}
+    */
+    parent: '',
+
+   /**
     * @constructor
     */
-    init: function(value, token){
-      token.computeTokens[this.basisObjectId] = this;
-      this.token = token;
+    init: function(value){
+      this.token.computeTokens[this.basisObjectId] = this;
 
       basis.Token.prototype.init.call(this, value);
     },
 
     get: function(){
-      var key = this.token.type == 'plural'
-        ? cultures[currentCulture].plural(this.value)
-        : this.value;
-      return this.token.dictionary.getValue(this.token.name + '.' + key);
+      var value = this.dictionary.getValue(this.getName());
+
+      if (isPluralType[this.token.getType()])
+        value = String(value).replace(/\{#\}/g, this.value);
+
+      return value;
+    },
+
+    getName: function(){
+      var type = this.token.getType();
+      var key = this.value;
+
+      if (isPluralType[this.token.getType()])
+        key = cultures[currentCulture].plural(key);
+
+      return this.parent + '.' + key;
+    },
+
+    getType: function(){
+      var type = this.token.getType();
+
+      return this.dictionary.types[this.getName()] ||
+             nestedType[type] ||
+             'default';
+    },
+
+    getParentType: function(){
+      return this.token.getType();
     },
 
     toString: function(){
@@ -71,7 +115,6 @@
 
     destroy: function(){
       delete this.token.computeTokens[this.basisObjectId];
-      this.token = null;
 
       basis.Token.prototype.destroy.call(this);
     }
@@ -99,30 +142,32 @@
     name: '',
 
    /**
-    * enum default, plural, markup
+    * One of 'default', 'plural', 'markup', 'plural-markup', 'enum-markup'
+    * @type {string}
     */
     type: 'default',
 
    /**
-    *
+    * @type {object}
     */
     computeTokens: null,
 
    /**
+    * @type {function}
+    */
+    computeTokenClass: null,
+
+   /**
     * @constructor
     */
-    init: function(dictionary, tokenName, type, value){
+    init: function(dictionary, tokenName, value){
       basis.Token.prototype.init.call(this, value);
 
       this.index = tokenIndex.push(this) - 1;
       this.name = tokenName;
+      this.parent = tokenName.replace(/(^|\.)[^.]+$/, '');
       this.dictionary = dictionary;
       this.computeTokens = {};
-
-      if (type)
-        this.setType(type);
-      else
-        this.apply();
     },
 
     toString: function(){
@@ -140,15 +185,25 @@
       /** @cut */ basis.dev.warn('basis.l10n: Value for l10n token can\'t be set directly, but through dictionary update only');
     },
 
-    setType: function(type){
-      if (type != 'plural' && (!module.exports.enableMarkup || type != 'markup'))
-        type = 'default';
+    getName: function(){
+      return this.name;
+    },
 
-      if (this.type != type)
-      {
-        this.type = type;
-        this.apply();
-      }
+    getType: function(){
+      return this.dictionary.types[this.name] ||
+             nestedType[this.dictionary.types[this.parent]] ||
+             'default';
+    },
+
+    getParentType: function(){
+      return this.parent
+        ? this.dictionary.token(this.parent).getType()
+        : 'default';
+    },
+
+    setType: function(){
+      // basis.js 1.4
+      /** @cut */ basis.dev.warn('basis.l10n: Token#setType() is deprecated');
     },
 
     compute: function(events, getter){
@@ -170,7 +225,7 @@
       var token = this;
       var objectTokenMap = {};
       var updateValue = function(object){
-        updateToken.call(this, getter(object));
+        basisTokenPrototypeSet.call(this, getter(object));
       };
       var handler = {
         destroy: function(object){
@@ -192,7 +247,7 @@
 
         if (!computeToken)
         {
-          computeToken = objectTokenMap[objectId] = new ComputeToken(getter(object), token);
+          computeToken = objectTokenMap[objectId] = token.computeToken(getter(object));
           object.addHandler(handler, computeToken);
         }
 
@@ -201,12 +256,21 @@
     },
 
     computeToken: function(value){
-      return new ComputeToken(value, this);
+      var ComputeTokenClass = this.computeTokenClass;
+
+      if (!ComputeTokenClass)
+        ComputeTokenClass = this.computeTokenClass = ComputeToken.subclass({
+          dictionary: this.dictionary,
+          token: this,
+          parent: this.name
+        });
+
+      return new ComputeTokenClass(value);
     },
 
     token: function(name){
-      if (this.type == 'plural')
-        name = cultures[currentCulture].plural(name);
+      if (isPluralType[this.getType()])
+        return this.computeToken(name, this);
 
       if (this.dictionary)
         return this.dictionary.token(this.name + '.' + name);
@@ -219,6 +283,7 @@
       for (var key in this.computeTokens)
         this.computeTokens[key].destroy();
 
+      this.computeTokenClass = null;
       this.computeTokens = null;
       this.value = null;
       this.dictionary = null;
@@ -255,6 +320,33 @@
 
       /** @cut */ basis.dev.warn('basis.l10n.token accepts token references in format `token.path@path/to/dict.l10n` only');
     }
+  }
+
+ /**
+  * Check value is a l10n token.
+  * @param {*} value Value to check.
+  * @return {boolean}
+  */
+  function isToken(value){
+    return value ? value instanceof Token || value instanceof ComputeToken : false;
+  }
+
+ /**
+  * Check value is a l10n plural token.
+  * @param {*} value Value that should be check.
+  * @return {boolean}
+  */
+  function isPluralToken(value){
+    return isToken(value) && isPluralType[value.getType()];
+  }
+
+/**
+  * Check value is a l10n markup token.
+  * @param {*} value Value that should be check.
+  * @return {boolean}
+  */
+  function isMarkupToken(value){
+    return isToken(value) && value.getType() == 'markup';
   }
 
 
@@ -360,7 +452,6 @@
       }
       else
       {
-        /** @cut */ basis.dev.warn('Use object as content of dictionary is experimental and not production-ready');
         this.update(content || {});
       }
     },
@@ -384,9 +475,22 @@
         }
 
       // apply types
-      this.types = (data._meta && data._meta.type) || {};
-      for (var key in this.tokens)
-        this.tokens[key].setType(this.types[key]);
+      var newTypes = (data._meta && data._meta.type) || {};
+      var currentTypes = {};
+
+      for (var path in this.tokens)
+        currentTypes[path] = this.tokens[path].getType();
+
+      this.types = {};
+      for (var path in newTypes)
+        this.types[path] = tokenType[newTypes[path]] == true ? newTypes[path] : 'default';
+
+      for (var path in this.tokens)
+      {
+        var token = this.tokens[path];
+        if (token.getType() != currentTypes[path])
+          this.tokens[path].apply();
+      }
 
       // update values
       this.syncValues();
@@ -399,7 +503,7 @@
     */
     syncValues: function(){
       for (var tokenName in this.tokens)
-        updateToken.call(this.tokens[tokenName], this.getValue(tokenName));
+        basisTokenPrototypeSet.call(this.tokens[tokenName], this.getValue(tokenName));
     },
 
    /**
@@ -438,7 +542,6 @@
         token = this.tokens[tokenName] = new Token(
           this,
           tokenName,
-          this.types[tokenName],
           this.getValue(tokenName)
         );
       }
@@ -511,7 +614,7 @@
   // source: http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html?id=l10n/pluralforms
   var pluralFormsMap = {};
   var pluralForms = [
-    /*  0 */ [1, function(n){
+    /*  0 */ [1, function(){
       return 0;
     }],
     /*  1 */ [2, function(n){
@@ -794,6 +897,9 @@
     ComputeToken: ComputeToken,
     Token: Token,
     token: resolveToken,
+    isToken: isToken,
+    isPluralToken: isPluralToken,
+    isMarkupToken: isMarkupToken,
 
     Dictionary: Dictionary,
     dictionary: resolveDictionary,
@@ -811,3 +917,20 @@
     pluralForms: pluralForms,
     onCultureChange: onCultureChange
   };
+
+  // show warning on set `enableMarkup` as deprecated
+  // basis.js 1.4
+  /** @cut */ (function(){
+  /** @cut */   var value = false;
+  /** @cut */   try { // use try to avoid IE8 problems and unsupported browsers
+  /** @cut */     Object.defineProperty(module.exports, 'enableMarkup', {
+  /** @cut */       get: function(){
+  /** @cut */         return value;
+  /** @cut */       },
+  /** @cut */       set: function(newValue){
+  /** @cut */         basis.dev.warn('basis.l10n: enableMarkup option is deprecated, just remove it from your source code as markup l10n tokens enabled by default now');
+  /** @cut */         value = newValue;
+  /** @cut */       }
+  /** @cut */     });
+  /** @cut */   } catch(e){ }
+  /** @cut */ })();
