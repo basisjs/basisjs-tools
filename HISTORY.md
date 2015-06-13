@@ -1,3 +1,118 @@
+## 1.4 (June 14, 2015)
+
+This version supports for basis.js 1.3 and greater only. For basis.js prior 1.3, please, use `basisjs-tools` 1.3.
+
+Extract
+
+  - support for basis.js 1.4
+    - since 1.4 use `basis-config` to init core
+    - less heuristics, use basis.js core as much as possible (a.e. use `basis.resource.resolveURI` to resolve all paths instead of custom logic)
+  - improve handler skipping
+  - consider file read and JSON parse errors as fatal
+  - FIX: `base`, `file` and `output` path resolving
+  - rework path resolving: `FileManager` is now work with app files as server path (root is `base` path now)
+  - move `asset()` and `resource()` relink to `build`
+  - return promise as command result (resolve async)
+  - optimize css processing (performance)
+  - FIX: `file-map` handler when no `basis.l10n` used
+  - FIX: basis.js commit hash fetch
+  - FIX: resolving of unknown basis namespace
+
+  - l10n
+    - improve `l10n` markup token processing (now this feature is completely supported!)
+    - improve `l10n` dictionary processing
+      - split `l10n` handlers in `v1` and `v2` versions and related changes
+      - new `l10n` handler that relink for all links changes
+      - remove empty `_meta` and `_meta.type` in `v2` dictionaries
+      - delete unused cultures (that not in culture list) for `v2` dictionaries
+    - FIX: `l10n` enabled check
+
+  - locations & warnings
+    - warn about file not found for files that refer for those files
+    - collect start positions for some tokens on javascript parse
+    - lint javascript: unused names (definitions) and implicit usage of global names
+    - add location info to inline scripts and styles
+    - collect location info for attributes in html
+    - various fixes and improvements for template warnings
+    - no warnings for removed template parts
+    - fix warnings copy on template analyse
+    - add location for css warnings
+    - correct warning locations for styles embed in other files
+    - reduce duplicates in style warnings
+    - use value parts location map if provided (from basis.js) for correct classes position in attributes
+    - use styles offset map if provided (from basis.js) for correct class token positions
+    - add originator and isolate prefix into template and style warnings
+    - remove class name isolate prefixes in some warnings
+    - improve warnings output on css info collect
+    - better warning for non-resolved argument in `dictionary.token()`
+    - new warning for mismatched paths in `l10n` dictionary type definition
+
+  - template
+    - use `-js-cut-dev` option instead of `-js-build-mode` to optimize template size
+    - add support for basis.template declaration `v3` (new bindings format)
+    - fatal error on missed style files in isolated templates
+    - fix working with template theme defines
+      - take in account theme fallbacks
+      - no redundant templates
+      - correct style theme distribution
+    - better support for template inline styles
+    - fix issue when one template used as several explicit defines
+    - fix issue when resource reused for explicit define
+    - move template implicit define injection to build
+
+Build
+
+  - support for basis.js 1.4
+  - improve handler skipping
+  - consider file read and json parse errors as fatal
+  - fix exit code on errors (important for automation)
+  - fix `base`, `file` and `output` path resolving
+  - initially solution to build `Web Worker` scripts
+  - pretty offset for html injections
+  - improve style theme choosing on app build startup
+  - improve logging
+    - log translated resources
+    - move summary handler aside
+    - log inline file in flow
+    - better output for `css/translate`
+  - make throw optimisation safe and optional (apply only when `--js-optimize-throws` option is set)
+  - NEW: option `--same-filenames`
+  - NEW: option `--tmpl-default-theme`
+  - FIX: unknown type for `0.css`
+  - FIX: asset relink for resource files
+  - FIX: `--css-optimize-names` exception when basis.js is not used
+  - FIX: `--css-optimize-names` to work correctly with `anim:` bindings
+  - FIX: CSS corruption on CSS pack, when files contains shared subtrees
+  - FIX: bug with class name renaming (`--css-optimize-names`)
+
+Server
+
+  - move proxy and request rewriting to separate module
+  - fix issue with url resolving when server runs inside `basisjs-tools`
+  - make case sensitive filename check universal (os-independant)
+
+Other
+
+  - new command `lint`
+  - fix broken `config` command
+  - use `exit` module instead of `process.exit()`
+  - use hi-res time for timing
+  - `basis -v` returns proper dev version now
+  - use `<b:isolate>` in default templates (`create` command)
+  - add some tests
+  - improve work with CSS AST
+    - add support for `/deep/` combinator in css parser
+    - use own translator instead of `csso` translator (performance, less memory consumption)
+    - new own fast walker
+  - improve javascript scope processing
+    - move aside everything not connected with scope from `ast/scope`
+    - recognise some common global names
+    - correct process scope for catch clause
+
+## 1.3.20 (February 3, 2015)
+
+- build: hot fix for [broken `htmlparser2` issue](https://github.com/cheeriojs/dom-serializer/issues/19)
+
 ## 1.3.19 (November 12, 2014)
 
 - build: fix hash-digest for style files in theme map
