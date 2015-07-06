@@ -1,0 +1,8 @@
+{
+  "name": "instr-code",
+  "version": "0.0.1",
+  "dependencies": {
+    "ast-types": "^0.7.6",
+    "recast": "^0.9.0"
+  }
+}
