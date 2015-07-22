@@ -5,12 +5,7 @@
   "homepage": "https://github.com/basisjs/basisjs-tools",
   "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/basisjs/basisjs-tools/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "contributors": [
     "Roman Dvornov <rdvornov@gmail.com>",
     "Vladimir Ratsev <wuzykk@gmail.com>"
@@ -28,7 +23,9 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "clap": "1.0.5",
+    "basisjs-tools-config": "basisjs/basisjs-tools-config",
+
+    "clap": "1.0.6",
     "update-notifier": "0.5.0",
     "chalk": "1.1.0",
     "osenv": "0.1.3",
