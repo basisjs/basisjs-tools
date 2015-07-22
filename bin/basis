@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var exit = require('exit');
 var program = require('../lib/cli.js');
 var packageInfo = require('../package.json');
 var silent = false;
@@ -29,5 +30,6 @@ try {
     else
       throw e;
   }
-  process.exit(8);
+
+  exit(2);
 }
