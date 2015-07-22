@@ -1,1 +1,0 @@
-module.exports = 'ns/resource.js';

@@ -1,7 +1,0 @@
-/* /src/template/rel.css */
-
-@import 'rel-import.css';
-
-rule {
-  background: url('rel.svg');
-}

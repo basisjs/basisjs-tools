@@ -1,1 +1,0 @@
-module.exports = 'ns/index.js';

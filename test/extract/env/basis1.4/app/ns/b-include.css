@@ -1,7 +1,0 @@
-/* /ns/b-include.css */
-
-@import url(b-include-import.css);
-
-rule {
-  background: url(b-include.svg);
-}
