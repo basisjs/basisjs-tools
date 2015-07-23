@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "basisjs-tools-config": "basisjs/basisjs-tools-config",
+    "basisjs-tools-ast": "^1.0.0",
     "basisjs-tools-build": "basisjs/basisjs-tools-build",
 
     "clap": "1.0.6",
