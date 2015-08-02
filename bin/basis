@@ -2,18 +2,6 @@
 
 var exit = require('exit');
 var cli = require('../lib/cli.js');
-var packageInfo = require('../package.json');
-
-
-//
-// check for newer version of basisjs-tools
-//
-
-require('update-notifier')({
-  packageName: packageInfo.name,
-  packageVersion: packageInfo.version
-}).notify({ defer: false });
-
 
 //
 // parse arguments and run command
