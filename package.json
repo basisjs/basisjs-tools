@@ -27,7 +27,7 @@
     "basisjs-tools-ast": "^1.0.0",
     "basisjs-tools-build": "basisjs/basisjs-tools-build",
 
-    "clap": "1.0.7",
+    "clap": "1.0.8",
     "update-notifier": "0.5.0",
     "chalk": "1.1.0",
     "win-spawn": "2.0.0",
