@@ -1,4 +1,4 @@
-[![NPM version](https://badge.fury.io/js/basisjs-tools.png)](http://badge.fury.io/js/basisjs-tools) [![Dependency Status](https://david-dm.org/basisjs/basisjs-tools.png)](https://david-dm.org/basisjs/basisjs-tools)
+[![NPM version](https://img.shields.io/npm/v/basisjs-tools.svg)](https://www.npmjs.com/package/basisjs-tools) [![Dependency Status](https://img.shields.io/david/basisjs/basisjs-tools.svg)](https://david-dm.org/basisjs/basisjs-tools)
 
 Developer tools for [basis.js](https://github.com/basisjs/basisjs) framework.
 
