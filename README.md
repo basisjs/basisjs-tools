@@ -1,115 +1,155 @@
 [![NPM version](https://img.shields.io/npm/v/basisjs-tools.svg)](https://www.npmjs.com/package/basisjs-tools) [![Dependency Status](https://img.shields.io/david/basisjs/basisjs-tools.svg)](https://david-dm.org/basisjs/basisjs-tools)
 
-Developer tools for [basis.js](https://github.com/basisjs/basisjs) framework.
+Development tool set for apps built on [basis.js](https://github.com/basisjs/basisjs) framework.
 
 ## Getting Started
 
-### Requirements
-
-* [node.js](http://nodejs.org/) (0.8.0 or later)
-* [npm](http://github.com/isaacs/npm)
-
 ### Install
 
-On Windows (with administrator rights):
+```
+> npm install basisjs-tools
+```
 
-        $ npm install -g basisjs-tools
-        
-> Make sure `path/to/nodejs/node_modules/.bin` is presented in PATH.
-        
-On Mac OS:
+Or install it globally (prefered):
 
-        $ sudo npm install -g basisjs-tools
+```
+> npm install -g basisjs-tools
+```
 
-After that `basis` should be available in command line.
-
-### Shell completion
-
-Completion command that is based on, and works similarly to the [npm completion](https://npmjs.org/doc/completion.html). It is not available for Windows users.
-
-This command will output a Bash / ZSH script to put into your `~/.bashrc`, `~/.bash_profile`, or `~/.zshrc` file.
-
-        $ basis completion >> ~/.bash_profile
-        $ source ~/.bashrc_profile
-
-## Common
+After that `basis` command should be available in command line.
 
 ### basis.config
 
-Basis tries to find and use `basis.config` file by default. It attempts to find `basis.config` at the current working directory. If it is not found there, then it moves to the parent directory, and so on, until the root of the tree is reached.
-
-If `basis.config` found, it's content parses as `json`. This file should contains a javascript object, where key is command name and value is setting for this command. Actually file can contains empty object, and it's not required specify setting for all commands.
-
-`basis.config` file and it's directory using as relative point for path resolving, for cases when other is not defined. Most properties treats as corresponding command flags, and could be overridden by flags in command line.
-
-Any command's flag could be put in config, as it's long name. If name contains `-` (dash) it should be camelize, i.e. `--css-pack` becomes `cssPack`. If flag contains '-no-', it must be ignored, i.e. `--js-no-single-file` becomes `jsSingleFile`.
-
-You can disable `basis.config` usage by -n (--no-config) flag or specify your own file with -c (--config-file) argument.
-
-Config file useful to set up command's defaults values.
-
-Example of `basis.config` at `/path/to/config`:
-
-```json
-  {
-    "build": {
-      "file": "index.html",
-      "output": "build"
-    },
-    "server": {
-      "port": 8123
-    }
-  }
-```
-
-With this `basis.config` no difference at what directory you run `basis build` - `/path/to/config/app.html` will be built and result will be at `/path/to/config/output` directory. But you still able to override settings, for example, if you run `basis build -o temp` at `/path/to/config/foo/bar` - `/path/to/config/app.html` will be built and result will be at `/path/to/config/foo/bar/output`.
-
-Use `basis --help` for more help.
-
-### Relative path resolving
-
-Basis works with many various paths, and often it is relative paths. There are two general rules for relative path resolving.
-
-- path defined in config file (`basis.config`) resolves to config file directory
-- path defined in command line resolves to current working directory
+`basisjs-tools` tries to find and use `basis.config` file by default. This file should contains base settings for commands. For more details see `basisjs-tools-config` [readme](https://github.com/basisjs/basisjs-tools-config).
 
 ## Tools
 
-### Create
+Commands provided:
 
-Create command helps generate code. As example, to create default application file structure, run command:
+- `completion`            – output completion script for *nix systems
+- `config [name] [value]` – global configuration
+- `create`                – code generator
+- `server`                – launch dev-server
+- `build [fileOrPreset]`  – make a build of app
+- `extract [file]`        – extract app profile
+- `find <reference>`      – resolve filename by reference
+- `lint [fileOrPreset]`   – lint source code and output report
 
-        $ basis create app myapp
+### completion
+
+Completion command that is based on, and works similarly to the [npm completion](https://npmjs.org/doc/completion.html). It is not available for `Windows` users.
+
+This command will output a Bash / ZSH script to put into your `~/.bashrc`, `~/.bash_profile`, or `~/.zshrc` file.
+
+```
+> basis completion >> ~/.bash_profile
+> source ~/.bash_profile
+```
+
+### config
+
+With `config` command you could set some setting. Those settings are primary user preference but not a project settings, and always override by options if any.
+
+At this moment only setting are supported – `editor`. This setting sets command to open some filename in editor. For example, you could set `Sublime Text` as editor to open files in:
+
+```
+// command `subl` is available in console
+> basis config editor subl
+
+// if not, you could specify absolute path to `Sublime Text` on `Mac OS`
+> basis config editor '/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
+```
+
+If command run without arguments all current settings are listing.
+
+### create
+
+`create` command helps generate code. As example, to create default application file structure, run command:
+
+```
+> basis create app myapp
+```
         
-That command creating directory `myapp` and other directories and files by default template.
+Command creating directory `myapp` and other directories and files by default app template.
 
-### Server
+### server
 
-Server is a lightweight http server, which allow you run `basis.js` apps locally. Use follow command to launch server:
+`server` command launch lightweight http development server:
 
-        $ basis server
+```
+> basis server
+```
 
-After that current folder become a base for path resolving (you can change it using `--base` flag). You also can set listening port with `--port` flag.
+By default current folder becomes server root (you can change it using `--base` option). You also can set listening port with `--port` option on command run or define it in config (useful when launch several servers). By default server listen port `8000`.
 
-Server caches files you access for and inject it into html page (via `window.__resources__`) when send it to client. This approach speeds up loading of page with many files.
+```
+> basis server -p 8123
+Server run at http://localhost:8123
+```
 
-Also it watches for files changes and send new file content to client if neccessary (using `socket.io` and `basis.js` infrastructure). When you use `server` you don't need to refresh page when you change `.tmpl`, `.css` or l10n (`.json`) files.
+Server caches files you access to and inject it into html page (via `window.__resources__`). This approach speeds up page loading with many files.
 
-For more help use:
+Also it watches for files changes and send new file content to client if neccessary (using `socket.io` and `basis.js` infrastructure). When you use this server you usually don't need to refresh page when you change `.tmpl`, `.css`, `.json` or `.l10n` files.
 
-        $ basis server --help
+### build
 
-### Builder
+This command makes a build of your app:
 
-Builder makes a build version of your app. Use follow command on certain path:
+```
+> basis build
+```
 
-        $ basis build
+Builder search for `index.html` file (but use could use `--file` option to specify file or define it in config) and use it as start point. It scan file contents and search for linked files, processing it and put result in `build` folder (could be changed by `--output` option). As a result you get all used by application files in one folder.
 
-Builder search for `index` file (`index.html` in current folder by default, but use can use `--file` flag to specify file) and use it as start point. It scan files and search for linked files, processing it and put result in `build` folder. As a result you get all used by application files in one folder.
+Optionally builder may merge, optimize, compress sources etc.
 
-Optionally builder may merge, optimize, pack etc. Use `--help` option to get more info:
+See more details in [basisjs-tools-build](https://github.com/basisjs/basisjs-tools-build) repository.
 
-        $ basis build --help
+### extract
+
+Actually this command runs as first step of `build` and `lint` commands. It collect all useful information about app (app profile) and returns it as `json`.
+
+```
+> basis extract
+```
+
+Most options are the same as `build` command.
+
+See more details in [basisjs-tools-build](https://github.com/basisjs/basisjs-tools-build) repository.
+
+### lint
+
+Output warnings from app profile as report. It supports several formats of output (reporters).
+
+```
+> basis lint
+Warnings (2):
+
+  /src/module/example/index.js
+    * Defined but never used: missed
+
+  /src/module/example/template/foo.tmpl
+    * No style rules for: .mistake
+```
+
+Supported reporters:
+
+- `console` (by default) - outputs warnings as plain text list (see example above)
+- `checkstyle` - report in [checkstyle](http://checkstyle.sourceforge.net/) format
+- `junit` - report in [JUnit](http://junit.org/) format
+
+See more details in [basisjs-tools-build](https://github.com/basisjs/basisjs-tools-build) repository.
+
+### find
+
+Resolve file reference to absolute file path. It uses `basis.js` included by app (if available) with it's config.
+
+```
+> basis find basis:ui/popup.js
+/path/to/app/node_modules/basisjs/src/basis/ui/popup.js
+```
+
+See more details in [basisjs-tools-build](https://github.com/basisjs/basisjs-tools-build) repository.
 
 ## License
 
