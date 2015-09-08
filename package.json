@@ -10,10 +10,7 @@
     "Roman Dvornov <rdvornov@gmail.com>",
     "Vladimir Ratsev <wuzykk@gmail.com>"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/basisjs/basisjs-tools.git"
-  },
+  "repository": "basisjs/basisjs-tools",
   "main": "./lib/api",
   "bin": {
     "basis": "./bin/basis"
