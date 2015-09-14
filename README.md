@@ -1,4 +1,5 @@
-[![NPM version](https://img.shields.io/npm/v/basisjs-tools.svg)](https://www.npmjs.com/package/basisjs-tools) [![Dependency Status](https://img.shields.io/david/basisjs/basisjs-tools.svg)](https://david-dm.org/basisjs/basisjs-tools)
+[![NPM version](https://img.shields.io/npm/v/basisjs-tools.svg)](https://www.npmjs.com/package/basisjs-tools)
+[![Dependency Status](https://img.shields.io/david/basisjs/basisjs-tools.svg)](https://david-dm.org/basisjs/basisjs-tools)
 
 Development tool set for apps built on [basis.js](https://github.com/basisjs/basisjs) framework.
 
@@ -153,4 +154,4 @@ See more details in [basisjs-tools-build](https://github.com/basisjs/basisjs-too
 
 ## License
 
-Licensed under the MIT License.
+MIT License.
