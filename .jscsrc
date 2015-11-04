@@ -40,7 +40,7 @@
 
     "disallowMixedSpacesAndTabs": true,
     "disallowTrailingWhitespace": true,
-    //"validateLineBreaks": "LF",
+    "validateLineBreaks": "LF",
     "requireLineFeedAtFileEnd": true,
 
     "disallowKeywords": ["with", "eval"],
@@ -48,20 +48,8 @@
     "disallowKeywordsOnNewLine": ["catch"],
     "requireCapitalizedConstructors": true,
 
-    "validateJSDoc": {
-        //"checkRedundantParams": true,
-        "checkParamNames": true,
-        "requireParamTypes": true
-    },
-
     "excludeFiles": [
-        "scripts",
         "node_modules",
-        "test/extract/env",
-        "test/extract/theme-fallback",
-        "lib/create/template",
-        "lib/ast/css/parser.js",
-        "lib/ast/js/parser.js",
-        "lib/ast/js/translator.js"
+        "lib/create/template"
     ]
 }
