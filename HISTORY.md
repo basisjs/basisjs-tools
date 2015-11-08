@@ -1,3 +1,45 @@
+## 1.5.2 (November 8, 2015)
+
+### server
+
+- fix: warning on handshake when client sends deleted filenames (after server restart)
+- refactor `fsWatcher` and related changes
+- avoid locations compute on `html` parse if possible
+
+### create
+- fix `.gitignore` in app template
+
+## 1.5.1 (October 26, 2015)
+
+- update `socket.io` version (support for `node.js` 4+)
+
+## 1.5 (September 19, 2015)
+
+- move some parts to separate packages: `basisjs-tools-config`, `basisjs-tools-ast` and `basisjs-tools-build`
+- don't check for new version of tools for some commands
+- refactoring and clean up
+- update `jscs` config and code style fixes
+
+### extract, build and lint
+
+Commands moved to package `basisjs-tools-build`. See changes [here](https://github.com/basisjs/basisjs-tools-build/releases/tag/v1.0.0).
+
+### server
+
+- basic plugin support
+- drop `preprocess` setting in config in favor of plugins support
+- don't apply preprocessors for `basisjs-tools` files
+- remove `--no-dot-filename-ignore` option
+- remove `--hot-start-cache-by-ext` option
+- remove `handler` option (config only)
+- new virtual file API
+- split into modules
+
+### create
+
+- use `npm` instead of `bower`
+- fix: npm spawn on windows
+
 ## 1.4 (June 14, 2015)
 
 This version supports for basis.js 1.3 and greater only. For basis.js prior 1.3, please, use `basisjs-tools` 1.3.
