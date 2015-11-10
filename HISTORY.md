@@ -1,3 +1,8 @@
+## 1.5.3 (November 10, 2015)
+
+- fix watcher on Windows
+- bump `basisjs-tools-build` version to `1.0.1`
+
 ## 1.5.2 (November 8, 2015)
 
 ### server
