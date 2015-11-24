@@ -1,3 +1,7 @@
+## 1.6.1 (November 24, 2015)
+
+- fix wrong version `basisjs-tools-build` to `1.1.0`
+
 ## 1.6.0 (November 24, 2015)
 
 - server: continue split into modules
