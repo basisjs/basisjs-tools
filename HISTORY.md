@@ -1,3 +1,11 @@
+## 1.6.0 (November 24, 2015)
+
+- server: continue split into modules
+  - move `sync` server to separate module
+  - move socket actions (`handshake`, `createFile`, `saveFile` and `readFile`) to separate modules
+- server: normalize paths in `watcher` messages
+- update `basisjs-tools-build` to `1.2.0`
+
 ## 1.5.3 (November 10, 2015)
 
 - fix watcher on Windows
