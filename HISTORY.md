@@ -1,3 +1,8 @@
+## 1.7.0 (January 21, 2016)
+
+- server: basic support for rewrites depends on referer path
+- bump dependencies
+
 ## 1.6.1 (November 24, 2015)
 
 - fix wrong version `basisjs-tools-build` to `1.1.0`
