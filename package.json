@@ -20,10 +20,10 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "basisjs-tools-config": "^1.0.1",
+    "basisjs-tools-config": "^1.1.0",
     "basisjs-tools-ast": "^1.1.0",
-    "basisjs-tools-build": "^1.2.1",
-    "clap": "1.0.10",
+    "basisjs-tools-build": "^1.4.0",
+    "clap": "1.1.0",
     "update-notifier": "0.6.0",
     "chalk": "1.1.1",
     "win-spawn": "2.0.0",
