@@ -1,3 +1,11 @@
+## 1.8.0 (March 19, 2016)
+
+- server: fix start with `--verbose` flag (#18)
+- bump dependencies
+  - `clap` [1.1.0](https://github.com/lahmatiy/clap/releases/tag/v1.1.0)
+  - `basisjs-tools-config` [1.1.0](https://github.com/basisjs/basisjs-tools-config/releases/tag/v1.1.0) (config in `package.json` support)
+  - `basisjs-tools-build` [1.4.0](https://github.com/basisjs/basisjs-tools-build/releases/tag/v1.4.0)
+
 ## 1.7.0 (January 21, 2016)
 
 - server: basic support for rewrites depends on referer path
