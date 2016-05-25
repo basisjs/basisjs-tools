@@ -1,3 +1,224 @@
+## 1.8.0 (March 19, 2016)
+
+- server: fix start with `--verbose` flag (#18)
+- bump dependencies
+  - `clap` [1.1.0](https://github.com/lahmatiy/clap/releases/tag/v1.1.0)
+  - `basisjs-tools-config` [1.1.0](https://github.com/basisjs/basisjs-tools-config/releases/tag/v1.1.0) (config in `package.json` support)
+  - `basisjs-tools-build` [1.4.0](https://github.com/basisjs/basisjs-tools-build/releases/tag/v1.4.0)
+
+## 1.7.0 (January 21, 2016)
+
+- server: basic support for rewrites depends on referer path
+- bump dependencies
+
+## 1.6.1 (November 24, 2015)
+
+- fix wrong version `basisjs-tools-build` to `1.1.0`
+
+## 1.6.0 (November 24, 2015)
+
+- server: continue split into modules
+  - move `sync` server to separate module
+  - move socket actions (`handshake`, `createFile`, `saveFile` and `readFile`) to separate modules
+- server: normalize paths in `watcher` messages
+- update `basisjs-tools-build` to `1.2.0`
+
+## 1.5.3 (November 10, 2015)
+
+- fix watcher on Windows
+- bump `basisjs-tools-build` version to `1.0.1`
+
+## 1.5.2 (November 8, 2015)
+
+### server
+
+- fix: warning on handshake when client sends deleted filenames (after server restart)
+- refactor `fsWatcher` and related changes
+- avoid locations compute on `html` parse if possible
+
+### create
+- fix `.gitignore` in app template
+
+## 1.5.1 (October 26, 2015)
+
+- update `socket.io` version (support for `node.js` 4+)
+
+## 1.5 (September 19, 2015)
+
+- move some parts to separate packages: `basisjs-tools-config`, `basisjs-tools-ast` and `basisjs-tools-build`
+- don't check for new version of tools for some commands
+- refactoring and clean up
+- update `jscs` config and code style fixes
+
+### extract, build and lint
+
+Commands moved to package `basisjs-tools-build`. See changes [here](https://github.com/basisjs/basisjs-tools-build/releases/tag/v1.0.0).
+
+### server
+
+- basic plugin support
+- drop `preprocess` setting in config in favor of plugins support
+- don't apply preprocessors for `basisjs-tools` files
+- remove `--no-dot-filename-ignore` option
+- remove `--hot-start-cache-by-ext` option
+- remove `handler` option (config only)
+- new virtual file API
+- split into modules
+
+### create
+
+- use `npm` instead of `bower`
+- fix: npm spawn on windows
+
+## 1.4 (June 14, 2015)
+
+This version supports for basis.js 1.3 and greater only. For basis.js prior 1.3, please, use `basisjs-tools` 1.3.
+
+Extract
+
+  - support for basis.js 1.4
+    - since 1.4 use `basis-config` to init core
+    - less heuristics, use basis.js core as much as possible (a.e. use `basis.resource.resolveURI` to resolve all paths instead of custom logic)
+  - improve handler skipping
+  - consider file read and JSON parse errors as fatal
+  - FIX: `base`, `file` and `output` path resolving
+  - rework path resolving: `FileManager` is now work with app files as server path (root is `base` path now)
+  - move `asset()` and `resource()` relink to `build`
+  - return promise as command result (resolve async)
+  - optimize css processing (performance)
+  - FIX: `file-map` handler when no `basis.l10n` used
+  - FIX: basis.js commit hash fetch
+  - FIX: resolving of unknown basis namespace
+
+  - l10n
+    - improve `l10n` markup token processing (now this feature is completely supported!)
+    - improve `l10n` dictionary processing
+      - split `l10n` handlers in `v1` and `v2` versions and related changes
+      - new `l10n` handler that relink for all links changes
+      - remove empty `_meta` and `_meta.type` in `v2` dictionaries
+      - delete unused cultures (that not in culture list) for `v2` dictionaries
+    - FIX: `l10n` enabled check
+
+  - locations & warnings
+    - warn about file not found for files that refer for those files
+    - collect start positions for some tokens on javascript parse
+    - lint javascript: unused names (definitions) and implicit usage of global names
+    - add location info to inline scripts and styles
+    - collect location info for attributes in html
+    - various fixes and improvements for template warnings
+    - no warnings for removed template parts
+    - fix warnings copy on template analyse
+    - add location for css warnings
+    - correct warning locations for styles embed in other files
+    - reduce duplicates in style warnings
+    - use value parts location map if provided (from basis.js) for correct classes position in attributes
+    - use styles offset map if provided (from basis.js) for correct class token positions
+    - add originator and isolate prefix into template and style warnings
+    - remove class name isolate prefixes in some warnings
+    - improve warnings output on css info collect
+    - better warning for non-resolved argument in `dictionary.token()`
+    - new warning for mismatched paths in `l10n` dictionary type definition
+
+  - template
+    - use `-js-cut-dev` option instead of `-js-build-mode` to optimize template size
+    - add support for basis.template declaration `v3` (new bindings format)
+    - fatal error on missed style files in isolated templates
+    - fix working with template theme defines
+      - take in account theme fallbacks
+      - no redundant templates
+      - correct style theme distribution
+    - better support for template inline styles
+    - fix issue when one template used as several explicit defines
+    - fix issue when resource reused for explicit define
+    - move template implicit define injection to build
+
+Build
+
+  - support for basis.js 1.4
+  - improve handler skipping
+  - consider file read and json parse errors as fatal
+  - fix exit code on errors (important for automation)
+  - fix `base`, `file` and `output` path resolving
+  - initially solution to build `Web Worker` scripts
+  - pretty offset for html injections
+  - improve style theme choosing on app build startup
+  - improve logging
+    - log translated resources
+    - move summary handler aside
+    - log inline file in flow
+    - better output for `css/translate`
+  - make throw optimisation safe and optional (apply only when `--js-optimize-throws` option is set)
+  - NEW: option `--same-filenames`
+  - NEW: option `--tmpl-default-theme`
+  - FIX: unknown type for `0.css`
+  - FIX: asset relink for resource files
+  - FIX: `--css-optimize-names` exception when basis.js is not used
+  - FIX: `--css-optimize-names` to work correctly with `anim:` bindings
+  - FIX: CSS corruption on CSS pack, when files contains shared subtrees
+  - FIX: bug with class name renaming (`--css-optimize-names`)
+
+Server
+
+  - move proxy and request rewriting to separate module
+  - fix issue with url resolving when server runs inside `basisjs-tools`
+  - make case sensitive filename check universal (os-independant)
+
+Other
+
+  - new command `lint`
+  - fix broken `config` command
+  - use `exit` module instead of `process.exit()`
+  - use hi-res time for timing
+  - `basis -v` returns proper dev version now
+  - use `<b:isolate>` in default templates (`create` command)
+  - add some tests
+  - improve work with CSS AST
+    - add support for `/deep/` combinator in css parser
+    - use own translator instead of `csso` translator (performance, less memory consumption)
+    - new own fast walker
+  - improve javascript scope processing
+    - move aside everything not connected with scope from `ast/scope`
+    - recognise some common global names
+    - correct process scope for catch clause
+
+## 1.3.20 (February 3, 2015)
+
+- build: hot fix for [broken `htmlparser2` issue](https://github.com/cheeriojs/dom-serializer/issues/19)
+
+## 1.3.19 (November 12, 2014)
+
+- build: fix hash-digest for style files in theme map
+- build: add read files content digest to build `<meta>`
+- build: fetch commit when `basisjs-tools` installed not by version tag
+- build: provide real config for `basis.js` 1.4
+- build: require `basis.js` only once (in `processBasisFile.js`)
+- build: support for local `asset` function and new resolving algorithm for `basis.asset` (for basis.js 1.4)
+- build: better error output on `js` compress
+- extract: fix issue with template files in the input graph
+- extract: fix template comparison (`isolate` issue)
+- extract: use basis core to resolve paths for `basis.js` 1.4
+- extract: fix `css` info collection for `anim:` bindings
+- cli: resolve `basis.config` relative to `process.env.PWD` when possible
+- cli and module refactoring
+
+## 1.3.18 (October 12, 2014)
+
+- server: load injected scripts `async` and `defer`
+- server: don't notify client about server internal files changes
+- server: don't use `basis.js` implicit namespace extensions in client script (avoid warnings in `1.4+`)
+- build: exit with code `8` when fatal error (instead of `0`)
+- build: remove `--js-resolve-path` option as not working for now
+- build: fix `--target output-graph`
+- create: fix `app.js` in app template
+- change global config name `basis` -> `basisjs-tools` and migration (file path changed as well)
+- bump deps
+
+## 1.3.17 (July 23, 2014)
+
+- build & extract: fix `basisjsBaseURI`
+- extract: fix l10n dictionary path resolve for `basis.js` prior `1.0`
+- cleanup in repo root, remove GPL license
+
 ## 1.3.16 (July 16, 2014)
 
 - build: output version and commit (for non-release versions) of `basisjs-tools` and `basis.js` if possible
