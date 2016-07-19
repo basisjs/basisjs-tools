@@ -1,3 +1,13 @@
+## 1.9.0 (July 19, 2016)
+
+- Improved server file watch and synchronization
+    - On request for file that doesn't exist it adds to await queue and notify client when file creates (for requests with `x-basis-resource` header)
+    - Add file for await queue on file deletion when file is watching
+    - Reset resource content (set to `undefined`) on file deletion
+- Improved open file in editor
+    - Use [`open-in-editor`](https://www.npmjs.com/package/open-in-editor)
+    - Added special url `/basisjs-tools/open-in-editor?file=filename:line:col`
+
 ## 1.8.0 (March 19, 2016)
 
 - server: fix start with `--verbose` flag (#18)
