@@ -1,0 +1,37 @@
+<b:isolate/>
+<b:style>
+  .item
+  {
+    color: #AAA;
+    margin: 1px;
+    padding: 2px 6px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .item:hover
+  {
+    background: #F4F4F4;
+  }
+  .selected,
+  .selected:hover
+  {
+    background: #D0E8FB;
+  }
+  .location
+  {
+    display: block;
+    font-size: 9px;
+  }
+  .title
+  {
+    transition: color 2s;
+  }
+  .online .title
+  {
+    color: #090;
+  }
+</b:style>
+<div class="item {online} {selected} {}" event-click="select">
+  <span class="title">{title}&nbsp;</span>
+  <span class="location">{location}&nbsp;</span>
+</div>
