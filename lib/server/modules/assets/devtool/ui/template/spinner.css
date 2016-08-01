@@ -1,0 +1,81 @@
+.spinner {
+  position: absolute;
+  top: 50%;
+  margin-top: -6px;
+  left: 50%;
+  margin-left: -25px;
+  text-align: center;
+  width: 50px;
+}
+
+.circle {
+  background-color: rgba(255,255,255,0);
+  display: inline-block;
+  vertical-align: middle;
+  height: 6px;
+  width: 6px;
+  margin: 3px;
+    -webkit-animation-name: bounce_circleG;
+    -moz-animation-name: bounce_circleG;
+  animation-name: bounce_circleG;
+    -webkit-animation-duration: 1.1675s;
+    -moz-animation-duration: 1.1675s;
+  animation-duration: .65s;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+    -webkit-animation-direction: normal;
+    -moz-animation-direction: normal;
+  animation-direction: normal;
+  border-radius: 50%;
+}
+
+.circle:nth-child(1) {
+    -webkit-animation-delay: 0.2295s;
+    -moz-animation-delay: 0.2295s;
+  animation-delay: 0.1s;
+}
+
+.circle:nth-child(2) {
+    -webkit-animation-delay: 0.5455s;
+    -moz-animation-delay: 0.5455s;
+  animation-delay: 0.175s;
+}
+
+.circle:nth-child(3) {
+    -webkit-animation-delay: 0.6985s;
+    -moz-animation-delay: 0.6985s;
+  animation-delay: 0.25s;
+}
+
+
+
+@keyframes bounce_circleG{
+  0%{}
+
+  50%{
+    background-color: rgb(150,200,250);
+  }
+
+  100%{}
+}
+
+@-webkit-keyframes bounce_circleG{
+  0%{}
+
+  50%{
+    background-color: #3BAFDA;
+  }
+
+  100%{}
+}
+
+@-moz-keyframes bounce_circleG{
+  0%{}
+
+  50%{
+    background-color: #3BAFDA;
+  }
+
+  100%{}
+}

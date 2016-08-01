@@ -1,0 +1,15 @@
+<b:isolate/>
+<b:style src="./sandbox.css"/>
+
+<div class="layout" b:visible="{hasClient}">
+  <div class="toolbar">
+    <b:include src="./button.tmpl" isolate>
+      <b:set-attr name="event-click" value="drop"/>
+      &slarr; Back
+    </b:include>
+  </div>
+  <div class="frame-wrapper">
+    <b:include src="./spinner.tmpl" show="{loading}" isolate/>
+    <!--{frame}-->
+  </div>
+</div>
