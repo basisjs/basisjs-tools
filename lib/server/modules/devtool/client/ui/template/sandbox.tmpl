@@ -1,5 +1,6 @@
 <b:isolate/>
 <b:style src="./sandbox.css"/>
+<b:define name="online" type="bool"/>
 
 <div class="layout" b:visible="{hasClient}">
   <div class="toolbar">
@@ -7,6 +8,10 @@
       <b:set-attr name="event-click" value="drop"/>
       &slarr; Back
     </b:include>
+    <div class="header">
+      <span class="title title_{online}" b:visible="{title}">{title}</span>
+      <span class="location" b:visible="{location}">{location}</span>
+    </div>
   </div>
   <div class="frame-wrapper">
     <b:include src="./spinner.tmpl" show="{loading}" isolate/>

@@ -10,6 +10,7 @@
   right: 0;
   background: white;
 }
+
 .toolbar
 {
   padding: 5px;
@@ -17,6 +18,28 @@
   z-index: 1;
   box-shadow: 0 0 5px rgba(0, 0, 0, .25);
 }
+.header
+{
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 2px;
+}
+.title
+{
+  display: block;
+  font-size: 14px;
+  transition: color 1s;
+}
+.title_online
+{
+  color: #090;
+}
+.location
+{
+  font-size: 10px;
+  color: #888;
+}
+
 .frame-wrapper
 {
   flex: 1;
