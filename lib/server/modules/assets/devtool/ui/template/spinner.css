@@ -51,31 +51,19 @@
 
 
 @keyframes bounce_circleG{
-  0%{}
-
   50%{
-    background-color: rgb(150,200,250);
+    background-color: rgb(80,150,250);
   }
-
-  100%{}
 }
 
 @-webkit-keyframes bounce_circleG{
-  0%{}
-
   50%{
-    background-color: #3BAFDA;
+    background-color: rgb(80,150,250);
   }
-
-  100%{}
 }
 
 @-moz-keyframes bounce_circleG{
-  0%{}
-
   50%{
-    background-color: #3BAFDA;
+    background-color: rgb(80,150,250);
   }
-
-  100%{}
 }
