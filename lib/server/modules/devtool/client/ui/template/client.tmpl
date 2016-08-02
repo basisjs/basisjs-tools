@@ -1,7 +1,8 @@
 <b:isolate/>
 <b:style src="./client.css"/>
 
-<div class="item {online} {selected} {}" event-click="select">
-  <span class="title">{title}&nbsp;</span>
+<div class="item item_{selected}" event-click="select">
+  <span class="num" b:show="{pickMode}">{num}</span>
+  <span class="title title_{online}">{title}&nbsp;</span>
   <span class="location">{location}&nbsp;</span>
 </div>

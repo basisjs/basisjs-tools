@@ -4,18 +4,32 @@
   margin: 1px;
   padding: 2px 6px;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 20px;
   cursor: pointer;
+  overflow: hidden;
+  position: relative;
 }
 .item:hover
 {
   background: #F4F4F4;
 }
-.selected,
-.selected:hover
+.item_selected,
+.item_selected:hover
 {
   background: #D0E8FB;
 }
+
+.num
+{
+  position: absolute;
+  font-size: 75px;
+  font-weight: bold;
+  bottom: -20px;
+  right: 0;
+  line-height: 80px;
+  color: #CCC;
+}
+
 .location
 {
   display: block;
@@ -25,7 +39,7 @@
 {
   transition: color 2s;
 }
-.online .title
+.title_online
 {
   color: #090;
 }

@@ -2,6 +2,9 @@
 <b:style src="./layout.css"/>
 
 <div>
+  <div class="offline-overlay" b:hide="{online}">
+    <b:include src="./spinner.tmpl" isolate/>
+  </div>
   <div class="toolbar">
     <b:include src="./button.tmpl" isolate>
       <b:set-attr name="event-click" value="pick"/>
