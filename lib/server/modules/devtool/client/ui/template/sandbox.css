@@ -40,6 +40,15 @@
   color: #888;
 }
 
+.error
+{
+  margin: 8px;
+  padding: 8px;
+  border-radius: 3px;
+  background: white;
+  color: #D00;
+}
+
 .frame-wrapper
 {
   flex: 1;
