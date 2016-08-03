@@ -39,7 +39,10 @@
   "devDependencies": {
     "basisjs": "~1.8.3"
   },
-  "scripts": {},
+  "scripts": {
+    "build:devtool": "node node_modules/basisjs-tools-build/bin/build -c lib/server/modules/devtool/client/basis.config",
+    "prepublish": "npm run build:devtool"
+  },
   "eslintConfig": {
     "env": {
       "node": true,
