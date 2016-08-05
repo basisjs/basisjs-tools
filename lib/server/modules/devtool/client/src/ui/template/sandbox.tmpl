@@ -14,7 +14,9 @@
     </div>
   </div>
   <div class="frame-wrapper">
-    <b:include src="./spinner.tmpl" show="{loading}" isolate/>
+    <b:include src="./spinner.tmpl" show="{loading}" isolate>
+      Fetching UI...
+    </b:include>
     <div class="error" b:show="{error}">{error}</div>
     <!--{frame}-->
   </div>

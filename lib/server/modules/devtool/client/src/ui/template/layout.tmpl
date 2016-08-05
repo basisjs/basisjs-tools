@@ -3,7 +3,9 @@
 
 <div>
   <div class="offline-overlay" b:hide="{online}">
-    <b:include src="./spinner.tmpl" isolate/>
+    <b:include src="./spinner.tmpl" isolate>
+      Await for connection with dev server...
+    </b:include>
   </div>
   <div class="toolbar">
     <b:include src="./button.tmpl" isolate>

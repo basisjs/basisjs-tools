@@ -17,17 +17,6 @@ BODY
   z-index: 100000;
   background: rgba(255, 255, 255, .95);
 }
-.offline-overlay:before
-{
-  display: block;
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  top: 50%;
-  margin-top: -2.5em;
-  content: 'Trying connect to dev server...';
-  color: #888;
-}
 
 .toolbar
 {

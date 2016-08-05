@@ -8,6 +8,17 @@
   width: 50px;
   text-align: center;
 }
+.label
+{
+  display: block;
+  position: absolute;
+  width: 250px;
+  left: -100px;
+  text-align: center;
+  top: 50%;
+  margin-top: -2.5em;
+  color: #888;
+}
 
 .circle
 {
