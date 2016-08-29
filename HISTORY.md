@@ -23,7 +23,7 @@
 
 ## 1.9.1 (July 29, 2016)
 
-– Fixed `create` command that install `basis.js` in wrong place
+- Fixed `create` command that install `basis.js` in wrong place
 
 ## 1.9.0 (July 19, 2016)
 
