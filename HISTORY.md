@@ -1,3 +1,26 @@
+## 1.10.0 (August 28, 2016)
+
+- Implemented remote devtool functionality
+    - New set of socket commands to communicate with inspecting application
+    - Special interface to manage inspecting sessions (available at `/basisjs-tools/devtool`)
+- Added `--no-gzip` option
+- Refactored `http` server
+    - Moved to its own module
+    - Implemented symlink functionality
+    - Implemented middleware functionality
+    - Converted `rewrite` and `virtualPath` to middlewares
+- Refactored `ws` server
+    - Moved to its own module
+    - Improved handshake (less notifications and file reads, better warming up and file lists synchronization)
+    - Renamed `getFileGraph` socket command to `getAppProfile` and changed to return an object (JSON) instead of string
+    - Implemented `getBundle` socket command that return a build bundle of app
+- Extended plugin API:
+    - Added `addSocketCommand()` method
+    - Added `addMiddleware()` method
+    - Added `addSymlink()` method
+    - Added `error()` method
+    - Renamed `logMsg()` to `log()` and `logWarn()` to `warn()`
+
 ## 1.9.1 (July 29, 2016)
 
 – Fixed `create` command that install `basis.js` in wrong place
