@@ -1,3 +1,10 @@
+## 1.10.1 (August 31, 2016)
+
+- Fixed issues that break devtool client in `Firefox` and `Edge`
+- Devtool client doesn't use `srcdoc` for sandbox anymore since buggy in various scenarios
+- Fixed devtool client layout for old `Webkit` browsers
+- Tweaked inspect client indicator to fit for small height page
+
 ## 1.10.0 (August 28, 2016)
 
 - Implemented remote devtool functionality
