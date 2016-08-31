@@ -1,6 +1,8 @@
 .layout
 {
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
   position: fixed;
   z-index: 100;
@@ -17,10 +19,12 @@
   position: relative;
   z-index: 1;
   box-shadow: 0 0 5px rgba(0, 0, 0, .25);
+  display: -webkit-flex;
   display: flex;
 }
 .header
 {
+  -webkit-flex: 1;
   flex: 1;
   display: inline-block;
   vertical-align: top;
@@ -56,6 +60,7 @@
 
 .frame-wrapper
 {
+  -webkit-flex: 1;
   flex: 1;
   position: relative;
   background: rgba(0, 0, 0, .1) no-repeat center center;
