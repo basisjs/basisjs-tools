@@ -1,3 +1,8 @@
+## 1.10.2 (November 7, 2016)
+
+- Added command details in debug mode to investigate problems with `getBundle` and `getAppProfile`
+- Bumped `socket.io` version to work on `node.js` 7+ (@smelukov)
+
 ## 1.10.1 (August 31, 2016)
 
 - Fixed issues that break devtool client in `Firefox` and `Edge`
