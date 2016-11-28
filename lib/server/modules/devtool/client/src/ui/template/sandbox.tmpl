@@ -10,7 +10,8 @@
     </b:include>
     <div class="header">
       <span class="title title_{online}" b:visible="{title}">{title}</span>
-      <span class="location" b:visible="{location}">{location}</span>
+      <span b:show="{isBrowser}" class="location">{location}</span>
+      <span b:show="{isNode}" class="pid">PID: {pid}</span>
     </div>
   </div>
   <div class="frame-wrapper">

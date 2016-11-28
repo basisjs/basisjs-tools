@@ -30,7 +30,7 @@
   color: #CCC;
 }
 
-.location
+.location, .pid
 {
   display: block;
   font-size: 12px;
