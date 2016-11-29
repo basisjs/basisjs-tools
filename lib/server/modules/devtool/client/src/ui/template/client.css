@@ -8,6 +8,7 @@
   cursor: pointer;
   overflow: hidden;
   position: relative;
+  border-bottom: 1px solid #F0F0F0;
 }
 .item:hover
 {
@@ -17,6 +18,10 @@
 .item_selected:hover
 {
   background: #D0E8FB;
+}
+.item_empty
+{
+  cursor: default;
 }
 
 .num
@@ -42,4 +47,23 @@
 .title_online
 {
   color: #090;
+}
+.title_empty
+{
+  color: orange;
+  color: rgba(128,128,0,.5);
+}
+
+.observers
+{
+  line-height: 1;
+  padding-bottom: 4px;
+}
+.observers:empty::before
+{
+  display: inline-block;
+  padding: 4px 0;
+  font-size: 11px;
+  content: 'No observers';
+  color: #886666;
 }
