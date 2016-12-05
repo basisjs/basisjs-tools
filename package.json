@@ -24,25 +24,15 @@
     "basisjs-tools-ast": "^1.1.0",
     "basisjs-tools-build": "^1.4.0",
     "basisjs-tools-server": "basisjs/basisjs-tools-server",
-    "open-in-editor": "^1.2.0",
     "clap": "~1.1.1",
     "update-notifier": "0.6.3",
     "chalk": "~1.1.3",
     "win-spawn": "2.0.0",
-    "exit": "0.1.2",
-    "resolve": "1.1.7",
-    "minimatch": "~3.0.2",
-    "socket.io": "~1.5.1",
-    "socket.io-client": "~1.5.1",
-    "http-proxy": "0.10.4",
-    "mime": "1.3.4"
+    "exit": "0.1.2"
   },
   "devDependencies": {
-    "basisjs": "~1.9.0"
   },
   "scripts": {
-    "build:devtool": "node node_modules/basisjs-tools-build/bin/build -c lib/server/modules/devtool/client/basis.config",
-    "prepublish": "npm run build:devtool"
   },
   "eslintConfig": {
     "env": {
