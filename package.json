@@ -20,8 +20,8 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "basisjs-tools-ast": "^1.1.0",
-    "basisjs-tools-build": "github:basisjs/basisjs-tools-build#20de27512b3fdda1004a3a546fa70b7e86a51220",
+    "basisjs-tools-ast": "github:basisjs/basisjs-tools-ast#91e527b3be75780645fe5b63720f638caeb51d2e",
+    "basisjs-tools-build": "github:basisjs/basisjs-tools-build#c9452ebd947a962f0bf300df48c8a5d8f7c2dd62",
     "basisjs-tools-config": "^1.1.0",
     "basisjs-tools-server": "basisjs/basisjs-tools-server",
     "chalk": "~1.1.3",
