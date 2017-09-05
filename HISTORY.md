@@ -1,3 +1,10 @@
+## 1.11.0 (September 5, 2017)
+
+- Bumped deps
+  - `basisjs-tools-ast` to `^1.6.0`
+  - `basisjs-tools-build` to `^1.11.0`
+  - `clap` to `~1.2.0`
+
 ## 1.10.2 (November 7, 2016)
 
 - Added command details in debug mode to investigate problems with `getBundle` and `getAppProfile`
