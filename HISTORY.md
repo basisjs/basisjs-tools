@@ -1,3 +1,9 @@
+## 1.12.0 (September 6, 2017)
+
+- Moved `basisjs-tools-server` to a [separate package](https://github.com/basisjs/basisjs-tools-server)
+
+> Warning! For now `/basisjs-tools/devpanel` doesn't work for `basis.js` (1.11.0 at the moment), since basis's devpanel should migrate to rempl.
+
 ## 1.11.0 (September 5, 2017)
 
 - Bumped deps
