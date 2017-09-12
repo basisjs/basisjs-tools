@@ -1,7 +1,7 @@
 {
   "name": "basisjs-tools",
   "title": "Basis.js developer tools",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "homepage": "https://github.com/basisjs/basisjs-tools",
   "description": "Developer tools for basis.js framework",
   "author": "Roman Dvornov <rdvornov@gmail.com>",
@@ -22,7 +22,7 @@
   "dependencies": {
     "basisjs-tools-config": "^1.1.0",
     "basisjs-tools-ast": "^1.6.0",
-    "basisjs-tools-build": "^1.11.0",
+    "basisjs-tools-build": "^1.11.2",
     "basisjs-tools-server": "~1.0.0",
     "clap": "~1.2.0",
     "update-notifier": "0.6.3",
