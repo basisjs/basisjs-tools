@@ -1,3 +1,7 @@
+## 1.12.1 (September 12, 2017)
+
+- Bumped package `basisjs-tools-build` to `^1.11.2`
+
 ## 1.12.0 (September 6, 2017)
 
 - Moved `basisjs-tools-server` to a [separate package](https://github.com/basisjs/basisjs-tools-server)
@@ -315,9 +319,9 @@ Other
 
 ## 1.3.11 (June 26, 2014)
 
-- update dependancies versions 
+- update dependancies versions
 - implement global config storage and `config` command
-- create: update templates 
+- create: update templates
 - create: use create.templates option in config to specify optional paths for templates
 - server: tweak init output
 - server: don't load socket.io through XHR, but using `<script>` (faster load, less noise in console)
@@ -360,7 +364,7 @@ Extractor
 
   - FIX: when `basis.require` invoke for namespace it didn't reference to `module.exports`
   - FIX: scope reference resolving
-  - FIX: crash on warning when template source is not a `basis.js` resource  
+  - FIX: crash on warning when template source is not a `basis.js` resource
 
 Server
 
@@ -382,7 +386,7 @@ Server
 Common
 
   - update dependancy lib versions
-  - small `server `message output improvements 
+  - small `server `message output improvements
   - fix command argument processing for `build`, `create` and `extract`
 
 Build & extract
@@ -456,7 +460,7 @@ Server
 
   - FIX: `getFileGraph` filename resolving doesn't ignore search part in url
   - FIX: make server more stable for non-function callbacks in socket commands
-  - prevent browsers to cache any files by default 
+  - prevent browsers to cache any files by default
   - rework files sync `client.js` (`__dev_sync__.js`) to not depend on basis.js
 
 Extract/build
