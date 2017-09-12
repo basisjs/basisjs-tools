@@ -22,7 +22,7 @@
   "dependencies": {
     "basisjs-tools-config": "^1.1.0",
     "basisjs-tools-ast": "^1.6.0",
-    "basisjs-tools-build": "^1.11.0",
+    "basisjs-tools-build": "^1.11.2",
     "basisjs-tools-server": "~1.0.0",
     "clap": "~1.2.0",
     "update-notifier": "0.6.3",
