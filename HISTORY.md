@@ -1,6 +1,12 @@
+## 1.12.2 (September 18, 2017)
+
+- Bumped `basisjs-tools-build` to `^1.11.3`
+- Bumped `basisjs-tools-server` to `^1.0.1`
+- Bumped `clap` to `^1.2.2`
+
 ## 1.12.1 (September 12, 2017)
 
-- Bumped package `basisjs-tools-build` to `^1.11.2`
+- Bumped `basisjs-tools-build` to `^1.11.2`
 
 ## 1.12.0 (September 6, 2017)
 
